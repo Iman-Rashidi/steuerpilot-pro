@@ -147,7 +147,7 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("taxGross", body)
         self.assertIn("doc.addPage()", body)
         self.assertIn("Keine echten Steuer- oder Sozialversicherungsnummern", body)
-        self.assertNotRegex(body, r"[\\u0600-\\u06FF]")
+        self.assertNotRegex(body, r"[\u0600-\u06FF]")
 
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
