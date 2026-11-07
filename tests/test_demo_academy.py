@@ -59,11 +59,35 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("Auszahlungsbetrag", body)
         self.assertIn("Arbeitgeberanteile", body)
 
+    def test_payroll_page_has_automatic_social_insurance_and_shift_inputs(self):
+        response, body = self.request("/payroll")
+        self.assertEqual(response["status"], "200 OK")
+        for field in ("monthly_hours", "kv_extra", "night_rate", "sunday_rate",
+                      "holiday_rate", "shift_rows", "state", "children"):
+            self.assertIn('id="' + field + '"', body)
+        for output in ("p_health", "p_care", "p_pension", "p_unemployment",
+                       "p_employer_health", "p_employer_care", "p_night_pay",
+                       "p_sunday_pay", "p_holiday_pay", "p_net"):
+            self.assertIn('id="' + output + '"', body)
+
+    def test_payroll_page_uses_2026_caps_and_state_holiday_calendar(self):
+        _, body = self.request("/payroll")
+        self.assertIn("581250", body)
+        self.assertIn("845000", body)
+        self.assertIn("function holidaysFor", body)
+        self.assertIn("انتخاب ایالت محل کار", body)
+        self.assertIn("ایالت محل کار را انتخاب کن", body)
+        self.assertIn("function easterSunday", body)
+        self.assertIn("mins>=1200||mins<360", body)
+        self.assertIn("Math.floor(start/60),start%60", body)
+        self.assertIn("0.093", body)
+        self.assertIn("0.013", body)
+
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
-        self.assertIn("به سرور ارسال یا در برنامه ذخیره نمی‌شوند", body)
-        self.assertIn("این فرم نرخ قانونی را محاسبه نمی‌کند", body)
-        self.assertIn("ersetzt keine vollständige Entgeltbescheinigung", body)
+        self.assertIn("اطلاعات یا لوگو به سرور ارسال نمی‌شوند", body)
+        self.assertIn("این فرم فقط در مرورگر اجرا می‌شود", body)
+        self.assertIn("Lohnsteuer wird nicht berechnet", body)
         self.assertNotIn('id="steuer_id"', body)
         self.assertNotIn('id="iban"', body)
 
