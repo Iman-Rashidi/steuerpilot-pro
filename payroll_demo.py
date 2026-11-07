@@ -1,7 +1,7 @@
 """Browser-only payroll statement preview for the SteuerPilot staging demo."""
 
 PAYROLL_PAGE = r"""<!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="de" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -36,7 +36,7 @@ button,.button{display:inline-block;border:0;border-radius:9px;padding:11px 16px
 .preview-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:8px}
 .logo-area{width:118px;height:58px;border:1px dashed #91a0b3;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#66758a;font-size:12px;text-align:center;padding:6px;flex-shrink:0}
 .logo-area img{max-width:100%;max-height:100%;object-fit:contain}
-.company-block{flex:1;text-align:right;direction:rtl}
+.company-block{flex:1;text-align:right;direction:ltr}
 .company-block strong{font-size:17px}
 .pay-title{margin:10px 0 7px;font-size:18px}
 .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
