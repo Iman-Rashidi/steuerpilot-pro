@@ -80,6 +80,8 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("function easterSunday", body)
         self.assertIn("mins>=1200||mins<360", body)
         self.assertIn("afterMidnightCarry=startedBeforeMidnight&&mins<240", body)
+        self.assertIn("startedBeforeMidnight=finish>Date.UTC(y,m-1,d,24,0)", body)
+        self.assertIn("holidays.has(previousIso)", body)
         self.assertIn("previousDay===0", body)
         self.assertIn("plusDays(easter,0)", body)
         self.assertIn("plusDays(easter,49)", body)
