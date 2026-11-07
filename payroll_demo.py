@@ -139,6 +139,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <div class="field"><label for="bgrs">Beitragsgruppenschlüssel (BGRS)</label><input id="bgrs" inputmode="numeric" placeholder="z. B. 1111"></div>
         <div class="field"><label for="sv_days">SV-Tage im Abrechnungsmonat</label><input id="sv_days" type="number" min="0" max="31" step="1" placeholder="Kalendertage"></div>
         <div class="field"><label for="uv_code_test">UV-/Gefahrtarif-Kennzeichen (Testwert)</label><input id="uv_code_test" placeholder="Optionaler Testwert"></div>
+        <div class="field"><label for="uv_days">UV-Tage im Abrechnungsmonat</label><input id="uv_days" type="number" min="0" max="31" step="1"></div>
         <div class="field"><label for="kv_type">Krankenversicherungsart</label><select id="kv_type"><option value="Gesetzlich">Gesetzlich</option><option value="Privat (nur Anzeige)">Privat (nur Anzeige)</option></select></div>
       </div>
       <p class="muted">Annahmen: regulär beschäftigter Arbeitnehmer in der gesetzlichen Krankenversicherung, voller Abrechnungsmonat und ein Arbeitgeber. Tragen Sie den Zusatzbeitrag der gewählten Krankenkasse ein. Minijobs, private Krankenversicherung, mehrere Arbeitgeber, Kurzarbeit sowie Ein- oder Austritte während des Monats sind nicht abgedeckt.</p>
@@ -289,8 +290,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     <h3 class="section-title">Sozialversicherung</h3>
     <table class="preview-meta"><tbody>
       <tr><td>Krankenkasse</td><td id="p_kasse">-</td><td>KV-Zusatzbeitrag</td><td id="p_kv_extra">-</td></tr>
+      <tr><td>KV-Grundbeitrag</td><td id="p_health_rate">-</td><td>Versicherungsart</td><td id="p_kv_type">-</td></tr>
       <tr><td>PGRS</td><td id="p_pgrs">-</td><td>BGRS</td><td id="p_bgrs">-</td></tr>
       <tr><td>SV-Tage</td><td id="p_sv_days">-</td><td>Bundesland</td><td id="p_state">-</td></tr>
+      <tr><td>UV-Kennzeichen</td><td id="p_uv_code_test">-</td><td>Kinder unter 25</td><td id="p_children">-</td></tr>
+      <tr><td>Unter 23 Jahre</td><td id="p_under23">-</td><td>KV-Status</td><td id="p_kv_status">-</td></tr>
     </tbody></table>
     <h3 class="section-title">Arbeitszeit und Fehlzeiten</h3>
     <table class="preview-meta"><tbody>
@@ -308,10 +312,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>Nachtzuschläge</td><td class="amount" id="p_night_pay">0,00</td></tr><tr><td>Sonntagszuschläge</td><td class="amount" id="p_sunday_pay">0,00</td></tr><tr><td>Feiertagszuschläge</td><td class="amount" id="p_holiday_pay">0,00</td></tr>
         <tr><td>Bonus / Einmalzahlungen</td><td class="amount" id="p_bonus">0,00</td></tr>
         <tr><td>Zulagen / Sonstige Bezüge</td><td class="amount" id="p_allowance">0,00</td></tr>
-        <tr id="p_earnings_anchor" class="total-row"><td>Gesamtbrutto einschließlich Lohnarten</td><td class="amount" id="p_gross">0,00</td></tr>
+        
       </tbody>
     </table>
     <table><tbody id="p_earnings_rows"></tbody></table>
+    <table><tbody><tr class="total-row"><td>Gesamtbrutto einschließlich Lohnarten</td><td class="amount" id="p_gross">0,00</td></tr></tbody></table>
 
     <h3 class="section-title">Steuer- und Sozialversicherungsbasis</h3><table><tbody><tr><td>Steuer-Brutto</td><td class="amount" id="p_tax_gross">0,00</td></tr><tr><td>KV-Brutto</td><td class="amount" id="p_kv_gross">0,00</td></tr><tr><td>RV-/AV-Brutto</td><td class="amount" id="p_rv_gross">0,00</td></tr><tr><td>Steuerfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_tax_free">0,00</td></tr><tr><td>SV-freier geschätzter Zuschlagsanteil</td><td class="amount" id="p_sv_free">0,00</td></tr><tr><td>SV-pflichtiges Brutto</td><td class="amount" id="p_sv_gross">0,00</td></tr></tbody></table>
     <h3 class="section-title">Netto-Bezüge</h3>
@@ -331,11 +336,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>VWL</td><td class="amount" id="p_vwl">0,00</td></tr>
         <tr><td>Pfändung</td><td class="amount" id="p_garnishment">0,00</td></tr>
         <tr><td>Darlehensrückzahlung</td><td class="amount" id="p_loan_repayment">0,00</td></tr>
-        <tr class="total-row"><td>Gesamtabzüge</td><td class="amount" id="p_deductions">0,00</td></tr>
-        <tr id="p_net_deduction_anchor"><td>Weitere Netto-Abzüge</td><td class="amount">-</td></tr>
-      </tbody>
+        
+        </tbody>
     </table>
     <table><tbody id="p_net_deduction_rows"></tbody></table>
+    <table><tbody><tr class="total-row"><td>Gesamtabzüge</td><td class="amount" id="p_deductions">0,00</td></tr></tbody></table>
 
     <h3 class="section-title">Verdienstbescheinigung</h3>
     <table class="preview-meta"><tbody>
@@ -359,6 +364,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>Umlage U2</td><td class="amount" id="p_u2_cost">0,00</td></tr>
         <tr><td>Insolvenzgeldumlage</td><td class="amount" id="p_insolvency_cost">0,00</td></tr>
         <tr><td>Unfallversicherung / BG</td><td class="amount" id="p_accident_cost">0,00</td></tr>
+        <tr class="total-row"><td>Gesamtkosten Arbeitgeber</td><td class="amount" id="p_employer_total">0,00</td></tr>
       </tbody>
     </table>
     <div class="summary-grid preview-meta"><div><small>Auszahlungsweg</small><b id="p_payment_method">Überweisung</b></div><div><small>Bankbezeichnung (Testwert)</small><b id="p_bank_name_test">-</b></div><div><small>Restpfändung</small><b id="p_rest_garnishment">0,00 EUR</b></div><div><small>Darlehen Rest</small><b id="p_rest_loan">0,00 EUR</b></div></div>
@@ -411,7 +417,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const formRows=$(wageBodyIds[kind]).querySelectorAll(".wage-row");
     formRows.forEach((tr,index)=>{const span=tr.querySelector("[data-wage-amount]"),item=readWageRows(kind).find((x,i)=>i===index);span.textContent=money(item?item.amount:0);});
   }
-  function formatPeriod(value){if(!/^\\d{4}-\\d{2}$/.test(value||""))return value||"-";const [year,month]=value.split("-").map(Number);return new Date(year,month-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});}
+  function formatPeriod(value){if(!/^\d{4}-\d{2}$/.test(value||""))return value||"-";const [year,month]=value.split("-").map(Number);return new Date(year,month-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});}
   function previewValue(inputId,outputId,formatter=value=>value||"-"){const input=$(inputId),output=$(outputId);if(input&&output)output.textContent=formatter(input.type==="checkbox"?input.checked:input.value);}
   function ytdValue(id){return cents($(id).value);}
 
@@ -535,7 +541,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   function update(){
     const r=calc();
     set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_night_pay",r.nightPay);set("p_sunday_pay",r.sundayPay);set("p_holiday_pay",r.holidayPay);set("p_tax_free",r.taxFree);set("p_sv_free",r.svFree);set("p_sv_gross",r.svGross);
-    set("p_gross",r.gross);set("p_tax_gross",r.taxGross);set("p_kv_gross",r.kvBase);set("p_rv_gross",r.rvBase);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
+    set("p_gross",r.gross);set("p_tax_gross",r.taxGross);set("p_kv_gross",r.kvBase);set("p_rv_gross",r.rvBase);set("p_tax",r.tax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
     set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);$("p_care").textContent=r.stateSelected?money(r.pvEmployee):"—";$("p_employer_care").textContent=r.stateSelected?money(r.pvEmployer):"—";
     set("p_deductions",r.deductions);set("p_net",r.net);
     set("p_employer_health",r.kvEmployer);set("p_employer_care",r.pvEmployer);set("p_employer_pension",r.rvEmployer);set("p_employer_unemployment",r.avEmployer);
@@ -553,12 +559,17 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_tax").parentElement.style.display="table-row";$("p_soli").parentElement.style.display="table-row";$("p_church").parentElement.style.display="table-row";$("p_advance").parentElement.style.display="table-row";
     $("p_tax").parentElement.cells[1].textContent=money(r.tax);$("p_soli").parentElement.cells[1].textContent=money(r.soli);$("p_church").parentElement.cells[1].textContent=money(r.church);$("p_other").parentElement.cells[1].textContent=money(r.other);$("p_advance").parentElement.cells[1].textContent=money(r.advance);
     renderWageRows("earnings",r.earnings);renderWageRows("netPlus",r.netBenefits);renderWageRows("netMinus",r.netDeductions);
-    set("p_u1_cost",cents($("u1_cost").value));set("p_u2_cost",cents($("u2_cost").value));set("p_insolvency_cost",cents($("insolvency_cost").value));set("p_accident_cost",cents($("accident_cost").value));
-    const previewPairs=[["employee_address","p_employee_address"],["birth_date","p_birth_date"],["child_allowance","p_child_allowance"],["religion","p_religion"],["dba_country","p_dba_country"],["steuer_id_test","p_steuer_id_test"],["sv_number_test","p_sv_number_test"],["kasse","p_kasse"],["pgrs","p_pgrs"],["bgrs","p_bgrs"],["sv_days","p_sv_days"],["attendance_days","p_attendance_days"],["vacation_entitlement","p_vacation_entitlement"],["vacation_carryover","p_vacation_carryover"],["vacation_taken","p_vacation_taken"],["sick_days","p_sick_days"],["absence_days","p_absence_days"],["holiday_days","p_holiday_days"],["rest_garnishment","p_rest_garnishment"],["rest_loan","p_rest_loan"],["bank_name_test","p_bank_name_test"]];
+    set("p_u1_cost",cents($("u1_cost").value));set("p_u2_cost",cents($("u2_cost").value));set("p_insolvency_cost",cents($("insolvency_cost").value));set("p_accident_cost",cents($("accident_cost").value));set("p_employer_total",r.gross+r.employerSocial+r.employerExtra);
+    const previewPairs=[["employee_address","p_employee_address"],["birth_date","p_birth_date"],["child_allowance","p_child_allowance"],["religion","p_religion"],["dba_country","p_dba_country"],["uv_code_test","p_uv_code_test"],["uv_days","p_uv_days"],["steuer_id_test","p_steuer_id_test"],["sv_number_test","p_sv_number_test"],["kasse","p_kasse"],["pgrs","p_pgrs"],["bgrs","p_bgrs"],["sv_days","p_sv_days"],["attendance_days","p_attendance_days"],["vacation_entitlement","p_vacation_entitlement"],["vacation_carryover","p_vacation_carryover"],["vacation_taken","p_vacation_taken"],["sick_days","p_sick_days"],["absence_days","p_absence_days"],["holiday_days","p_holiday_days"],["rest_garnishment","p_rest_garnishment"],["rest_loan","p_rest_loan"],["bank_name_test","p_bank_name_test"]];
     previewPairs.forEach(([inputId,outputId])=>previewValue(inputId,outputId));
     previewValue("tax_class","p_tax_class",v=>v? v+($("tax_factor").value?" / Faktor "+$("tax_factor").value:""):"-");
     previewValue("midijob","p_midijob",v=>v?"Ja":"Nein");
     previewValue("kv_extra","p_kv_extra",v=>v+" %");
+    previewValue("health_rate","p_health_rate",v=>v+" %");
+    previewValue("kv_type","p_kv_type");
+    previewValue("children","p_children");
+    previewValue("under23","p_under23",v=>v?"Ja":"Nein");
+    previewValue("kv_type","p_kv_status");
     previewValue("state","p_state",v=>$("state").selectedOptions[0]?.textContent||"-");
     previewValue("payment_method","p_payment_method");
     ["annual_allowance","monthly_allowance"].forEach(id=>previewValue(id,id==="annual_allowance"?"p_annual_allowance":"p_monthly_allowance",v=>money(cents(v))+" EUR"));
@@ -602,7 +613,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const section=(title)=>{ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
     section("Steuermerkmale");
     const pair=(label,value,label2="",value2="")=>{ensureSpace(7);txt(label+": "+(value||"-"),left,y,8);if(label2)txt(label2+": "+(value2||"-"),105,y,8);y+=5;};
-    pair("Geburtsdatum",$("birth_date").value,"Steuerklasse",$("tax_class").value);
+    pair("Anschrift", $("employee_address").value,"Geburtsdatum",$("birth_date").value);
+    pair("Geburtsdatum", $("birth_date").value,"Steuerklasse",$("tax_class").value);
     pair("Faktor",$("tax_factor").value,"Kinderfreibetrag",$("child_allowance").value);
     pair("Konfession",$("religion").value,"Freibetrag jährlich",money(cents($("annual_allowance").value))+" EUR");
     pair("Freibetrag monatlich",money(cents($("monthly_allowance").value))+" EUR","DBA-Staat",$("dba_country").value);
@@ -610,7 +622,9 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     section("Sozialversicherung");
     pair("SV-Nummer (Testwert)",$("sv_number_test").value,"Krankenkasse",$("kasse").value);
     pair("PGRS",$("pgrs").value,"BGRS",$("bgrs").value);
-    pair("SV-Tage",$("sv_days").value,"Bundesland",$("state").selectedOptions[0]?.textContent||"");
+    pair("SV-Tage",$("sv_days").value,"UV-Tage",$("uv_days").value);
+    pair("UV-Kennzeichen",$("uv_code_test").value,"Bundesland",$("state").selectedOptions[0]?.textContent||"");
+    pair("Kinder unter 25",$("children").value,"Unter 23 Jahre",$("under23").checked?"Ja":"Nein");
     section("Arbeitszeit und Fehlzeiten");
     pair("Soll-/Iststunden",$("scheduled_hours").value+" / "+$("actual_hours").value,"Anwesenheitstage",$("attendance_days").value);
     pair("Urlaubsanspruch",$("vacation_entitlement").value,"Übertrag Vorjahr",$("vacation_carryover").value);
@@ -634,13 +648,14 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     r.netDeductions.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
     row("Gesamtabzüge",r.deductions,true);
     section("Verdienstbescheinigung (Jahreswerte)");
-    ytdFields.forEach(id=>pair(id.replaceAll("_"," ").toUpperCase(),money(ytdValue("ytd_"+id))+" EUR"));
+    const ytdLabels={gross:"Gesamt-Brutto",tax_gross:"Steuer-Brutto",kv_gross:"KV-Brutto",rv_gross:"RV-Brutto",av_gross:"AV-Brutto",pv_gross:"PV-Brutto",tax:"Lohnsteuer",church:"Kirchensteuer",soli:"Solidaritätszuschlag",kv:"KV-Beitrag",rv:"RV-Beitrag",av:"AV-Beitrag",pv:"PV-Beitrag",vwl:"VWL gesamt"};
+    ytdFields.forEach(id=>pair(ytdLabels[id],money(ytdValue("ytd_"+id))+" EUR"));
     section("Arbeitgeberanteile und zusätzliche Kosten");
     row("Krankenversicherung Arbeitgeber",r.kvEmployer);row("Pflegeversicherung Arbeitgeber",r.pvEmployer);row("Rentenversicherung Arbeitgeber",r.rvEmployer);row("Arbeitslosenversicherung Arbeitgeber",r.avEmployer);
-    row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));
+    row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));row("Gesamtkosten Arbeitgeber",r.gross+r.employerSocial+r.employerExtra,true);
     pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
     pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
-    y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
+    ensureSpace(25);y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
   });
@@ -649,6 +664,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
       if(el.type==="number"){el.value=el.id==="base_pay"?"3000":el.id==="monthly_hours"?"173.33":el.id==="kv_extra"?"2.9":el.id==="health_rate"?"14.6":"0";return;}el.value="";
     });
+    document.querySelectorAll(".editor select").forEach(el=>el.selectedIndex=0);
     $("state").value="";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
     Object.values(wageBodyIds).forEach(id=>$(id).textContent="");
     $("logo_area").innerHTML="LOGO<br>Unternehmen";addWageRow("earnings",{code:"1000",description:"Stundenlohn",unit:"Std"});update();
