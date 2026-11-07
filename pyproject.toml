@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "steuerpilot-pro"
-version = "0.1.0"
-description = "Accounting-core prototype for SteuerPilot Pro"
+version = "0.2.0"
+description = "Auditable accounting-core prototype for SteuerPilot Pro"
 readme = "README.md"
 requires-python = ">=3.11"
 
-[tool.setuptools]
+[tool.setuptols]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
