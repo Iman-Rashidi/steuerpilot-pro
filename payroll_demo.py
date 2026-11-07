@@ -280,13 +280,17 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         if(breakTo<=breakFrom)breakTo+=86400000;
         if(breakFrom<cursor||breakTo>finish){errors.push("شیفت "+(index+1)+": بازه استراحت باید داخل شیفت باشد.");return;}
       }
-      const startedBeforeMidnight=start>=12*60;
+      const startedBeforeMidnight=finish>Date.UTC(y,m-1,d,24,0);
       for(let t=cursor;t<finish;t+=60000){
         if(breakFrom!==null&&t>=breakFrom&&t<breakTo)continue;
         const dt=new Date(t),day=dt.getUTCDay(),mins=dt.getUTCHours()*60+dt.getUTCMinutes();
         const dateIso=isoDate(new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate())));
-        const isNight=mins>=1200||mins<360,isSunday=day===0;
-        const isHoliday=holidays.has(dateIso);
+        const isNight=mins>=1200||mins<360;
+        const previousIso=isoDate(new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate()-1)));
+        const afterMidnightCarry=startedBeforeMidnight&&mins<240;
+        const previousDay=new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate()-1)).getUTCDay();
+        const isSunday=day===0||(afterMidnightCarry&&previousDay===0);
+        const isHoliday=holidays.has(dateIso)||(afterMidnightCarry&&holidays.has(previousIso));
         if(isNight)night++;if(isSunday)sunday++;if(isHoliday)holiday++;
         if(isNight)nightTaxFree+=(startedBeforeMidnight&&mins<240?0.40:0.25)/60;
         if(isSunday&&!isHoliday)sundayTaxFree+=0.50/60;
