@@ -30,7 +30,7 @@ jobs:
       - name: Generate browser assets
         run: |
           mkdir -p static
-          wasm-bindgen --target web --out-dir static --no-typescript target/wasm32-unknown-unknown/release/steuerpilot_payroll_wasm.wasm
+          wasm-bindgen --target web --out-dir static --no-typescript wasm/target/wasm32-unknown-unknown/release/steuerpilot_payroll_wasm.wasm
           cp data/bmf/Lohnsteuer2026.xml static/Lohnsteuer2026.xml
       - name: Commit generated browser assets to the source branch
         run: |
