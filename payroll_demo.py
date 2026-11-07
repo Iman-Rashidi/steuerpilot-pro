@@ -465,7 +465,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     }
     const reasons=[];
     const period=$("period").value||"";
-    if(!/^2026-\\d{2}$/.test(period)) reasons.push("Nur Abrechnungsmonate des Jahres 2026 sind in dieser PAP-Version enthalten.");
+    if(!/^2026-\d{2}$/.test(period)) reasons.push("Nur Abrechnungsmonate des Jahres 2026 sind in dieser PAP-Version enthalten.");
     if(!$("state").value) reasons.push("Bundesland des Arbeitsortes fehlt.");
     const classValue=$("tax_class").value;
     const classMap={"I":"1","II":"2","III":"3","IV":"4","IV mit Faktor":"4","V":"5","VI":"6"};
@@ -483,9 +483,9 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     if($("pgrs").value.trim()&&$("pgrs").value.trim()!=="101") reasons.push("Es wird vorerst nur die Personengruppe 101 unterstützt.");
     if($("bgrs").value.trim()&&$("bgrs").value.trim()!=="1111") reasons.push("Es wird vorerst nur die Beitragsgruppe 1111 unterstützt.");
     const birth=$("birth_date").value;
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(birth)) reasons.push("Geburtsdatum fehlt; es wird zur Prüfung des Pflegeversicherungszuschlags benötigt.");
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(birth)) reasons.push("Geburtsdatum fehlt; es wird zur Prüfung des Pflegeversicherungszuschlags benötigt.");
     let age=null;
-    if(birth&&/^\\d{4}-\\d{2}$/.test(period)){
+    if(birth&&/^\d{4}-\d{2}$/.test(period)){
       const [py,pm]=period.split("-").map(Number);
       const end=new Date(Date.UTC(py,pm,0));
       const dob=new Date(birth+"T00:00:00Z");
