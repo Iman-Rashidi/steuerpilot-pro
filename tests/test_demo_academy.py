@@ -159,11 +159,68 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('doc.rect(left,y,width,17)', body)
         self.assertNotIn('doc.setFillColor(23,59,103)', body)
 
+    def test_bmf_static_assets_are_served_without_personal_data(self):
+        xml_response, xml = self.request("/static/Lohnsteuer2026.xml")
+        self.assertEqual(xml_response["status"], "200 OK")
+        self.assertIn("application/xml", xml_response["headers"]["Content-Type"])
+        self.assertEqual(xml_response["headers"]["Cache-Control"], "no-store")
+        self.assertIn('PAP name="Lohnsteuer2026"', xml)
+
+        js_response, js = self.request("/static/steuerpilot_payroll_wasm.js")
+        self.assertEqual(js_response["status"], "200 OK")
+        self.assertIn("text/javascript", js_response["headers"]["Content-Type"])
+        self.assertIn("export class PayrollTaxEngine", js)
+
+        captured = {}
+        def start_response(status, headers):
+            captured["status"] = status
+            captured["headers"] = dict(headers)
+        environ = {
+            "REQUEST_METHOD": "GET",
+            "PATH_INFO": "/static/steuerpilot_payroll_wasm_bg.wasm",
+            "CONTENT_LENGTH": "0",
+            "wsgi.input": BytesIO(b""),
+        }
+        wasm = b"".join(application(environ, start_response))
+        self.assertEqual(captured["status"], "200 OK")
+        self.assertEqual(captured["headers"]["Content-Type"], "application/wasm")
+        self.assertTrue(wasm.startswith(b"\x00asm"))
+        self.assertGreater(len(wasm), 1000)
+
+    def test_sample_payroll_route_uses_synthetic_prefilled_values(self):
+        response, body = self.request("/payroll/sample")
+        self.assertEqual(response["status"], "200 OK")
+        self.assertIn("MUSTERDATEN · NICHT ZUR AUSZAHLUNG", body)
+        self.assertIn('id="company" data-bind="company" placeholder="Muster GmbH" value="Muster GmbH"', body)
+        self.assertIn('id="employee" data-bind="employee" placeholder="Max Mustermann" value="Max Mustermann"', body)
+        self.assertIn('id="employee_no" data-bind="employee_no" placeholder="TEST-001" value="TEST-001"', body)
+        self.assertIn('id="birth_date" type="date" value="1990-01-01"', body)
+        self.assertIn('<option selected>I</option>', body)
+        self.assertIn('<option selected value="Keine">Keine</option>', body)
+        self.assertIn('<option selected value="NW">Nordrhein-Westfalen</option>', body)
+        self.assertIn("MUSTER - keine Auszahlung; ausschliesslich erfundene Testdaten.", body)
+        self.assertNotIn("123456789", body)
+
+    def test_empty_optional_shift_row_does_not_block_regular_payroll(self):
+        _, body = self.request("/payroll")
+        self.assertIn('function addShift(date="",start="",end=""', body)
+        self.assertIn("if(!hasAnyShiftInput)return;", body)
+
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
         self.assertIn("Angaben und Logo werden nicht an den Server übertragen", body)
         self.assertIn("Dieses Formular wird ausschließlich im Browser ausgeführt", body)
-        self.assertIn("Lohnsteuer wird nicht berechnet", body)
+        self.assertIn("BMF-Programmablaufplan 2026", body)
+        self.assertIn('id="tax_engine_status"', body)
+        self.assertIn('id="church_tax_state"', body)
+        self.assertIn("calculateBmfTax", body)
+        self.assertIn("fließen in die BMF-PAP-Berechnung ein", body)
+        self.assertIn("Nicht unterstützte Sonderfälle werden ausdrücklich blockiert", body)
+        self.assertIn('/static/steuerpilot_payroll_wasm.js', body)
+        self.assertIn('id="tax" type="number" min="0" step="0.01" value="0" readonly', body)
+        self.assertIn('id="soli" type="number" min="0" step="0.01" value="0" readonly', body)
+        self.assertIn('id="church" type="number" min="0" step="0.01" value="0" readonly', body)
+        self.assertIn("Keine echten Steuer- oder Sozialversicherungsnummern", body)
         self.assertNotIn('id="steuer_id"', body)
         self.assertNotIn('id="iban"', body)
 

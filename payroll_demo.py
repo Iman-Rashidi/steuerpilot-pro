@@ -167,12 +167,13 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
         <div class="field"><label for="tax_factor">Faktor (Steuerklasse IV)</label><input id="tax_factor" type="number" min="0" step="0.001" placeholder="z. B. 0,984"></div>
         <div class="field"><label for="child_allowance">Kinderfreibetrag</label><input id="child_allowance" type="number" min="0" max="10" step="0.5" placeholder="z. B. 0,5"></div>
         <div class="field"><label for="religion">Konfession</label><select id="religion"><option value="">Bitte auswählen</option><option value="Keine">Keine</option><option value="ev">Evangelisch (ev)</option><option value="rk">Römisch-katholisch (rk)</option><option value="Andere">Andere</option></select></div>
+        <div class="field"><label for="church_tax_state">Bundesland des steuerlichen Wohnsitzes (Kirchensteuer)</label><select id="church_tax_state"><option value="">Bitte auswählen</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option></select></div>
         <div class="field"><label for="annual_allowance">Freibetrag jährlich (EUR)</label><input id="annual_allowance" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="monthly_allowance">Freibetrag monatlich (EUR)</label><input id="monthly_allowance" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="dba_country">DBA-Staat (falls zutreffend)</label><input id="dba_country" placeholder="Optional"></div>
         <div class="field"><label><input id="midijob" type="checkbox" style="width:auto"> Beschäftigung im Übergangsbereich (Midijob)</label></div>
       </div>
-      <p class="muted">Steuerklasse, Faktor, Kinderfreibetrag, Konfession und Freibeträge werden in dieser Demo angezeigt, aber nicht zur automatischen Lohnsteuerberechnung verwendet.</p>
+      <p class="muted">Die Steuerklasse, der Faktor, Kinderfreibeträge und die eingetragenen Freibeträge fließen in die BMF-PAP-Berechnung ein. Die Kirchensteuer wird aus der PAP-Bemessungsgrundlage und dem Bundesland des steuerlichen Wohnsitzes abgeleitet. Nicht unterstützte Sonderfälle werden ausdrücklich blockiert, statt mit Näherungswerten eine Nettoauszahlung vorzutäuschen.</p>
     </section>
 
     <section class="panel group">
@@ -269,11 +270,12 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
 
     <section class="panel group">
       <h3>Steuern und sonstige manuelle Abzüge</h3>
-      <p class="muted">Die Steuerklasse und die persönlichen Merkmale werden erfasst und auf der Abrechnung ausgegeben. Die Lohnsteuer, Kirchensteuer und der Solidaritätszuschlag werden in dieser Demo weiterhin manuell eingegeben und nicht automatisch aus den Steuermerkmalen berechnet.</p>
+      <p class="muted">Die laufende Lohnsteuer und der Solidaritätszuschlag werden mit dem BMF-Programmablaufplan 2026 direkt in diesem Browser berechnet. Nicht unterstützte Sonderfälle werden blockiert, statt mit Schätzwerten abgerechnet.</p>
+      <div class="note" id="tax_engine_status" role="status">BMF-Steuerrechner wird geladen ...</div>
       <div class="fields">
-        <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="church">Kirchensteuer (€)</label><input id="church" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0" readonly></div>
+        <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0" readonly></div>
+        <div class="field"><label for="church">Kirchensteuer (€)</label><input id="church" type="number" min="0" step="0.01" value="0" readonly></div>
         <div class="field"><label for="other">Sonstige Abzüge (EUR)</label><input id="other" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="advance">Vorschuss / Abschlag (EUR)</label><input id="advance" type="number" min="0" step="0.01" value="0"></div>
       </div>
@@ -423,7 +425,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     </table>
     <div class="summary-grid preview-meta"><div><small>Auszahlungsweg</small><b id="p_payment_method">Überweisung</b></div><div><small>Bankbezeichnung (Testwert)</small><b id="p_bank_name_test">-</b></div><div><small>Restpfändung</small><b id="p_rest_garnishment">0,00 EUR</b></div><div><small>Darlehen Rest</small><b id="p_rest_loan">0,00 EUR</b></div></div>
     <div class="net-box"><span>Auszahlungsbetrag</span><strong id="p_net">0,00 €</strong></div>
-    <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Zuschlagssätze richten sich nach Vertrag oder Tarif. Die ausgewiesenen Steuer-/SV-Freibeträge sind Näherungen nach den eingegebenen Schichtdaten. Lohnsteuer wird nicht berechnet. Sonderfälle, Nachweise und vollständige Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
+    <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Zuschlagssätze richten sich nach Vertrag oder Tarif. Die ausgewiesenen Steuer-/SV-Freibeträge sind Näherungen nach den eingegebenen Schichtdaten. Die automatische Steuerberechnung nutzt den BMF-PAP 2026. Sonderfälle und nicht abgedeckte Beitragskonstellationen werden vor der Ausgabe gestoppt.</div>
   </section>
 </div>
 
@@ -435,6 +437,105 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
   const money = n => (n/100).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
   const set = (id,n) => { if($(id)) $(id).textContent=money(n); };
   const rate = id => Math.max(0,Math.min(300,val(id)))/100;
+
+  let payrollTaxEngine = null;
+  let payrollTaxLoading = true;
+  let payrollTaxLoadError = "";
+  (async function loadBmfTaxEngine(){
+    try{
+      const module = await import("/static/steuerpilot_payroll_wasm.js");
+      await module.default();
+      const response = await fetch("/static/Lohnsteuer2026.xml",{cache:"no-store"});
+      if(!response.ok) throw new Error("BMF-PAP konnte nicht geladen werden ("+response.status+").");
+      const source = await response.text();
+      payrollTaxEngine = new module.PayrollTaxEngine(source);
+    }catch(error){
+      payrollTaxLoadError = error && error.message ? error.message : String(error);
+    }finally{
+      payrollTaxLoading = false;
+      if(typeof update === "function") update();
+    }
+  })();
+
+  function calculateBmfTax(ctx){
+    if(!payrollTaxEngine){
+      return {ready:!payrollTaxLoading,supported:false,tax:0,soli:0,church:0,
+        reason:payrollTaxLoading?"BMF-Steuerrechner wird geladen ...":
+          "Automatische Steuerberechnung nicht verfügbar: "+(payrollTaxLoadError||"PAP-Engine fehlt.")};
+    }
+    const reasons=[];
+    const period=$("period").value||"";
+    if(!/^2026-\d{2}$/.test(period)) reasons.push("Nur Abrechnungsmonate des Jahres 2026 sind in dieser PAP-Version enthalten.");
+    if(!$("state").value) reasons.push("Bundesland des Arbeitsortes fehlt.");
+    const classValue=$("tax_class").value;
+    const classMap={"I":"1","II":"2","III":"3","IV":"4","IV mit Faktor":"4","V":"5","VI":"6"};
+    if(!classMap[classValue]) reasons.push("Steuerklasse fehlt oder ist nicht unterstützt.");
+    if(classValue==="VI") reasons.push("Steuerklasse VI wird bis zur Prüfung der Mehrarbeitgeber-Sozialversicherung nicht als vollständiger Nettofall ausgegeben.");
+    if($("midijob").checked) reasons.push("Midijob/Übergangsbereich ist noch nicht in der vollständigen Sozialversicherungsberechnung aktiviert.");
+    if($("kv_type").value!=="Gesetzlich") reasons.push("Private Krankenversicherung ist noch nicht vollständig integriert.");
+    if(Math.abs(val("health_rate")-14.6)>0.001) reasons.push("Der geprüfte PAP-Pfad setzt den allgemeinen GKV-Beitragssatz von 14,6 % voraus.");
+    if($("dba_country").value.trim()) reasons.push("DBA- und grenzüberschreitende Fälle benötigen eine gesonderte Berechnung.");
+    if(!["Keine","ev","rk"].includes($("religion").value)) reasons.push("Diese Religionsangabe benötigt eine gesonderte ELStAM-/Kirchensteuer-Zuordnung.");
+    if(["ev","rk"].includes($("religion").value)&&!$("church_tax_state").value) reasons.push("Bundesland des steuerlichen Wohnsitzes für die Kirchensteuer fehlt.");
+    if(ctx.bonus!==0||ctx.allowance!==0||ctx.premium!==0||ctx.taxableItems!==0||ctx.earnings.some(item=>item.amount!==0)){
+      reasons.push("Einmalzahlungen, Zuschläge und zusätzliche Brutto-Lohnarten sind noch nicht in den passenden PAP-Sonderverfahren abgebildet.");
+    }
+    if($("pgrs").value.trim()&&$("pgrs").value.trim()!=="101") reasons.push("Es wird vorerst nur die Personengruppe 101 unterstützt.");
+    if($("bgrs").value.trim()&&$("bgrs").value.trim()!=="1111") reasons.push("Es wird vorerst nur die Beitragsgruppe 1111 unterstützt.");
+    const birth=$("birth_date").value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(birth)) reasons.push("Geburtsdatum fehlt; es wird zur Prüfung des Pflegeversicherungszuschlags benötigt.");
+    let age=null;
+    if(birth&&/^\d{4}-\d{2}$/.test(period)){
+      const [py,pm]=period.split("-").map(Number);
+      const end=new Date(Date.UTC(py,pm,0));
+      const dob=new Date(birth+"T00:00:00Z");
+      age=end.getUTCFullYear()-dob.getUTCFullYear();
+      if(end.getUTCMonth()<dob.getUTCMonth()||(end.getUTCMonth()===dob.getUTCMonth()&&end.getUTCDate()<dob.getUTCDate())) age--;
+      if(age<0||age>120) reasons.push("Geburtsdatum ist ungültig.");
+      if((age<23)!=$("under23").checked) reasons.push("Angabe „unter 23 Jahre“ stimmt nicht mit dem Geburtsdatum überein.");
+    }
+    const start=$("start_date").value;
+    if(start&&period&&start.slice(0,7)===period&&start.slice(8,10)!=="01") reasons.push("Beschäftigungsbeginn mitten im Abrechnungsmonat benötigt eine Teilmonatsberechnung.");
+    const daysInMonth=period?new Date(Number(period.slice(0,4)),Number(period.slice(5,7)),0).getDate():0;
+    if($("sv_days").value.trim()&&Number($("sv_days").value)!==daysInMonth) reasons.push("Teilmonat mit abweichenden SV-Tagen wird noch nicht unterstützt.");
+    if(!Number.isFinite(ctx.base)||ctx.base<=0) reasons.push("Monatliches Grundgehalt muss größer als null sein.");
+    if(reasons.length) return {ready:true,supported:false,tax:0,soli:0,church:0,reason:reasons.join(" ")};
+
+    const factorMode=classValue==="IV mit Faktor";
+    const factor=factorMode?Number(String($("tax_factor").value).replace(",",".")):1;
+    if(factorMode&&(!Number.isFinite(factor)||factor<=0||factor>1)){
+      return {ready:true,supported:false,tax:0,soli:0,church:0,reason:"Für Steuerklasse IV mit Faktor muss ein gültiger Faktor zwischen 0 und 1 eingetragen werden."};
+    }
+    const annualAllowance=Math.round(cents($("annual_allowance").value)/12);
+    const monthlyAllowance=cents($("monthly_allowance").value);
+    const childCount=Number($("children").value||0);
+    const names=["LZZ","STKL","RE4","KVZ","PVZ","PVA","PVS","KRV","ALV","PKV","R","ZKF","LZZFREIB","LZZHINZU","af","f"];
+    const values=[
+      "2",classMap[classValue],String(ctx.taxGross),val("kv_extra").toFixed(2),
+      String(childCount===0&&age>=23?1:0),String(Math.max(0,Math.min(childCount,5)-1)),
+      $("state").value==="SN"?"1":"0","0","0","0",
+      $("religion").value==="Keine"?"0":"1",
+      String(Number(String($("child_allowance").value||"0").replace(",","."))||0),
+      String(annualAllowance+monthlyAllowance),"0",factorMode?"1":"0",
+      factorMode?factor.toFixed(3):"1.000"
+    ];
+    try{
+      const output=JSON.parse(payrollTaxEngine.run(names,values));
+      const readCents=name=>{
+        const n=Number(output[name]);
+        if(!Number.isSafeInteger(n)||n<0) throw new Error("Ungültiger BMF-Ausgabewert: "+name);
+        return n;
+      };
+      const tax=readCents("LSTLZZ");
+      const soli=readCents("SOLZLZZ");
+      const churchBase=$("religion").value==="Keine"?0:readCents("BK");
+      const churchRate=["BW","BY"].includes($("church_tax_state").value)?8:9;
+      const church=Math.round(churchBase*churchRate/100);
+      return {ready:true,supported:true,tax,soli,church,churchBase,reason:"BMF-PAP 2026 erfolgreich im Browser ausgeführt."};
+    }catch(error){
+      return {ready:true,supported:false,tax:0,soli:0,church:0,reason:"BMF-Steuerberechnung fehlgeschlagen: "+(error&&error.message?error.message:String(error))};
+    }
+  }
   const shiftRows = $("shift_rows");
   const wageBodyIds = {earnings:"earnings_rows",netPlus:"net_benefit_rows",netMinus:"net_deduction_rows"};
   const wagePreviewIds = {earnings:"p_earnings_rows",netPlus:"p_net_benefit_rows",netMinus:"p_net_deduction_rows"};
@@ -548,7 +649,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
   function previewValue(inputId,outputId,formatter=value=>value||"-"){const input=$(inputId),output=$(outputId);if(input&&output)output.textContent=formatter(input.type==="checkbox"?input.checked:input.value);}
   function ytdValue(id){return cents($(id).value);}
 
-  function addShift(date="",start="20:00",end="06:00",breakStart="",breakEnd=""){
+  function addShift(date="",start="",end="",breakStart="",breakEnd=""){
     const tr=document.createElement("tr");
     [["date","date",date],["start","time",start],["end","time",end],["break_start","time",breakStart],["break_end","time",breakEnd]].forEach(([name,type,value])=>{
       const td=document.createElement("td"),input=document.createElement("input");
@@ -598,6 +699,8 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
       const get=name=>tr.querySelector('[data-shift="'+name+'"]').value;
       const date=get("date"),start=parseClock(get("start")),end=parseClock(get("end"));
       const bs=get("break_start")?parseClock(get("break_start")):null,be=get("break_end")?parseClock(get("break_end")):null;
+      const hasAnyShiftInput=[date,get("start"),get("end"),get("break_start"),get("break_end")].some(value=>String(value||"").trim()!=="");
+      if(!hasAnyShiftInput)return;
       if(!date||start===null||end===null){errors.push("Schicht "+(index+1)+": Bitte Datum sowie Beginn und Ende vollständig eingeben.");return;}
       if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("Schicht "+(index+1)+": Bitte beide Pausenzeiten eingeben oder beide Felder leer lassen.");return;}
       const [y,m,d]=date.split("-").map(Number);
@@ -659,16 +762,23 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     const pvBase=Math.min(svGross,581250);
     const pvEmployee=stateSelected?Math.round(pvBase*pvEmployeeRate/100):0,pvEmployer=stateSelected?Math.round(pvBase*pvEmployerRate/100):0;
     const employeeSocial=kvEmployee+pvEmployee+rvEmployee+avEmployee,employerSocial=kvEmployer+pvEmployer+rvEmployer+avEmployer;
-    const tax=cents($("tax").value),soli=cents($("soli").value),church=cents($("church").value),manualTax=tax+soli+church,other=cents($("other").value),advance=cents($("advance").value);
+    const taxResult=calculateBmfTax({base,bonus,allowance,premium,taxableItems,earnings,taxGross,svGross});
+    const tax=taxResult.supported?taxResult.tax:0,soli=taxResult.supported?taxResult.soli:0,church=taxResult.supported?taxResult.church:0,manualTax=tax+soli+church,other=cents($("other").value),advance=cents($("advance").value);
     const vwl=cents($("vwl_deduction").value),garnishment=cents($("garnishment").value),loanRepayment=cents($("loan_repayment").value),kugPayout=cents($("kug_payout").value);
     const netFixedDeductions=vwl+garnishment+loanRepayment,employerExtra=cents($("u1_cost").value)+cents($("u2_cost").value)+cents($("insolvency_cost").value)+cents($("accident_cost").value);
     const deductions=employeeSocial+manualTax+other+advance+netFixedDeductions+netDeductionsTotal,net=gross-deductions+netBenefitsTotal+kugPayout;
-    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,earnings,netBenefits,netDeductions,netBenefitsTotal,netDeductionsTotal,taxFree,svFree,taxGross,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,tax,soli,church,other,advance,vwl,garnishment,loanRepayment,kugPayout,employerExtra,deductions,net,stateSelected};
+    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,earnings,netBenefits,netDeductions,netBenefitsTotal,netDeductionsTotal,taxFree,svFree,taxGross,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,tax,soli,church,taxReady:taxResult.ready,taxSupported:taxResult.supported,taxReason:taxResult.reason,other,advance,vwl,garnishment,loanRepayment,kugPayout,employerExtra,deductions,net,stateSelected};
   }
   function update(){
     const r=calc();
     set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_night_pay",r.nightPay);set("p_sunday_pay",r.sundayPay);set("p_holiday_pay",r.holidayPay);set("p_tax_free",r.taxFree);set("p_sv_free",r.svFree);set("p_sv_gross",r.svGross);
-    set("p_gross",r.gross);set("p_tax_gross",r.taxGross);set("p_kv_gross",r.kvBase);set("p_rv_gross",r.rvBase);set("p_tax",r.tax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
+    set("p_gross",r.gross);set("p_tax_gross",r.taxGross);set("p_kv_gross",r.kvBase);set("p_rv_gross",r.rvBase);
+    if($("tax").value!==(r.taxSupported?(r.tax/100).toFixed(2):"")) $("tax").value=r.taxSupported?(r.tax/100).toFixed(2):"";
+    if($("soli").value!==(r.taxSupported?(r.soli/100).toFixed(2):"")) $("soli").value=r.taxSupported?(r.soli/100).toFixed(2):"";
+    if($("church").value!==(r.taxSupported?(r.church/100).toFixed(2):"")) $("church").value=r.taxSupported?(r.church/100).toFixed(2):"";
+    $("tax_engine_status").textContent=r.taxReason||"";
+    $("tax_engine_status").style.borderColor=r.taxSupported?"#27834a":"#c58a00";
+    set("p_tax",r.tax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
     set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);$("p_care").textContent=r.stateSelected?money(r.pvEmployee):"—";$("p_employer_care").textContent=r.stateSelected?money(r.pvEmployer):"—";
     set("p_deductions",r.deductions);set("p_net",r.net);
     set("p_employer_health",r.kvEmployer);set("p_employer_care",r.pvEmployer);set("p_employer_pension",r.rvEmployer);set("p_employer_unemployment",r.avEmployer);
@@ -680,10 +790,10 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     $("p_gross").parentElement.cells[0].textContent="Gesamtbrutto einschließlich Zuschläge";
     $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge";
     $("p_gross").parentElement.cells[1].textContent=money(r.gross);
-    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=r.stateSelected?money(r.net)+" €":"Bundesland auswählen";
+    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=!r.taxSupported?"Nicht berechnet":(r.stateSelected?money(r.net)+" €":"Bundesland auswählen");
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
     set("p_tax",r.tax);set("p_soli",r.soli);set("p_church",r.church);set("p_advance",r.advance);set("p_vwl",r.vwl);set("p_garnishment",r.garnishment);set("p_loan_repayment",r.loanRepayment);set("p_kug_payout",r.kugPayout);
-    $("p_tax").parentElement.style.display="table-row";$("p_soli").parentElement.style.display="table-row";$("p_church").parentElement.style.display="table-row";$("p_advance").parentElement.style.display="table-row";
+    $("p_tax").parentElement.style.display=r.taxSupported?"table-row":"none";$("p_soli").parentElement.style.display=r.taxSupported?"table-row":"none";$("p_church").parentElement.style.display=r.taxSupported?"table-row":"none";$("p_advance").parentElement.style.display="table-row";
     $("p_tax").parentElement.cells[1].textContent=money(r.tax);$("p_soli").parentElement.cells[1].textContent=money(r.soli);$("p_church").parentElement.cells[1].textContent=money(r.church);$("p_other").parentElement.cells[1].textContent=money(r.other);$("p_advance").parentElement.cells[1].textContent=money(r.advance);
     renderWageRows("earnings",r.earnings);renderWageRows("netPlus",r.netBenefits);renderWageRows("netMinus",r.netDeductions);
     set("p_u1_cost",cents($("u1_cost").value));set("p_u2_cost",cents($("u2_cost").value));set("p_insolvency_cost",cents($("insolvency_cost").value));set("p_accident_cost",cents($("accident_cost").value));set("p_employer_total",r.gross+r.employerSocial+r.employerExtra);
@@ -714,7 +824,8 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
   $("add_net_deduction").addEventListener("click",()=>addWageRow("netMinus"));
   function validateForOutput(){
     const r=calc();
-    if(!r.stateSelected){window.alert("Bitte zuerst das Bundesland auswählen.");return null;}
+    if(!r.stateSelected){window.alert("Bitte zuerst das Bundesland des Arbeitsortes auswählen.");return null;}
+    if(!r.taxReady||!r.taxSupported){window.alert(r.taxReason||"Die Steuerberechnung ist noch nicht verfügbar. Es wird keine unvollständige Abrechnung ausgegeben.");return null;}
     if(r.shifts.errors.length){window.alert(r.shifts.errors.join(String.fromCharCode(10)));return null;}
     return r;
   }
@@ -784,7 +895,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
     pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
     ensureSpace(27);y+=3;doc.setDrawColor(20,20,20);doc.setLineWidth(0.8);doc.rect(left,y,width,17);doc.setTextColor(20,20,20);txt("NETTO-AUSZAHLUNG",left+5,y+10.5,10,true);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(20,20,20);doc.text(euro(r.net),right-5,y+11,{align:"right"});y+=24;
-    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Steuerberechnung nach BMF-PAP 2026 nur fuer gepruefte Standardfaelle; keine zertifizierte Entgeltabrechnung.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
   });
   $("reset_button").addEventListener("click",()=>{

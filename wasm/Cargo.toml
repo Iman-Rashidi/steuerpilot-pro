@@ -1,0 +1,13 @@
+[package]
+name = "steuerpilot_payroll_wasm"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+paprun = { git = "https://github.com/manuelbusch/paprun", rev = "cdf564daec7f617d54181eb8b14232e48a59dd7a" }
+serde_json = "1"
+wasm-bindgen = "=0.2.127"

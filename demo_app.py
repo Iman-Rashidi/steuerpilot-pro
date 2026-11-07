@@ -149,12 +149,89 @@ def _response(start_response, status, payload, content_type="application/json; c
     return [body]
 
 
+
+def _sample_payroll_page() -> str:
+    """Return the existing payroll form prefilled with synthetic demonstration data."""
+    page = PAYROLL_PAGE
+
+    def set_input(input_id: str, value: str) -> None:
+        nonlocal page
+        marker = f'id="{input_id}"'
+        start = page.index(marker)
+        end = page.index(">", start)
+        tag = page[start:end]
+        if " value=" in tag:
+            raise ValueError(f"Sample input {input_id} already has a value attribute")
+        page = page[:end] + f' value="{value}"' + page[end:]
+
+    def select_option(select_id: str, option_html: str) -> None:
+        nonlocal page
+        start = page.index(f'<select id="{select_id}">')
+        end = page.index("</select>", start) + len("</select>")
+        block = page[start:end]
+        if option_html not in block:
+            raise ValueError(f"Sample option not found for {select_id}")
+        block = block.replace(option_html, option_html.replace("<option", "<option selected", 1), 1)
+        page = page[:start] + block + page[end:]
+
+    for input_id, value in {
+        "company": "Muster GmbH",
+        "company_address": "Musterstrasse 12, 40210 Duesseldorf",
+        "employee": "Max Mustermann",
+        "employee_no": "TEST-001",
+        "employee_address": "Beispielweg 4, 40211 Duesseldorf",
+        "birth_date": "1990-01-01",
+        "start_date": "2024-05-01",
+        "pay_date": "2026-11-30",
+    }.items():
+        set_input(input_id, value)
+
+    select_option("tax_class", "<option>I</option>")
+    select_option("religion", '<option value="Keine">Keine</option>')
+    select_option("state", '<option value="NW">Nordrhein-Westfalen</option>')
+
+    page = page.replace(
+        "<header>\n  <h1>Lohnabrechnung erstellen</h1>",
+        "<header>\n  <div class=\"note\" style=\"background:#fff;border:1px solid #888;color:#111\"><strong>MUSTERDATEN · NICHT ZUR AUSZAHLUNG</strong><br>Diese Vorschau verwendet ausschließlich erfundene Beispieldaten.</div>\n  <h1>Lohnabrechnung erstellen</h1>",
+        1,
+    )
+    page = page.replace(
+        "keine zertifizierte Entgeltabrechnung.",
+        "MUSTER - keine Auszahlung; ausschliesslich erfundene Testdaten.",
+        1,
+    )
+    return page
+
+
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
+    if method == "GET" and path.startswith("/static/"):
+        asset_name = path.removeprefix("/static/")
+        assets = {
+            "steuerpilot_payroll_wasm.js": ("text/javascript; charset=utf-8",),
+            "steuerpilot_payroll_wasm_bg.wasm": ("application/wasm",),
+            "Lohnsteuer2026.xml": ("application/xml; charset=utf-8",),
+        }
+        asset = assets.get(asset_name)
+        if asset is None:
+            return _response(start_response, "404 Not Found", json.dumps({"error": "not found"}))
+        asset_path = Path(__file__).with_name("static") / asset_name
+        if not asset_path.is_file():
+            return _response(start_response, "503 Service Unavailable", json.dumps({"error": "payroll tax assets are not built"}))
+        body = asset_path.read_bytes()
+        start_response("200 OK", [
+            ("Content-Type", asset[0]),
+            ("Content-Length", str(len(body))),
+            ("Cache-Control", "no-store"),
+            ("X-Content-Type-Options", "nosniff"),
+        ])
+        return [body]
     if method == "GET" and path == "/":
         return _response(start_response, "200 OK", PAGE, "text/html; charset=utf-8")
     if method == "GET" and path in ("/academy", "/academy/"):
         return _response(start_response, "200 OK", ACADEMY_PAGE, "text/html; charset=utf-8")
+    if method == "GET" and path in ("/payroll/sample", "/payroll/sample/"):
+        return _response(start_response, "200 OK", _sample_payroll_page(), "text/html; charset=utf-8")
     if method == "GET" and path in ("/payroll", "/payroll/"):
         return _response(start_response, "200 OK", PAYROLL_PAGE, "text/html; charset=utf-8")
     if method == "GET" and path in ("/invoice", "/invoice/"):
