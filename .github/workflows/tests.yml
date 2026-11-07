@@ -45,7 +45,10 @@ jobs:
             echo "Generated payroll assets are already current."
           else
             git commit -m "Build browser payroll tax engine assets [skip ci]"
-            git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
+            branch="${{ github.head_ref || github.ref_name }}"
+            git fetch origin "$branch"
+            git rebase "origin/$branch"
+            git push origin "HEAD:$branch"
           fi
   unit-tests:
     runs-on: ubuntu-latest
