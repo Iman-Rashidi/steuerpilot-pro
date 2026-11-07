@@ -1,0 +1,42 @@
+name: Build payroll tax WebAssembly
+
+on:
+  push:
+    branches:
+      - "feat/**"
+      - staging/demo-web
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install matching wasm-bindgen CLI
+        run: cargo install wasm-bindgen-cli --version 0.2.127 --locked
+      - name: Build the BMF PAP interpreter for browsers
+        run: cargo build --manifest-path wasm/Cargo.toml --release --target wasm32-unknown-unknown
+      - name: Generate browser assets
+        run: |
+          mkdir -p static
+          wasm-bindgen --target web --out-dir static --no-typescript target/wasm32-unknown-unknown/release/steuerpilot_payroll_wasm.wasm
+          cp data/bmf/Lohnsteuer2026.xml static/Lohnsteuer2026.xml
+      - name: Commit generated browser assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add static/steuerpilot_payroll_wasm.js static/steuerpilot_payroll_wasm_bg.wasm static/Lohnsteuer2026.xml
+          if git diff --cached --quiet; then
+            echo "Generated WASM assets are already current."
+          else
+            git commit -m "Build browser payroll tax engine assets [skip ci]"
+            git push
+          fi
