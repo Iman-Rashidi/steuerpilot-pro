@@ -88,6 +88,21 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
 .preview-foot{margin-top:12px;padding:9px 10px;border:1px solid #e0e8f2;border-radius:7px;background:#f8fafc;color:#617188;font-size:9px;line-height:1.45}
 @media print{.preview{border:0;border-radius:0;box-shadow:none;padding:0}.net-box{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
 
+/* Clean administrative payslip: white paper, neutral typography, no decorative color */
+.preview{background:#fff!important;color:#111!important;border:1px solid #999!important;border-radius:0!important;box-shadow:none!important;padding:18px!important}
+.preview-top{border-bottom:1px solid #222!important}
+.logo-area{background:#fff!important;border:1px solid #aaa!important;border-radius:0!important;color:#555!important}
+.company-block,.company-block strong,.pay-title,.meta small,.party small,.meta b,.party b,.party span,.section-title,.preview-meta td:first-child,.preview-meta td:nth-child(3),.preview-meta td:nth-child(2),.preview-meta td:nth-child(4){color:#111!important}
+.meta div,.party,.summary-grid div{background:#fff!important;border:1px solid #bbb!important;border-radius:0!important}
+.preview th{background:#fff!important;color:#111!important;border-bottom:1px solid #222!important}
+.preview td,.preview th{border-bottom:1px solid #bbb!important}
+.preview .total-row{background:#fff!important;color:#111!important;font-weight:700!important}
+.preview .section-title{border-left:0!important;border-bottom:1px solid #555!important;padding-left:0!important;letter-spacing:0!important}
+.preview .net-box{background:#fff!important;color:#111!important;border:1.5px solid #111!important;border-radius:0!important;box-shadow:none!important}
+.preview .net-box strong{color:#111!important}
+.preview .preview-foot{background:#fff!important;border:0!important;border-top:1px solid #aaa!important;border-radius:0!important;color:#333!important}
+@media print{.preview{background:#fff!important;color:#111!important}.preview *{print-color-adjust:economy!important;-webkit-print-color-adjust:economy!important}}
+
 @media(max-width:850px){.layout{grid-template-columns:1fr}.preview{padding:15px}}
 @media(max-width:520px){.fields,.meta,.parties{grid-template-columns:1fr}.preview-top{gap:8px}.logo-area{width:105px;height:68px}.preview{padding:11px}table{font-size:11px}}
 @page{size:A4;margin:9mm}
@@ -452,6 +467,40 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
       }
     });
   }
+  function applyEmptyPreviewVisibility(){
+    const root=$("payroll_preview");if(!root)return;
+    const empty=value=>{const v=String(value??"").trim();return !v||v==="-"||v==="—";};
+    root.querySelectorAll(".preview-meta tr").forEach(tr=>{
+      const cells=[...tr.children];let visiblePairs=0;
+      for(let i=0;i<cells.length;i+=2){
+        const label=cells[i],value=cells[i+1];if(!label||!value)continue;
+        const show=!empty(value.textContent);
+        label.hidden=!show;value.hidden=!show;if(show)visiblePairs++;
+      }
+      tr.hidden=visiblePairs===0;
+    });
+    root.querySelectorAll("table").forEach(table=>{
+      if(table.classList.contains("preview-meta"))return;
+      const rows=[...table.querySelectorAll("tbody tr")];
+      rows.forEach(tr=>{
+        if(tr.classList.contains("total-row"))return;
+        const amount=tr.querySelector(".amount");
+        if(amount&&/^(?:0+(?:[,.]0+)?)(?:\\s*EUR)?$/i.test(amount.textContent.trim()))tr.hidden=true;
+      });
+      const hasVisible=[...table.querySelectorAll("tbody tr")].some(tr=>!tr.hidden);
+      if(table.closest(".preview")&&table.querySelector("tbody")&&!hasVisible)table.hidden=true;
+      else if(hasVisible)table.hidden=false;
+    });
+    root.querySelectorAll(".section-title").forEach(heading=>{
+      if(heading.hidden)return;
+      let node=heading.nextElementSibling,hasContent=false;
+      while(node&&!(node.matches&&node.matches(".section-title"))){
+        if(!node.hidden&&node.matches&&node.matches("table,.summary-grid"))hasContent=true;
+        node=node.nextElementSibling;
+      }
+      if(!hasContent)heading.hidden=true;
+    });
+  }
   function buildSectionControls(){
     const host=$("section_visibility_controls");if(!host)return;
     sectionDefinitions.forEach(([key,label,optional])=>{
@@ -657,6 +706,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     $("p_period").textContent=formatPeriod($("period").value);$("p_pay_date").textContent=$("pay_date").value||"-";
     ytdFields.forEach(id=>{const out=$("p_ytd_"+id);if(out)out.textContent=money(ytdValue("ytd_"+id))+" EUR";});
     applySectionVisibility();
+    applyEmptyPreviewVisibility();
   }
   $("add_shift").addEventListener("click",()=>addShift());
   $("add_earning").addEventListener("click",()=>addWageRow("earnings"));
@@ -687,7 +737,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     txt(employee?"Arbeitnehmer: "+employee:"",left,y,9,true);txt(employeeNo?"Personalnummer: "+employeeNo: "",105,y,9);y+=6;
     txt(company?"Arbeitgeber: "+company:"",left,y,9);txt($("pay_date").value?"Auszahlungsdatum: "+$("pay_date").value:"",105,y,9);y+=6;
     txt($("start_date").value?"Beschäftigungsbeginn: "+$("start_date").value:"",left,y,9);y+=5;line(y);y+=6;
-    let pdfSectionStarted=false;const startPdfSection=()=>{if(pdfSectionStarted)return;ensureSpace(15);y+=2;doc.setFillColor(235,242,250);doc.setDrawColor(218,229,241);doc.roundedRect(left,y-5,width,9,1.5,1.5,"FD");doc.setFillColor(43,105,164);doc.rect(left,y-5,2,9,"F");doc.setTextColor(29,67,112);txt(activePdfTitle.toUpperCase(),left+5,y+1,8,true);doc.setTextColor(35,48,67);y+=9;pdfSectionStarted=true;};let activePdfTitle="";const hasPdfValue=value=>{const v=String(value??"").trim();return v!==""&&v!=="-"&&v!=="—"&&!/^(?:0+(?:[,.]0+)?(?:\s*EUR)?)$/i.test(v);};const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection)||!Number.isFinite(Number(value))||Number(value)===0)return;startPdfSection();ensureSpace(8);if(bold){doc.setFillColor(242,247,252);doc.roundedRect(left,y-4,width,6,0.8,0.8,"F");}doc.setTextColor(38,55,78);txt(label,left+1,y,8,bold);doc.setTextColor(29,67,112);txt(euro(value),right-1,y,8,bold,{align:"right"});doc.setTextColor(35,48,67);y+=6;};
+    let pdfSectionStarted=false;const startPdfSection=()=>{if(pdfSectionStarted)return;ensureSpace(15);y+=2;doc.setDrawColor(80,80,80);doc.setLineWidth(0.35);doc.line(left,y+3,right,y+3);doc.setTextColor(20,20,20);txt(activePdfTitle.toUpperCase(),left,y,8,true);y+=7;pdfSectionStarted=true;};let activePdfTitle="";const hasPdfValue=value=>{const v=String(value??"").trim();return v!==""&&v!=="-"&&v!=="—"&&!/^(?:0+(?:[,.]0+)?(?:\s*EUR)?)$/i.test(v);};const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection)||!Number.isFinite(Number(value))||Number(value)===0)return;startPdfSection();ensureSpace(8);if(bold){doc.setDrawColor(120,120,120);doc.line(left,y+2,right,y+2);}doc.setTextColor(20,20,20);txt(label,left+1,y,8,bold);doc.setTextColor(20,20,20);txt(euro(value),right-1,y,8,bold,{align:"right"});y+=6;};
     const section=(title)=>{const normalized=title.toLowerCase();const alias=normalized.includes("steuerrechtliche abzüge")||normalized.includes("sozialversicherungsabzüge")||normalized==="netto-abzüge";const match=alias?sectionDefinitions.find(item=>item[0]==="deductions"):sectionDefinitions.find(item=>normalized.startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";activePdfTitle=title;pdfSectionStarted=false;};
     section("Steuermerkmale");
     const pair=(label,value,label2="",value2="")=>{if(!sectionEnabled(activePdfSection))return;const first=hasPdfValue(value),second=Boolean(label2)&&hasPdfValue(value2);if(!first&&!second)return;startPdfSection();ensureSpace(7);if(first)txt(label+": "+value,left,y,8);if(second)txt(label2+": "+value2,first?105:left,y,8);y+=5;};
@@ -733,7 +783,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));row("Gesamtkosten Arbeitgeber",r.gross+r.employerSocial+r.employerExtra,true);
     pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
     pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
-    ensureSpace(27);y+=3;doc.setFillColor(23,59,103);doc.roundedRect(left,y,width,17,2,2,"F");doc.setTextColor(255,255,255);txt("NETTO-AUSZAHLUNG",left+5,y+10.5,10,true);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(255,255,255);doc.text(euro(r.net),right-5,y+11,{align:"right"});doc.setTextColor(35,48,67);y+=24;
+    ensureSpace(27);y+=3;doc.setDrawColor(20,20,20);doc.setLineWidth(0.8);doc.rect(left,y,width,17);doc.setTextColor(20,20,20);txt("NETTO-AUSZAHLUNG",left+5,y+10.5,10,true);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(20,20,20);doc.text(euro(r.net),right-5,y+11,{align:"right"});y+=24;
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
   });
