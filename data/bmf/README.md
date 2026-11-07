@@ -1,20 +1,15 @@
-# BMF Lohnsteuer PAP 2026 fixture
+# BMF Lohnsteuer PAP 2026
 
-This XML file is an unmodified copy of the BMF 2026 XML pseudocode for the wage-tax
-calculation plan (Programmablaufplan, PAP), Anlage 1.
+Official reference for the tax-calculation adapter:
 
-Official source:
-https://www.bmf-steuerrechner.de/javax.faces.resource/daten/xmls/Lohnsteuer2026.xml.xhtml
+- BMF publication (12 November 2025): https://www.bundesfinanzministerium.de/Content/DE/Downloads/Steuern/Steuerarten/Lohnsteuer/Programmablaufplan/2025-11-12-PAP-2026.html
+- BMF developer service, which publishes XML pseudocode for the PAP: https://www.bmf-steuerrechner.de/interface/pseudocodes.xhtml
+- BMF XML pseudocode is intended for software development. The external BMF interface is described as a test interface; its terms do not authorize using it as the production calculation service.
 
-Official BMF overview:
-https://www.bmf-steuerrechner.de/interface/pseudocodes.xhtml
+## Import policy
 
-The upstream public fixture repository records the original BMF URL and retrieval
-date: https://github.com/manuelbusch/paprun/blob/main/tests/data/README.md
+Do not vendor or execute a third-party mirror of the PAP without verifying its exact contents against the final BMF publication. An XML mirror encountered during development contained an internal stand date of 23 October 2025, while the final BMF publication is dated 12 November 2025. It was therefore removed from this branch rather than treated as the authoritative 2026 source.
 
-The BMF publishes the PAP XML for software development. The original source is
-distributed under the BMF's stated CC BY-ND 4.0 terms; this file is retained
-unchanged. Do not modify the source XML. Implementations belong in separate code.
+The PAP covers wage-tax withholding, solidarity surcharge, and the church-tax assessment base. It does not calculate social-insurance contributions or a complete net-pay statement.
 
-The PAP is only the income-tax component. It does not calculate statutory social
-insurance, employer levies, or a complete net-pay statement.
+A production adapter must use the exact final BMF 2026 pseudocode, preserve its rounding semantics, expose input/output provenance, and be regression-tested against official reference cases before it can be used to issue payslips.
