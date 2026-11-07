@@ -1,43 +1,46 @@
 # Payroll statement demo
 
-The `/payroll` page adds a Persian-first input form and a German-language statement preview.
+The `/payroll` page provides a Persian-first form and German-language A4 statement preview. The browser renders the selected company logo and opens the print dialog for PDF output.
 
-## Included
+## Inputs and automatic calculations
 
-- Company name and address.
-- A local company-logo selector. PNG, JPEG, and WebP files up to 2 MB are previewed in the browser.
-- Employee display name, internal employee number, employment start date, pay period, and payment date.
-- Separate gross-pay inputs for base salary, overtime/surcharges, one-off payments, and allowances.
-- Manually entered employee deductions, including wage tax and employee-side social insurance.
-- Employer-side contribution fields displayed separately from employee deductions.
-- Live arithmetic totals and a net payout preview.
-- A4 print layout. The PDF action opens the browser print dialog; choose **Save as PDF**.
+- Company name, address, local logo preview, employee display name and internal number, pay period and payment date.
+- Monthly gross base salary, contracted monthly hours, one-off payments and other gross allowances.
+- Shift records with date, start/end time and break interval. Shifts crossing midnight are split minute-by-minute.
+- Night work (20:00-06:00), Sunday work, and public holidays are detected from the shift date.
+- Public holidays include nationwide holidays and state-specific 2026 dates for the selected Bundesland. Additional local dates can be entered manually. Bavaria's Assumption Day is municipality-dependent and is not inferred automatically.
+- Contract-entered night, Sunday and public-holiday supplement rates are calculated separately and added to gross pay. These are contract rates, not mandatory statutory supplement rates.
+- The estimated tax-free portion and social-insurance-free portion of supplements are displayed separately, using the relevant Grundlohn caps and the entered work-time categories.
+- Automatic 2026 employee/employer shares for statutory health insurance (14.6% default base rate plus the entered Krankenkasse Zusatzbeitrag, split equally), long-term care insurance (employee rate varies by child count and Saxony), pension insurance (18.6%, split equally), and unemployment insurance (2.6%, split equally).
+- Monthly contribution assessment caps used in the 2026 standard scenario: EUR 5,812.50 for health/care and EUR 8,450 for pension/unemployment.
+- Net pay = gross pay - employee social insurance - manually entered wage tax/solidarity surcharge/church tax - other deductions/advance.
+- Employer shares are shown separately and do not reduce employee net pay.
+- Browser print layout is A4. Choose **Save as PDF** in the browser print dialog.
 
-## Arithmetic
+## Assumptions and exclusions
 
-- Gross pay = base salary + overtime/surcharges + one-off payments + allowances.
-- Total deductions = the manually entered employee deductions + any previously paid advance.
-- Net payout = gross pay - total deductions.
-- Employer-side contributions are displayed separately and are not subtracted from the employee's net payout.
+This is a learning/test calculation, not a certified payroll engine. It assumes a full monthly payroll period, one ordinary employee subject to statutory insurance, statutory GKV membership, one employer, and premiums paid in addition to regular base pay. It does not cover Minijob, private health insurance, multiple employers, mid-month employment, short-time work, special occupational pension arrangements, contribution splitting, special sector rates, or all payroll edge cases.
 
-All monetary values are entered by the user. The page does not calculate or validate German wage tax or statutory social-insurance contributions.
+Wage tax (Lohnsteuer), solidarity surcharge, and church tax are not calculated. Those values are separate manual inputs because a correct calculation requires further personal and payroll data and a maintained official tax calculation engine. The Krankenkasse Zusatzbeitrag must be entered for the selected fund; 2.9% is only the 2026 average default.
+
+The tax/SV-free premium estimates assume actual qualifying work and are not a determination that the employer must pay any particular supplement. Contract or collective-agreement rules determine payment entitlement and rates. The user must select the workplace Bundesland before the net estimate is shown. Regional/local holiday variations may require additional dates.
 
 ## Data handling
 
-The form does not submit data to the WSGI server and does not write data to a database. The logo is read by the browser for local preview and printing. Refreshing or closing the page clears the inputs.
+The form does not submit payroll data to the WSGI server or write it to a database. The logo is read locally by the browser. Refreshing or closing the page clears the inputs. Use synthetic information only. Do not enter real employee records, tax IDs, social-security numbers, dates of birth, addresses, or bank-account details.
 
-Use synthetic information only. Do not enter real payroll records, tax identifiers, social-security numbers, dates of birth, addresses, or bank-account information.
+## Legal scope and sources
 
-## Legal scope
+This page is not a complete statutory Entgeltbescheinigung and does not claim legal or payroll compliance. Before any real payroll use, the feature needs specialist review and a certified payroll calculation workflow.
 
-This page is a layout and arithmetic demo, not a complete German payroll system or an assurance of compliance with a statutory payslip. Section 108 GewO requires the pay period and composition of remuneration, including relevant additions, deductions, advances, and prepayments. The Entgeltbescheinigungsverordnung sets additional information requirements for a full remuneration statement, which this template intentionally does not collect or calculate.
-
-Primary legal texts:
-- https://www.gesetze-im-internet.de/gewo/__108.html
-- https://www.gesetze-im-internet.de/entgbv/__1.html
-
-Before any real payroll use, the product needs a qualified German payroll provider or specialist, a legally reviewed field model, current tax/social-insurance calculation rules, secure identity and access controls, retention/audit controls, and an independent privacy/security review.
+- German trade regulation, payslip composition: https://www.gesetze-im-internet.de/gewo/__108.html
+- Entgeltbescheinigungsverordnung: https://www.gesetze-im-internet.de/entgbv/__1.html
+- 2026 statutory health insurance rates and cap: https://www.bundesgesundheitsministerium.de/beitraege/seite
+- 2026 social-insurance calculation values: https://www.bmas.de/DE/Service/Gesetze-und-Gesetzesvorhaben/sozialversicherungs-rechengroessenverordnung-2026.html
+- Care-insurance employee/employer shares and child adjustments: https://www.bundesgesundheitsministerium.de/themen/pflege/online-ratgeber-pflege/die-pflegeversicherung/finanzierung
+- Tax-free supplements for night/Sunday/holiday work: https://www.gesetze-im-internet.de/estg/__3b.html
+- Social-insurance exemption rules for supplements: https://www.gesetze-im-internet.de/svev/__1.html
 
 ## Validation
 
-The existing GitHub Actions test matrix imports the new route, checks the form/logo/PDF print path, and runs the repository regression suite on Python 3.11 and 3.12.
+The Python test suite checks that the route exposes the shift, state, insurance, contribution cap, and print/PDF features. It does not replace interactive browser tests or specialist payroll validation.
