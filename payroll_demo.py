@@ -367,12 +367,12 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const left=15,right=195,width=180;let y=15;
     const line=(yy)=>{doc.setDrawColor(80);doc.line(left,yy,right,yy);};
-    const txt=(s,x,yy,size=9,bold=false)=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s||"-"),x,yy);};
+    const txt=(s,x,yy,size=9,bold=false,options={})=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s||"-"),x,yy,options);};
     const euro=(n)=>money(n)+" EUR";
     const company=$("company").value||"-",address=$("company_address").value||"-";
     const employee=$("employee").value||"-",employeeNo=$("employee_no").value||"-";
     const logo=$("logo_area").querySelector("img");
-    if(logo&&logo.src&&logo.src.startsWith("data:image/")){try{doc.addImage(logo.src,logo.src.includes("png")?"PNG":"JPEG",left,y,28,15,undefined,"FAST");}catch(e){}}
+    if(logo&&logo.complete&&logo.naturalWidth>0){try{const canvas=document.createElement("canvas");canvas.width=logo.naturalWidth;canvas.height=logo.naturalHeight;canvas.getContext("2d").drawImage(logo,0,0);doc.addImage(canvas.toDataURL("image/png"),"PNG",left,y,28,15,undefined,"FAST");}catch(e){}}
     txt(company,right,y+3,12,true);txt(address,right,y+8,8);y+=21;line(y);y+=8;
     txt("ENTGELTABRECHNUNG",left,y,15,true);txt("Abrechnungszeitraum: "+($("period").value||"-"),right,y,9,true);y+=7;
     txt("Arbeitnehmer: "+employee,left,y,9,true);txt("Personalnummer: "+employeeNo,105,y,9);y+=6;
