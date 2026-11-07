@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from decimal import Decimal, InvalidOperation
 from wsgiref.simple_server import make_server
 
@@ -28,7 +29,7 @@ small{color:#536174}.academy-link{display:inline-block;margin-top:14px;padding:1
 <header><h1>SteuerPilot Pro</h1>
 <p>آزمایش محاسبهٔ سادهٔ VAT با داده‌های ساختگی</p>
 <small>این محیط آزمایشی است؛ هیچ داده‌ای ذخیره نمی‌شود.</small>
-<br><a class="academy-link" href="/academy">🎓 ورود به آکادمی مدیرعامل و دستیار اجرایی</a> <a class="academy-link" href="/payroll">🧾 ساخت فیش حقوقی و PDF</a></header>
+<br><a class="academy-link" href="/academy">🎓 ورود به آکادمی مدیرعامل و دستیار اجرایی</a> <a class="academy-link" href="/payroll">🧾 ساخت فیش حقوقی و PDF</a> <a class="academy-link" href="/invoice">🧾 صدور Rechnung و PDF</a></header>
 <section class="panel">
 <h2>محاسبه‌گر مالیات نمونه</h2>
 <form id="vat">
@@ -70,7 +71,7 @@ footer{padding:20px 4px;color:#536174;font-size:13px}
 <h1>🎓 آکادمی مدیرعامل | Geschäftsführer-Akademie</h1>
 <p>آموزش ساده، اجرای تمرینی و کنترل مرحله‌به‌مرحله برای مدیرانی که از حسابداری شروع می‌کنند.</p>
 <p class="de">Lernen · Verstehen · Ausführen · Kontrollieren</p>
-<a class="button" href="/">بازگشت به صفحه اصلی</a> <a class="button" href="/payroll">ساخت فیش حقوقی و PDF</a>
+<a class="button" href="/">بازگشت به صفحه اصلی</a> <a class="button" href="/payroll">ساخت فیش حقوقی و PDF</a> <a class="button" href="/invoice">صدور Rechnung و PDF</a>
 </header>
 
 <section class="panel">
@@ -156,6 +157,9 @@ def application(environ, start_response):
         return _response(start_response, "200 OK", ACADEMY_PAGE, "text/html; charset=utf-8")
     if method == "GET" and path in ("/payroll", "/payroll/"):
         return _response(start_response, "200 OK", PAYROLL_PAGE, "text/html; charset=utf-8")
+    if method == "GET" and path in ("/invoice", "/invoice/"):
+        invoice_page = Path(__file__).with_name("invoice_demo.html").read_text(encoding="utf-8")
+        return _response(start_response, "200 OK", invoice_page, "text/html; charset=utf-8")
     if method == "GET" and path == "/health":
         return _response(start_response, "200 OK", json.dumps({"status": "ok", "environment": "staging", "persistence": False}))
     if method == "POST" and path == "/api/vat":
