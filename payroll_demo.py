@@ -285,13 +285,15 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         if(breakFrom!==null&&t>=breakFrom&&t<breakTo)continue;
         const dt=new Date(t),day=dt.getUTCDay(),mins=dt.getUTCHours()*60+dt.getUTCMinutes();
         const dateIso=isoDate(new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate())));
-        const isNight=mins>=1200||mins<360,isSunday=day===0,isHoliday=holidays.has(dateIso);
+        const isNight=mins>=1200||mins<360,isSunday=day===0;
+        const specialEve=(dateIso.endsWith("-12-24")||dateIso.endsWith("-12-31"))&&mins>=840;
+        const isHoliday=holidays.has(dateIso)||specialEve;
         if(isNight)night++;if(isSunday)sunday++;if(isHoliday)holiday++;
         if(isNight)nightTaxFree+=(startedBeforeMidnight&&mins<240?0.40:0.25)/60;
         if(isSunday)sundayTaxFree+=0.50/60;
         if(isHoliday){
-          const special=dateIso.endsWith("-05-01")||dateIso.endsWith("-12-25")||dateIso.endsWith("-12-26")||(dateIso.endsWith("-12-24")&&mins>=840);
-          holidayTaxFree+=(special?1.50:1.25)/60;
+          const special150=dateIso.endsWith("-05-01")||dateIso.endsWith("-12-25")||dateIso.endsWith("-12-26")||(dateIso.endsWith("-12-24")&&mins>=840);
+          holidayTaxFree+=(special150?1.50:1.25)/60;
         }
       }
     });
