@@ -134,13 +134,13 @@ class LedgerControls:
                      reason.strip(), datetime.now(timezone.utc).isoformat()),
                 )
             return period_id
-            except sqlite3.IntegrityError as exc:
-                raise LedgerError(f"Could not close accounting period: {exc}") from exc
+except sqlite3.IntegrityError as exc:
+            raise LedgerError("Could not close accounting period: {exc}") from exc
 
     def audit_events(
         self, organization_id: str, entity_id: str | None = None
     ) -> tuple[dict[str, Any], ...]:
-        with self.store._lock :
+        with self.store._lock:
             if entity_id is None:
                 rows = self.store._connection.execute(
                     """SELECT * FROM audit_events WHERE organization_id = ?
