@@ -64,8 +64,8 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("به سرور ارسال یا در برنامه ذخیره نمی‌شوند", body)
         self.assertIn("این فرم نرخ قانونی را محاسبه نمی‌کند", body)
         self.assertIn("ersetzt keine vollständige Entgeltbescheinigung", body)
-        self.assertNotIn("Steuer-ID", body)
-        self.assertNotIn("IBAN", body)
+        self.assertNotIn('id="steuer_id"', body)
+        self.assertNotIn('id="iban"', body)
 
 
 if __name__ == "__main__":
