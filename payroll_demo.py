@@ -246,8 +246,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const easter=easterSunday(year),goodFriday=plusDays(easter,-2),easterMonday=plusDays(easter,1);
     const ascension=plusDays(easter,39),whitMonday=plusDays(easter,50),corpus=plusDays(easter,60);
     const set=new Set([year+"-01-01",goodFriday,easterMonday,year+"-05-01",ascension,whitMonday,year+"-10-03",year+"-12-25",year+"-12-26"]);
-    if(state==="BB"){add(plusDays(easter,0),plusDays(easter,49));}
     const add=(...dates)=>dates.forEach(d=>set.add(d));
+    if(state==="BB"){add(plusDays(easter,0),plusDays(easter,49));}
     if(["BW","BY","ST"].includes(state))add(year+"-01-06");
     if(["BE","MV"].includes(state))add(year+"-03-08");
     if(["BW","BY","HE","NW","RP","SL"].includes(state))add(corpus);
@@ -347,7 +347,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
   }
   $("add_shift").addEventListener("click",()=>addShift());
-  $("pdf_button").addEventListener("click",()=>{const r=calc();if(!r.stateSelected){window.alert("ابتدا ایالت محل کار را انتخاب کن.");return;}if(r.shifts.errors.length){window.alert(r.shifts.errors.join("\\n"));return;}window.print();});
+  $("pdf_button").addEventListener("click",()=>{const r=calc();if(!r.stateSelected){window.alert("ابتدا ایالت محل کار را انتخاب کن.");return;}if(r.shifts.errors.length){window.alert(r.shifts.errors.join(String.fromCharCode(10)));return;}window.print();});
   $("reset_button").addEventListener("click",()=>{
     document.querySelectorAll(".editor input").forEach(el=>{
       if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
