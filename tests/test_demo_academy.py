@@ -149,6 +149,16 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("Keine echten Steuer- oder Sozialversicherungsnummern", body)
         self.assertNotRegex(body, r"[\u0600-\u06FF]")
 
+    def test_payroll_print_is_white_minimal_and_hides_empty_fields(self):
+        _, body = self.request("/payroll")
+        self.assertIn("Clean administrative payslip", body)
+        self.assertIn(".preview{background:#fff!important;color:#111!important", body)
+        self.assertIn("function applyEmptyPreviewVisibility()", body)
+        self.assertIn("visiblePairs===0", body)
+        self.assertIn("tr.hidden=/^(?:0+", body)
+        self.assertIn('doc.rect(left,y,width,17)', body)
+        self.assertNotIn('doc.setFillColor(23,59,103)', body)
+
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
         self.assertIn("Angaben und Logo werden nicht an den Server übertragen", body)
