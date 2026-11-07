@@ -27,7 +27,7 @@ header h1{margin-bottom:4px}
 label{display:block;margin:0 0 5px;font-weight:650;font-size:13px}
 input{width:100%;min-width:0;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit;background:#fff}
 select,textarea{width:100%;min-width:0;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit;background:#fff}
-.entry-table{min-width:860px;font-size:11px}.entry-table input,.entry-table select{min-width:68px;padding:6px;font-size:11px}.entry-table input[type=checkbox]{width:auto;min-width:0}.form-table-wrap{overflow-x:auto;margin-top:8px}.entry-table th,.entry-table td{vertical-align:middle}.entry-table .remove-cell{min-width:74px}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.summary-grid div{padding:7px;background:#f5f7fa;border-radius:4px}.summary-grid small{display:block;color:#596779}.preview-meta{font-size:10px}.preview-meta td:first-child{font-weight:600;width:28%}.preview-meta td:nth-child(3){font-weight:600;width:28%}
+.entry-table{min-width:860px;font-size:11px}.entry-table input,.entry-table select{min-width:68px;padding:6px;font-size:11px}.entry-table input[type=checkbox]{width:auto;min-width:0}.form-table-wrap{overflow-x:auto;margin-top:8px}.entry-table th,.entry-table td{vertical-align:middle}.entry-table .remove-cell{min-width:74px}.visibility-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.visibility-option{display:flex;align-items:flex-start;gap:8px;padding:9px;border:1px solid #dce2ea;border-radius:8px;font-size:13px}.visibility-option input{width:auto;min-width:0;margin:3px 0 0}.visibility-grid .locked{color:#526174;background:#f5f7fa}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.summary-grid div{padding:7px;background:#f5f7fa;border-radius:4px}.summary-grid small{display:block;color:#596779}.preview-meta{font-size:10px}.preview-meta td:first-child{font-weight:600;width:28%}.preview-meta td:nth-child(3){font-weight:600;width:28%}
 @media print{.form-table-wrap{overflow:visible}.preview{font-size:8pt!important}}
 input[type=file]{padding:7px}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
@@ -81,6 +81,12 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   <main class="editor">
     <section class="panel">
       <div class="note">Dieses Formular wird ausschließlich im Browser ausgeführt. Angaben und Logo werden nicht an den Server übertragen. Verwenden Sie ausschließlich synthetische Testdaten. Keine echten Steuer- oder Sozialversicherungsnummern und keine IBAN eingeben. Die Angaben werden nicht gespeichert. Die Sozialversicherungsberechnung gilt für einen Standardfall 2026 und ersetzt keine zertifizierte Lohnabrechnung.</div>
+    </section>
+
+    <section class="panel group">
+      <h3>Abrechnungsumfang</h3>
+      <p class="muted">Wählen Sie aus, welche Zusatzbereiche auf der Entgeltabrechnung erscheinen. Die Berechnung und die erfassten Werte bleiben davon unberührt. Kernbereiche mit Bruttoentgelt und Arbeitnehmerabzügen bleiben sichtbar.</p>
+      <div id="section_visibility_controls" class="visibility-grid"></div>
     </section>
 
     <section class="panel group">
@@ -386,6 +392,44 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   const wageBodyIds = {earnings:"earnings_rows",netPlus:"net_benefit_rows",netMinus:"net_deduction_rows"};
   const wagePreviewIds = {earnings:"p_earnings_rows",netPlus:"p_net_benefit_rows",netMinus:"p_net_deduction_rows"};
   const ytdFields = ["gross","tax_gross","kv_gross","rv_gross","av_gross","pv_gross","tax","church","soli","kv","rv","av","pv","vwl"];
+  const sectionDefinitions = [
+    ["tax","Steuermerkmale",true],
+    ["social","Sozialversicherung",true],
+    ["time","Arbeitszeit und Fehlzeiten",true],
+    ["gross","Bruttoentgelt / Bezüge",false],
+    ["basis","Steuer- und Sozialversicherungsbasis",true],
+    ["netplus","Netto-Bezüge",true],
+    ["deductions","Abzüge Arbeitnehmer",false],
+    ["ytd","Verdienstbescheinigung",true],
+    ["employer","Arbeitgeberanteile und zusätzliche Arbeitgeberkosten",true]
+  ];
+  const sectionVisibility = Object.fromEntries(sectionDefinitions.map(([key,label,optional])=>[key,true]));
+  let activePdfSection = "";
+  function sectionEnabled(key){return !sectionDefinitions.some(item=>item[0]===key&&item[2]) || sectionVisibility[key]!==false;}
+  function applySectionVisibility(){
+    const headings=[...$("payroll_preview").querySelectorAll("h3.section-title")];
+    headings.forEach((heading,index)=>{
+      const definition=sectionDefinitions[index];if(!definition)return;
+      heading.dataset.sectionKey=definition[0];
+      const visible=sectionEnabled(definition[0]);
+      heading.hidden=!visible;
+      let node=heading.nextElementSibling;
+      while(node&&!(node.matches&&node.matches("h3.section-title"))){
+        node.hidden=!visible;node=node.nextElementSibling;
+      }
+    });
+  }
+  function buildSectionControls(){
+    const host=$("section_visibility_controls");if(!host)return;
+    sectionDefinitions.forEach(([key,label,optional])=>{
+      const wrapper=document.createElement("label");wrapper.className="visibility-option"+(optional?"":" locked");
+      const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.checked=true;checkbox.disabled=!optional;
+      checkbox.setAttribute("aria-label",label+" auf der Abrechnung anzeigen");
+      checkbox.addEventListener("change",()=>{sectionVisibility[key]=checkbox.checked;applySectionVisibility();});
+      const text=document.createElement("span");text.textContent=label+(optional?"":" · Kernbereich");
+      wrapper.append(checkbox,text);host.appendChild(wrapper);
+    });
+  }
   function addWageRow(kind,preset={}){
     const body=$(wageBodyIds[kind]);if(!body)return;
     const tr=document.createElement("tr");tr.className="wage-row";tr.dataset.kind=kind;
@@ -579,6 +623,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_period_days").textContent=$("period").value?new Date(Number($("period").value.slice(0,4)),Number($("period").value.slice(5,7)),0).getDate()+" Kalendertage":"-";
     $("p_period").textContent=formatPeriod($("period").value);$("p_pay_date").textContent=$("pay_date").value||"-";
     ytdFields.forEach(id=>{const out=$("p_ytd_"+id);if(out)out.textContent=money(ytdValue("ytd_"+id))+" EUR";});
+    applySectionVisibility();
   }
   $("add_shift").addEventListener("click",()=>addShift());
   $("add_earning").addEventListener("click",()=>addWageRow("earnings"));
@@ -609,10 +654,10 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     txt("Arbeitnehmer: "+employee,left,y,9,true);txt("Personalnummer: "+employeeNo,105,y,9);y+=6;
     txt("Arbeitgeber: "+company,left,y,9);txt("Auszahlungsdatum: "+($("pay_date").value||"-"),105,y,9);y+=6;
     txt("Beschäftigungsbeginn: "+($("start_date").value||"-"),left,y,9);y+=5;line(y);y+=6;
-    const row=(label,value,bold=false)=>{ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
-    const section=(title)=>{ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
+    const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection))return;ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
+    const section=(title)=>{const match=sectionDefinitions.find(item=>title.toLowerCase().startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";if(!sectionEnabled(activePdfSection))return;ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
     section("Steuermerkmale");
-    const pair=(label,value,label2="",value2="")=>{ensureSpace(7);txt(label+": "+(value||"-"),left,y,8);if(label2)txt(label2+": "+(value2||"-"),105,y,8);y+=5;};
+    const pair=(label,value,label2="",value2="")=>{if(!sectionEnabled(activePdfSection))return;ensureSpace(7);txt(label+": "+(value||"-"),left,y,8);if(label2)txt(label2+": "+(value2||"-"),105,y,8);y+=5;};
     pair("Anschrift", $("employee_address").value,"Geburtsdatum",$("birth_date").value);
     pair("Geburtsdatum", $("birth_date").value,"Steuerklasse",$("tax_class").value);
     pair("Faktor",$("tax_factor").value,"Kinderfreibetrag",$("child_allowance").value);
@@ -676,6 +721,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const reader=new FileReader();reader.onload=()=>{area.innerHTML="";const img=document.createElement("img");img.alt="Company logo";img.src=reader.result;area.appendChild(img);};reader.readAsDataURL(file);
   });
   document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>{el.addEventListener("input",update);el.addEventListener("change",update);});
+  buildSectionControls();
   addShift();
   addWageRow("earnings");
   addWageRow("netPlus");
