@@ -655,7 +655,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     txt("Arbeitgeber: "+company,left,y,9);txt("Auszahlungsdatum: "+($("pay_date").value||"-"),105,y,9);y+=6;
     txt("Beschäftigungsbeginn: "+($("start_date").value||"-"),left,y,9);y+=5;line(y);y+=6;
     const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection))return;ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
-    const section=(title)=>{const match=sectionDefinitions.find(item=>title.toLowerCase().startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";if(!sectionEnabled(activePdfSection))return;ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
+    const section=(title)=>{const normalized=title.toLowerCase();const alias=normalized.includes("steuerrechtliche abzüge")||normalized.includes("sozialversicherungsabzüge")||normalized==="netto-abzüge";const match=alias?sectionDefinitions.find(item=>item[0]==="deductions"):sectionDefinitions.find(item=>normalized.startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";if(!sectionEnabled(activePdfSection))return;ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
     section("Steuermerkmale");
     const pair=(label,value,label2="",value2="")=>{if(!sectionEnabled(activePdfSection))return;ensureSpace(7);txt(label+": "+(value||"-"),left,y,8);if(label2)txt(label2+": "+(value2||"-"),105,y,8);y+=5;};
     pair("Anschrift", $("employee_address").value,"Geburtsdatum",$("birth_date").value);
