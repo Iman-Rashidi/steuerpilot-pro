@@ -34,6 +34,8 @@ jobs:
           mkdir -p static
           wasm-bindgen --target web --out-dir static --no-typescript wasm/target/wasm32-unknown-unknown/release/steuerpilot_payroll_wasm.wasm
           cp data/bmf/Lohnsteuer2026.xml static/Lohnsteuer2026.xml
+      - name: Run the built WebAssembly tax engine in Node
+        run: node wasm/test_wasm.mjs
       - name: Commit generated browser assets to the source branch
         run: |
           git config user.name "github-actions[bot]"
