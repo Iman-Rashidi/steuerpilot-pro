@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReinigungsRadar NRW · SteuerPilot Pro</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#172033;background:#f3f5f8;line-height:1.7}
+body{max-width:980px;margin:28px auto;padding:0 16px}
+header,.panel,.tile{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:20px;margin:14px 0}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+a.button{display:inline-block;background:#203b63;color:#fff;text-decoration:none;padding:9px 13px;border-radius:8px;font-weight:650}
+a.secondary{background:#e7f0ff;color:#163b6b}
+h1{margin:4px 0}h2{margin:0 0 8px}.muted{color:#536174;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{margin:0}.tag{display:inline-block;background:#fff1cc;color:#765300;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:700}
+.tag.green{background:#e7f5ec;color:#21633b}.tag.gray{background:#edf0f4;color:#536174}
+.notice{background:#fff8e6;border-right:4px solid #c58a00;padding:12px 14px;border-radius:8px}
+ul{padding-right:22px}.sources a{color:#174c83}
+footer{color:#536174;font-size:12px;padding:16px 4px}
+</style></head>
+<body>
+<header>
+  <span class="tag green">ماژول مستقل</span>
+  <h1>📡 ReinigungsRadar NRW</h1>
+  <p>پیدا کردن فرصت‌های تجاری خدمات نظافت و امنیت در سراسر Nordrhein-Westfalen</p>
+  <nav>
+    <a class="button secondary" href="/">داشبورد اصلی</a>
+    <a class="button" href="/payroll">🧾 فیش حقوقی</a>
+    <a class="button secondary" href="/invoice">Rechnung</a>
+  </nav>
+</header>
+
+<section class="panel">
+  <h2>وضعیت اتصال</h2>
+  <p><span class="tag gray">اتصال داده هنوز فعال نشده</span></p>
+  <p class="muted">این صفحه در داشبورد Render اضافه شده است؛ اما اطلاعات زنده شرکت‌ها و مناقصات هنوز به این سرویس منتقل نشده‌اند. برای جلوگیری از نمایش داده ساختگی، فعلاً هیچ شرکت یا مناقصه فرضی به‌عنوان نتیجه واقعی نشان داده نمی‌شود.</p>
+  <div class="notice"><strong>نسخه فعلی ReinigungsRadar:</strong> داشبورد جداگانه با اتصال فقط‌خواندنی Notion است. موتور جست‌وجوی خودکار NRW، اتصال پلتفرم‌های استخدام و موتور مناقصات هنوز پیاده‌سازی و به این داشبورد متصل نشده‌اند.</div>
+</section>
+
+<section class="grid">
+  <article class="tile">
+    <h2>🏢 مشتریان بالقوه نظافت</h2>
+    <p class="muted">شرکت‌ها، دفاتر، انبارها، هتل‌ها، مراکز درمانی و ساختمان‌های تجاری.</p>
+    <span class="tag gray">منتظر اتصال منبع داده</span>
+  </article>
+  <article class="tile">
+    <h2>🛡️ مشتریان بالقوه امنیت</h2>
+    <p class="muted">شرکت‌ها و مراکزی با احتمال نیاز به حفاظت، کنترل دسترسی و خدمات امنیتی.</p>
+    <span class="tag gray">منتظر اتصال منبع داده</span>
+  </article>
+  <article class="tile">
+    <h2>📑 مناقصات NRW</h2>
+    <p class="muted">فرصت‌های رسمی Gebäudereinigung، Unterhaltsreinigung، Sicherheitsdienst و Objektschutz.</p>
+    <span class="tag gray">اتصال مناقصات در برنامه توسعه</span>
+  </article>
+</section>
+
+<section class="panel">
+  <h2>منابع برنامه‌ریزی‌شده</h2>
+  <ul class="sources">
+    <li><a href="https://www.google.com/maps" rel="noopener">Google Maps / Places</a> برای کشف اولیه شرکت‌ها</li>
+    <li><a href="https://www.linkedin.com/" rel="noopener">LinkedIn</a> و <a href="https://de.indeed.com/" rel="noopener">Indeed</a> برای نشانه‌های توسعه و استخدام</li>
+    <li><a href="https://www.kleinanzeigen.de/" rel="noopener">Kleinanzeigen</a> برای فرصت‌های محلی مجاز</li>
+    <li><a href="https://ted.europa.eu/" rel="noopener">TED</a>، <a href="https://www.evergabe-online.de/" rel="noopener">eVergabe</a> و <a href="https://www.vergabe.nrw.de/" rel="noopener">Vergabe.NRW</a> برای مناقصات</li>
+  </ul>
+  <p class="muted">اتصال هر منبع منوط به API یا روش دسترسی مجاز، شرایط استفاده، هزینه و رعایت GDPR است. لینک‌ها به‌معنی اتصال فعال نیستند.</p>
+</section>
+
+<section class="panel">
+  <h2>خروجی ساده برای کاربر</h2>
+  <p>هر فرصت پس از اتصال موتور باید فقط این موارد را نشان دهد: نام شرکت یا مناقصه، شهر، خدمت مرتبط، حداکثر دو دلیل، اولویت، مهلت (برای مناقصه) و لینک منبع.</p>
+  <p class="muted">جزئیات فنی و تحلیل AI پشت صحنه می‌مانند. نتیجه بدون منبع معتبر به‌عنوان فرصت تأییدشده نمایش داده نمی‌شود.</p>
+</section>
+<footer>ReinigungsRadar NRW · ماژول جدا از محاسبات حقوق و دستمزد · این نسخه صرفاً رابط اولیه است و هنوز به موتور جست‌وجوی زنده متصل نیست.</footer>
+</body></html>
