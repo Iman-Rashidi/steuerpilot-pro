@@ -70,83 +70,83 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
 <body>
 <header>
   <h1>Lohnabrechnung erstellen</h1>
-  <p class="muted">اطلاعات را وارد کن، پیش‌نمایش را بررسی کن و برای ساخت PDF از گزینه چاپ مرورگر استفاده کن.</p>
-  <p><a class="back" href="/">← بازگشت به SteuerPilot Pro</a></p>
+  <p class="muted">Geben Sie die Angaben ein, prüfen Sie die Vorschau und laden Sie die Abrechnung als PDF herunter oder drucken Sie sie aus.</p>
+  <p><a class="back" href="/">← Zurück zu SteuerPilot Pro</a></p>
 </header>
 
 <div class="layout">
   <main class="editor">
     <section class="panel">
-      <div class="note">این فرم فقط در مرورگر اجرا می‌شود و اطلاعات یا لوگو به سرور ارسال نمی‌شوند. فقط با داده ساختگی آزمایش کن. محاسبات بیمه برای سناریوی استاندارد سال ۲۰۲۶ است و جایگزین سیستم حقوق و دستمزد معتبر نیست.</div>
+      <div class="note">Dieses Formular wird ausschließlich im Browser ausgeführt. Angaben und Logo werden nicht an den Server übertragen. Verwenden Sie ausschließlich Testdaten. Die Sozialversicherungsberechnung gilt für einen Standardfall 2026 und ersetzt keine zertifizierte Lohnabrechnung.</div>
     </section>
 
     <section class="panel group">
-      <h3>مشخصات شرکت</h3>
+      <h3>Angaben zum Arbeitgeber</h3>
       <div class="fields">
-        <div class="field full"><label for="company">نام شرکت / Arbeitgeber</label><input id="company" data-bind="company" placeholder="Muster GmbH"></div>
-        <div class="field full"><label for="company_address">نشانی شرکت</label><input id="company_address" data-bind="company_address" placeholder="Musterstraße 1, 00000 Musterstadt"></div>
-        <div class="field full"><label for="logo_file">لوگوی شرکت</label><input id="logo_file" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        <div class="field full"><label for="company">Firmenname / Arbeitgeber</label><input id="company" data-bind="company" placeholder="Muster GmbH"></div>
+        <div class="field full"><label for="company_address">Anschrift des Arbeitgebers</label><input id="company_address" data-bind="company_address" placeholder="Musterstraße 1, 00000 Musterstadt"></div>
+        <div class="field full"><label for="logo_file">Firmenlogo</label><input id="logo_file" type="file" accept="image/png,image/jpeg,image/webp"></div>
       </div>
     </section>
 
     <section class="panel group">
-      <h3>مشخصات کارمند و دوره</h3>
+      <h3>Angaben zum Arbeitnehmer und Abrechnungszeitraum</h3>
       <div class="fields">
-        <div class="field"><label for="employee">نام کارمند / Arbeitnehmer</label><input id="employee" data-bind="employee" placeholder="Max Mustermann"></div>
-        <div class="field"><label for="employee_no">شماره داخلی کارمند</label><input id="employee_no" data-bind="employee_no" placeholder="M-001"></div>
-        <div class="field"><label for="start_date">تاریخ شروع همکاری</label><input id="start_date" type="date" data-bind="start_date"></div>
-        <div class="field"><label for="period">دوره حقوق</label><input id="period" data-bind="period" placeholder="November 2026"></div>
-        <div class="field"><label for="pay_date">تاریخ پرداخت</label><input id="pay_date" type="date" data-bind="pay_date"></div>
+        <div class="field"><label for="employee">Name des Arbeitnehmers</label><input id="employee" data-bind="employee" placeholder="Max Mustermann"></div>
+        <div class="field"><label for="employee_no">Personalnummer</label><input id="employee_no" data-bind="employee_no" placeholder="M-001"></div>
+        <div class="field"><label for="start_date">Beschäftigungsbeginn</label><input id="start_date" type="date" data-bind="start_date"></div>
+        <div class="field"><label for="period">Abrechnungszeitraum</label><input id="period" data-bind="period" placeholder="November 2026"></div>
+        <div class="field"><label for="pay_date">Auszahlungsdatum</label><input id="pay_date" type="date" data-bind="pay_date"></div>
       </div>
     </section>
 
     <section class="panel group">
-      <h3>اطلاعات حقوق و بیمه</h3>
+      <h3>Entgelt und Sozialversicherung</h3>
       <div class="fields">
-        <div class="field"><label for="base_pay">حقوق پایه ماهانه ناخالص (€)</label><input id="base_pay" type="number" min="0" step="0.01" value="3000"></div>
-        <div class="field"><label for="monthly_hours">ساعات قراردادی ماهانه</label><input id="monthly_hours" type="number" min="1" step="0.5" value="173.33"></div>
-        <div class="field"><label for="bonus">پاداش/پرداخت یک‌باره ناخالص (€)</label><input id="bonus" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="allowance">سایر مزایای ناخالص (€)</label><input id="allowance" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="kasse">Krankenkasse</label><input id="kasse" placeholder="نام صندوق بیمه"></div>
-        <div class="field"><label for="kv_extra">Zusatzbeitrag صندوق (%)</label><input id="kv_extra" type="number" min="0" max="10" step="0.01" value="2.9"></div>
-        <div class="field"><label for="state">محل کار / Bundesland</label><select id="state"><option value="">انتخاب ایالت محل کار</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option></select></div>
-        <div class="field"><label for="children">تعداد فرزندان زیر ۲۵ سال</label><select id="children"><option value="0">۰</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option><option value="5">۵ یا بیشتر</option></select></div>
-        <div class="field"><label><input id="under23" type="checkbox" style="width:auto"> کارمند هنوز ۲۳ ساله نشده است</label></div>
-        <div class="field"><label for="health_rate">نرخ پایه Krankenversicherung (%)</label><input id="health_rate" type="number" min="0" max="30" step="0.01" value="14.6"></div>
+        <div class="field"><label for="base_pay">Monatliches Grundgehalt brutto (EUR)</label><input id="base_pay" type="number" min="0" step="0.01" value="3000"></div>
+        <div class="field"><label for="monthly_hours">Vertragliche Monatsarbeitszeit (Stunden)</label><input id="monthly_hours" type="number" min="1" step="0.5" value="173.33"></div>
+        <div class="field"><label for="bonus">Bonus / Einmalzahlung brutto (EUR)</label><input id="bonus" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="allowance">Sonstige Bruttobezüge (EUR)</label><input id="allowance" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="kasse">Krankenkasse</label><input id="kasse" placeholder="Name der Krankenkasse"></div>
+        <div class="field"><label for="kv_extra">Zusatzbeitrag der Krankenkasse (%)</label><input id="kv_extra" type="number" min="0" max="10" step="0.01" value="2.9"></div>
+        <div class="field"><label for="state">Bundesland des Arbeitsortes</label><select id="state"><option value="">Bundesland auswählen</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option></select></div>
+        <div class="field"><label for="children">Anzahl der Kinder unter 25 Jahren</label><select id="children"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 oder mehr</option></select></div>
+        <div class="field"><label><input id="under23" type="checkbox" style="width:auto"> Arbeitnehmer ist noch keine 23 Jahre alt</label></div>
+        <div class="field"><label for="health_rate">Allgemeiner Beitragssatz der Krankenversicherung (%)</label><input id="health_rate" type="number" min="0" max="30" step="0.01" value="14.6"></div>
       </div>
-      <p class="muted">مبنای نسخه آزمایشی: کارمند عادیِ مشمول بیمه قانونی، حقوق ماهانه کامل و یک کارفرما. نرخ Zusatzbeitrag را مطابق صندوق واقعی انتخابی وارد کن. مواردی مانند Minijob، بیمه خصوصی، چند کارفرما، Kurzarbeit و شروع/پایان وسط ماه در این محاسبه‌گر پوشش داده نمی‌شوند.</p>
+      <p class="muted">Annahmen: regulär beschäftigter Arbeitnehmer in der gesetzlichen Krankenversicherung, voller Abrechnungsmonat und ein Arbeitgeber. Tragen Sie den Zusatzbeitrag der gewählten Krankenkasse ein. Minijobs, private Krankenversicherung, mehrere Arbeitgeber, Kurzarbeit sowie Ein- oder Austritte während des Monats sind nicht abgedeckt.</p>
     </section>
 
     <section class="panel group">
-      <h3>ساعات شیفت و Zuschläge</h3>
-      <p class="muted">برای هر شیفت تاریخ، ساعت شروع و پایان و بازه استراحت را وارد کن. عبور از نیمه‌شب پشتیبانی می‌شود. تعطیلات عمومی آلمان و تعطیلات ایالت انتخابی به‌صورت خودکار از تقویم ۲۰۲۶ تشخیص داده می‌شوند؛ تاریخ‌های محلی/خاص را نیز می‌توانی اضافه کنی.</p>
+      <h3>Arbeitszeiten und Zuschläge</h3>
+      <p class="muted">Geben Sie für jede Schicht Datum, Beginn, Ende und Pausenzeitraum ein. Schichten über Mitternacht werden unterstützt. Gesetzliche Feiertage werden anhand des ausgewählten Bundeslands für 2026 erkannt. Zusätzliche lokale Feiertage können ergänzt werden.</p>
       <div class="fields">
-        <div class="field"><label for="night_rate">Zuschlag شب طبق قرارداد (%)</label><input id="night_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
-        <div class="field"><label for="sunday_rate">Zuschlag یکشنبه طبق قرارداد (%)</label><input id="sunday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
-        <div class="field"><label for="holiday_rate">Zuschlag تعطیل رسمی طبق قرارداد (%)</label><input id="holiday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
-        <div class="field full"><label for="holidays">تعطیلات محلی اضافه (اختیاری)</label><textarea id="holidays" rows="3" style="width:100%;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit" placeholder="2026-08-08"></textarea></div>
+        <div class="field"><label for="night_rate">Nachtzuschlag laut Vertrag (%)</label><input id="night_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field"><label for="sunday_rate">Sonntagszuschlag laut Vertrag (%)</label><input id="sunday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field"><label for="holiday_rate">Feiertagszuschlag laut Vertrag (%)</label><input id="holiday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field full"><label for="holidays">Zusätzliche lokale Feiertage (optional)</label><textarea id="holidays" rows="3" style="width:100%;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit" placeholder="2026-08-08"></textarea></div>
       </div>
       <div style="overflow-x:auto;margin-top:12px">
-        <table id="shift_table"><thead><tr><th>تاریخ</th><th>شروع</th><th>پایان</th><th>استراحت از</th><th>استراحت تا</th><th></th></tr></thead><tbody id="shift_rows"></tbody></table>
+        <table id="shift_table"><thead><tr><th>Datum</th><th>Beginn</th><th>Ende</th><th>Pause von</th><th>Pause bis</th><th></th></tr></thead><tbody id="shift_rows"></tbody></table>
       </div>
-      <div class="actions"><button class="secondary" id="add_shift" type="button">افزودن شیفت</button></div>
-      <p id="shift_summary" class="muted">ساعات شب، یکشنبه و تعطیل پس از ورود شیفت محاسبه می‌شوند.</p>
+      <div class="actions"><button class="secondary" id="add_shift" type="button">Schicht hinzufügen</button></div>
+      <p id="shift_summary" class="muted">Nacht-, Sonntags- und Feiertagsstunden werden nach Eingabe der Schichten berechnet.</p>
     </section>
 
     <section class="panel group">
-      <h3>مالیات و سایر کسورات دستی</h3>
-      <p class="muted">مالیات حقوق در این نسخه از کلاس مالیاتی و مشخصات فردی محاسبه نمی‌شود. ارقام مالیاتی را فقط در صورت داشتن محاسبه معتبر وارد کن.</p>
+      <h3>Steuern und sonstige manuelle Abzüge</h3>
+      <p class="muted">Die Lohnsteuer wird in dieser Version nicht anhand der Steuerklasse und persönlichen Merkmale berechnet. Tragen Sie Steuerbeträge nur auf Grundlage einer separaten, verlässlichen Berechnung ein.</p>
       <div class="fields">
         <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="church">Kirchensteuer (€)</label><input id="church" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="other">سایر کسورات (€)</label><input id="other" type="number" min="0" step="0.01" value="0"></div>
-        <div class="field"><label for="advance">پیش‌پرداخت قبلی / Vorschuss (€)</label><input id="advance" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="other">Sonstige Abzüge (EUR)</label><input id="other" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="advance">Vorschuss / Abschlag (EUR)</label><input id="advance" type="number" min="0" step="0.01" value="0"></div>
       </div>
     </section>
 
     <div class="actions screen-only">
-      <div class="output-actions"><button class="primary" id="pdf_button" type="button">PDF herunterladen · ذخیره PDF</button><button class="secondary" id="print_button" type="button">Drucken · چاپ</button><button class="secondary" id="reset_button" type="button">پاک‌کردن فرم</button></div>
+      <div class="output-actions"><button class="primary" id="pdf_button" type="button">PDF herunterladen · PDF herunterladen</button><button class="secondary" id="print_button" type="button">Drucken · Drucken</button><button class="secondary" id="reset_button" type="button">Formular zurücksetzen</button></div>
     </div>
   </main>
 
@@ -228,7 +228,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       input.addEventListener("input",update);td.appendChild(input);tr.appendChild(td);
     });
     const td=document.createElement("td"),remove=document.createElement("button");
-    remove.type="button";remove.className="secondary";remove.textContent="حذف";
+    remove.type="button";remove.className="secondary";remove.textContent="Entfernen";
     remove.addEventListener("click",()=>{tr.remove();update();});
     td.appendChild(remove);tr.appendChild(td);shiftRows.appendChild(tr);update();
   }
@@ -270,8 +270,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       const get=name=>tr.querySelector('[data-shift="'+name+'"]').value;
       const date=get("date"),start=parseClock(get("start")),end=parseClock(get("end"));
       const bs=get("break_start")?parseClock(get("break_start")):null,be=get("break_end")?parseClock(get("break_end")):null;
-      if(!date||start===null||end===null){errors.push("شیفت "+(index+1)+": تاریخ و ساعت شروع/پایان را کامل کن.");return;}
-      if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("شیفت "+(index+1)+": هر دو ساعت استراحت را وارد کن یا هر دو را خالی بگذار.");return;}
+      if(!date||start===null||end===null){errors.push("Schicht "+(index+1)+": Bitte Datum sowie Beginn und Ende vollständig eingeben.");return;}
+      if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("Schicht "+(index+1)+": Bitte beide Pausenzeiten eingeben oder beide Felder leer lassen.");return;}
       const [y,m,d]=date.split("-").map(Number);
       let cursor=Date.UTC(y,m-1,d,Math.floor(start/60),start%60),finish=Date.UTC(y,m-1,d,Math.floor(end/60),end%60);
       if(finish<=cursor) finish+=86400000;
@@ -280,7 +280,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         breakFrom=Date.UTC(y,m-1,d,Math.floor(bs/60),bs%60);breakTo=Date.UTC(y,m-1,d,Math.floor(be/60),be%60);
         if(breakFrom<cursor)breakFrom+=86400000;
         if(breakTo<=breakFrom)breakTo+=86400000;
-        if(breakFrom<cursor||breakTo>finish){errors.push("شیفت "+(index+1)+": بازه استراحت باید داخل شیفت باشد.");return;}
+        if(breakFrom<cursor||breakTo>finish){errors.push("Schicht "+(index+1)+": Die Pause muss innerhalb der Schicht liegen.");return;}
       }
       const startedBeforeMidnight=finish>Date.UTC(y,m-1,d,24,0);
       for(let t=cursor;t<finish;t+=60000){
@@ -343,7 +343,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_employee").textContent=$("employee").value||"-";$("p_employee_no").textContent=$("employee_no").value||"-";
     $("p_company_short").textContent=$("company").value||"-";$("p_period").textContent=$("period").value||"-";
     $("p_start_date").textContent=$("start_date").value||"-";$("p_pay_date").textContent=$("pay_date").value||"-";
-    $("shift_summary").textContent="شب: "+r.nightHours.toFixed(2)+" ساعت | یکشنبه: "+r.sundayHours.toFixed(2)+" ساعت | تعطیل رسمی: "+r.holidayHours.toFixed(2)+" ساعت | Zuschläge: "+money(r.premium)+" € | معاف از بیمه (برآورد): "+money(r.svFree)+" € | مبنای بیمه: "+money(r.svGross)+" €"+(!r.stateSelected?" | برای محاسبه خالص، ایالت محل کار را انتخاب کن.":"")+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
+    $("shift_summary").textContent="Nacht: "+r.nightHours.toFixed(2)+" Std. | Sonntag: "+r.sundayHours.toFixed(2)+" Std. | Feiertag: "+r.holidayHours.toFixed(2)+" Std. | Zuschläge: "+money(r.premium)+" € | Geschätzter SV-freier Anteil: "+money(r.svFree)+" € | SV-pflichtiges Entgelt: "+money(r.svGross)+" €"+(!r.stateSelected?" | Bitte wählen Sie das Bundesland des Arbeitsortes aus, um das Nettoentgelt zu berechnen.":"")+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
     $("p_gross").parentElement.cells[0].textContent="Gesamtbrutto einschließlich Zuschläge";
     $("p_tax").parentElement.cells[0].textContent="Lohnsteuer / Soli / Kirchensteuer (manuell zusammengefasst)";
     $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge und Vorschuss";
@@ -403,7 +403,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   $("logo_file").addEventListener("change",event=>{
     const file=event.target.files&&event.target.files[0],area=$("logo_area");
     if(!file){area.innerHTML="LOGO<br>Unternehmen";return;}
-    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>2*1024*1024){event.target.value="";area.textContent="فقط PNG، JPG یا WebP تا ۲ مگابایت";return;}
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>2*1024*1024){event.target.value="";area.textContent="Nur PNG, JPG oder WebP bis 2 MB";return;}
     const reader=new FileReader();reader.onload=()=>{area.innerHTML="";const img=document.createElement("img");img.alt="Company logo";img.src=reader.result;area.appendChild(img);};reader.readAsDataURL(file);
   });
   document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>el.addEventListener("input",update));
