@@ -140,9 +140,8 @@ class DemoRouteTests(unittest.TestCase):
         ):
             self.assertIn(label, body)
 
-        self.assertIn('data-wage="taxable"', body)
-        self.assertIn('data-wage="sv"', body)
-        self.assertIn('data-wage="gb"', body)
+        self.assertIn('["taxable","sv","gb"]', body)
+        self.assertIn("input.dataset.wage=field", body)
         self.assertIn("function addWageRow", body)
         self.assertIn("function readWageRows", body)
         self.assertIn("taxGross", body)
