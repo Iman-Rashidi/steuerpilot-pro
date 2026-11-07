@@ -74,7 +74,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
 <div class="layout">
   <main class="editor">
     <section class="panel">
-      <div class="note">این فرم در مرورگر اجرا می‌شود. اطلاعات فیش و تصویر لوگو به سرور ارسال یا در برنامه ذخیره نمی‌شوند. فقط برای داده‌های ساختگی استفاده کن؛ شناسه مالیاتی، شماره بیمه اجتماعی، IBAN یا اطلاعات واقعی کارکنان را وارد نکن.</div>
+      <div class="note">این فرم فقط در مرورگر اجرا می‌شود و اطلاعات یا لوگو به سرور ارسال نمی‌شوند. فقط با داده ساختگی آزمایش کن. محاسبات بیمه برای سناریوی استاندارد سال ۲۰۲۶ است و جایگزین سیستم حقوق و دستمزد معتبر نیست.</div>
     </section>
 
     <section class="panel group">
@@ -98,40 +98,47 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     </section>
 
     <section class="panel group">
-      <h3>دریافتی‌ها</h3>
-      <p class="muted">مبالغ زیر را طبق محاسبه حقوق معتبر وارد کن؛ این فرم نرخ قانونی را محاسبه نمی‌کند.</p>
+      <h3>اطلاعات حقوق و بیمه</h3>
       <div class="fields">
-        <div class="field"><label for="base_pay">حقوق پایه ناخالص (€)</label><input id="base_pay" type="number" min="0" step="0.01" value="3000" data-money="earning"></div>
-        <div class="field"><label for="overtime">اضافه‌کاری و Zuschläge (€)</label><input id="overtime" type="number" min="0" step="0.01" value="0" data-money="earning"></div>
-        <div class="field"><label for="bonus">پاداش و پرداخت یک‌باره (€)</label><input id="bonus" type="number" min="0" step="0.01" value="0" data-money="earning"></div>
-        <div class="field"><label for="allowance">مزایا و فوق‌العاده‌ها (€)</label><input id="allowance" type="number" min="0" step="0.01" value="0" data-money="earning"></div>
+        <div class="field"><label for="base_pay">حقوق پایه ماهانه ناخالص (€)</label><input id="base_pay" type="number" min="0" step="0.01" value="3000"></div>
+        <div class="field"><label for="monthly_hours">ساعات قراردادی ماهانه</label><input id="monthly_hours" type="number" min="1" step="0.5" value="173.33"></div>
+        <div class="field"><label for="bonus">پاداش/پرداخت یک‌باره ناخالص (€)</label><input id="bonus" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="allowance">سایر مزایای ناخالص (€)</label><input id="allowance" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="kasse">Krankenkasse</label><input id="kasse" placeholder="نام صندوق بیمه"></div>
+        <div class="field"><label for="kv_extra">Zusatzbeitrag صندوق (%)</label><input id="kv_extra" type="number" min="0" max="10" step="0.01" value="2.9"></div>
+        <div class="field"><label for="state">محل کار / Bundesland</label><select id="state"><option value="other">سایر ایالت‌ها</option><option value="sachsen">Sachsen</option></select></div>
+        <div class="field"><label for="children">تعداد فرزندان زیر ۲۵ سال</label><select id="children"><option value="0">۰</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option><option value="5">۵ یا بیشتر</option></select></div>
+        <div class="field"><label><input id="under23" type="checkbox" style="width:auto"> کارمند هنوز ۲۳ ساله نشده است</label></div>
+        <div class="field"><label for="health_rate">نرخ پایه Krankenversicherung (%)</label><input id="health_rate" type="number" min="0" max="30" step="0.01" value="14.6"></div>
       </div>
+      <p class="muted">مبنای نسخه آزمایشی: کارمند عادیِ مشمول بیمه قانونی، حقوق ماهانه کامل و یک کارفرما. نرخ Zusatzbeitrag را مطابق صندوق واقعی انتخابی وارد کن. مواردی مانند Minijob، بیمه خصوصی، چند کارفرما، Kurzarbeit و شروع/پایان وسط ماه در این محاسبه‌گر پوشش داده نمی‌شوند.</p>
     </section>
 
     <section class="panel group">
-      <h3>کسورات کارمند</h3>
-      <p class="muted">مبالغ را از محاسبه حقوق معتبر وارد کن؛ مبلغ کسورات این فرم به‌صورت خودکار تعیین نمی‌شود.</p>
+      <h3>ساعات شیفت و Zuschläge</h3>
+      <p class="muted">برای هر شیفت تاریخ، ساعت شروع و پایان و بازه استراحت را وارد کن. عبور از نیمه‌شب پشتیبانی می‌شود. تعطیلات رسمی را به شکل تاریخ YYYY-MM-DD و هر تاریخ در یک خط وارد کن؛ تقویم تعطیلات به محل کار بستگی دارد.</p>
       <div class="fields">
-        <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="church">Kirchensteuer (€)</label><input id="church" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="health">Krankenversicherung - Arbeitnehmer (€)</label><input id="health" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="care">Pflegeversicherung - Arbeitnehmer (€)</label><input id="care" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="pension">Rentenversicherung - Arbeitnehmer (€)</label><input id="pension" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="unemployment">Arbeitslosenversicherung - Arbeitnehmer (€)</label><input id="unemployment" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="other">سایر کسورات (€)</label><input id="other" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
-        <div class="field"><label for="advance">پیش‌پرداخت قبلی / Vorschuss (€)</label><input id="advance" type="number" min="0" step="0.01" value="0" data-money="deduction"></div>
+        <div class="field"><label for="night_rate">Zuschlag شب طبق قرارداد (%)</label><input id="night_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field"><label for="sunday_rate">Zuschlag یکشنبه طبق قرارداد (%)</label><input id="sunday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field"><label for="holiday_rate">Zuschlag تعطیل رسمی طبق قرارداد (%)</label><input id="holiday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
+        <div class="field full"><label for="holidays">تاریخ تعطیلات رسمی محل کار</label><textarea id="holidays" rows="3" style="width:100%;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit" placeholder="2026-01-01&#10;2026-12-25"></textarea></div>
       </div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table id="shift_table"><thead><tr><th>تاریخ</th><th>شروع</th><th>پایان</th><th>استراحت از</th><th>استراحت تا</th><th></th></tr></thead><tbody id="shift_rows"></tbody></table>
+      </div>
+      <div class="actions"><button class="secondary" id="add_shift" type="button">افزودن شیفت</button></div>
+      <p id="shift_summary" class="muted">ساعات شب، یکشنبه و تعطیل پس از ورود شیفت محاسبه می‌شوند.</p>
     </section>
 
     <section class="panel group">
-      <h3>سهم کارفرما (اطلاعاتی)</h3>
-      <p class="muted">این مبالغ از خالص دریافتی کارمند کم نمی‌شوند.</p>
+      <h3>مالیات و سایر کسورات دستی</h3>
+      <p class="muted">مالیات حقوق در این نسخه از کلاس مالیاتی و مشخصات فردی محاسبه نمی‌شود. ارقام مالیاتی را فقط در صورت داشتن محاسبه معتبر وارد کن.</p>
       <div class="fields">
-        <div class="field"><label for="employer_health">Krankenversicherung Arbeitgeber (€)</label><input id="employer_health" type="number" min="0" step="0.01" value="0" data-money="employer"></div>
-        <div class="field"><label for="employer_care">Pflegeversicherung Arbeitgeber (€)</label><input id="employer_care" type="number" min="0" step="0.01" value="0" data-money="employer"></div>
-        <div class="field"><label for="employer_pension">Rentenversicherung Arbeitgeber (€)</label><input id="employer_pension" type="number" min="0" step="0.01" value="0" data-money="employer"></div>
-        <div class="field"><label for="employer_unemployment">Arbeitslosenversicherung Arbeitgeber (€)</label><input id="employer_unemployment" type="number" min="0" step="0.01" value="0" data-money="employer"></div>
+        <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="church">Kirchensteuer (€)</label><input id="church" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="other">سایر کسورات (€)</label><input id="other" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="advance">پیش‌پرداخت قبلی / Vorschuss (€)</label><input id="advance" type="number" min="0" step="0.01" value="0"></div>
       </div>
     </section>
 
@@ -196,64 +203,141 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       </tbody>
     </table>
     <div class="net-box"><span>Auszahlungsbetrag / خالص قابل پرداخت</span><strong id="p_net">0,00 €</strong></div>
-    <div class="preview-foot">Erstellt mit manuell eingegebenen Beträgen. Diese Vorschau berechnet keine Lohnsteuer oder Sozialversicherungsbeiträge und ersetzt keine vollständige Entgeltbescheinigung oder geprüfte Lohnabrechnung.</div>
+    <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Lohnsteuer wird nicht berechnet. Sonderfälle, Tarif-/Vertragsregeln, Nachweise und vollständige gesetzliche Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
   </section>
 </div>
 
 <script>
 (function(){
-  const moneyIds = ["base_pay","overtime","bonus","allowance","tax","soli","church","health","care","pension","unemployment","other","advance","employer_health","employer_care","employer_pension","employer_unemployment"];
-  const toCents = id => {
-    const raw = document.getElementById(id).value;
-    const parsed = Number(String(raw).replace(",", "."));
-    return Number.isFinite(parsed) ? Math.round(parsed * 100) : 0;
-  };
-  const euro = cents => (cents / 100).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
-  const text = (id, value) => { document.getElementById(id).textContent = value || "-"; };
-  const update = () => {
-    ["company","company_address","employee","employee_no","period"].forEach(id => {
-      const input=document.getElementById(id);
-      const target={"company":"p_company","company_address":"p_company_address","employee":"p_employee","employee_no":"p_employee_no","period":"p_period"}[id];
-      text(target,input.value.trim());
+  const $ = id => document.getElementById(id);
+  const cents = value => Math.round((Number(String(value || "0").replace(",",".")) || 0) * 100);
+  const val = id => Number($(id).value || 0);
+  const money = n => (n/100).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const set = (id,n) => { if($(id)) $(id).textContent=money(n); };
+  const rate = id => Math.max(0,Math.min(300,val(id)))/100;
+  const shiftRows = $("shift_rows");
+
+  function addShift(date="",start="20:00",end="06:00",breakStart="",breakEnd=""){
+    const tr=document.createElement("tr");
+    [["date","date",date],["start","time",start],["end","time",end],["break_start","time",breakStart],["break_end","time",breakEnd]].forEach(([name,type,value])=>{
+      const td=document.createElement("td"),input=document.createElement("input");
+      input.type=type;input.dataset.shift=name;input.value=value;input.style.minWidth=type==="date"?"135px":"105px";
+      input.addEventListener("input",update);td.appendChild(input);tr.appendChild(td);
     });
-    text("p_company_short",document.getElementById("company").value.trim());
-    text("p_start_date",document.getElementById("start_date").value);
-    text("p_pay_date",document.getElementById("pay_date").value);
-    moneyIds.forEach(id => {
-      const target=document.getElementById("p_"+id);
-      if(target) target.textContent=euro(toCents(id));
+    const td=document.createElement("td"),remove=document.createElement("button");
+    remove.type="button";remove.className="secondary";remove.textContent="حذف";
+    remove.addEventListener("click",()=>{tr.remove();update();});
+    td.appendChild(remove);tr.appendChild(td);shiftRows.appendChild(tr);update();
+  }
+  function parseClock(s){
+    if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(s||"")) return null;
+    const [h,m]=s.split(":").map(Number);return h*60+m;
+  }
+  function isoDate(d){return d.toISOString().slice(0,10);}
+  function getShifts(){
+    const holidays=new Set($("holidays").value.split(/[\s,;]+/).map(x=>x.trim()).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)));
+    let night=0,sunday=0,holiday=0,nightTaxFree=0,sundayTaxFree=0,holidayTaxFree=0,errors=[];
+    [...shiftRows.querySelectorAll("tr")].forEach((tr,index)=>{
+      const get=name=>tr.querySelector('[data-shift="'+name+'"]').value;
+      const date=get("date"),start=parseClock(get("start")),end=parseClock(get("end"));
+      const bs=get("break_start")?parseClock(get("break_start")):null,be=get("break_end")?parseClock(get("break_end")):null;
+      if(!date||start===null||end===null){errors.push("شیفت "+(index+1)+": تاریخ و ساعت شروع/پایان را کامل کن.");return;}
+      if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("شیفت "+(index+1)+": هر دو ساعت استراحت را وارد کن یا هر دو را خالی بگذار.");return;}
+      const [y,m,d]=date.split("-").map(Number);
+      let cursor=Date.UTC(y,m-1,d,0,start),finish=Date.UTC(y,m-1,d,0,end);
+      if(finish<=cursor) finish+=86400000;
+      let breakFrom=null,breakTo=null;
+      if(bs!==null&&be!==null){
+        breakFrom=Date.UTC(y,m-1,d,0,bs);breakTo=Date.UTC(y,m-1,d,0,be);
+        if(breakFrom<cursor)breakFrom+=86400000;
+        if(breakTo<=breakFrom)breakTo+=86400000;
+        if(breakFrom<cursor||breakTo>finish){errors.push("شیفت "+(index+1)+": بازه استراحت باید داخل شیفت باشد.");return;}
+      }
+      const startedBeforeMidnight=start>=12*60;
+      for(let t=cursor;t<finish;t+=60000){
+        if(breakFrom!==null&&t>=breakFrom&&t<breakTo)continue;
+        const dt=new Date(t),day=dt.getUTCDay(),mins=dt.getUTCHours()*60+dt.getUTCMinutes();
+        const dateIso=isoDate(new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate())));
+        const isNight=mins>=1200||mins<360,isSunday=day===0,isHoliday=holidays.has(dateIso);
+        if(isNight)night++;if(isSunday)sunday++;if(isHoliday)holiday++;
+        if(isNight)nightTaxFree+=(startedBeforeMidnight&&mins<240?0.40:0.25)/60;
+        if(isSunday)sundayTaxFree+=0.50/60;
+        if(isHoliday){
+          const special=dateIso.endsWith("-05-01")||dateIso.endsWith("-12-25")||dateIso.endsWith("-12-26")||(dateIso.endsWith("-12-24")&&mins>=840);
+          holidayTaxFree+=(special?1.50:1.25)/60;
+        }
+      }
     });
-    const gross=["base_pay","overtime","bonus","allowance"].reduce((sum,id)=>sum+toCents(id),0);
-    const deduction=["tax","soli","church","health","care","pension","unemployment","other","advance"].reduce((sum,id)=>sum+toCents(id),0);
-    document.getElementById("p_gross").textContent=euro(gross);
-    document.getElementById("p_deductions").textContent=euro(deduction);
-    document.getElementById("p_net").textContent=euro(gross-deduction)+" €";
-  };
-  document.querySelectorAll("[data-bind],[data-money]").forEach(el=>el.addEventListener("input",update));
-  document.getElementById("pdf_button").addEventListener("click",()=>window.print());
-  document.getElementById("reset_button").addEventListener("click",()=>{
+    return {night,sunday,holiday,nightTaxFree,sundayTaxFree,holidayTaxFree,errors};
+  }
+  function calc(){
+    const base=cents($("base_pay").value),hours=val("monthly_hours"),bonus=cents($("bonus").value),allowance=cents($("allowance").value);
+    const hourly=hours>0?(base/100)/hours:0,shifts=getShifts();
+    const nightHours=shifts.night/60,sundayHours=shifts.sunday/60,holidayHours=shifts.holiday/60;
+    const nightPay=Math.round(hourly*nightHours*rate("night_rate")*100);
+    const sundayPay=Math.round(hourly*sundayHours*rate("sunday_rate")*100);
+    const holidayPay=Math.round(hourly*holidayHours*rate("holiday_rate")*100);
+    const premium=nightPay+sundayPay+holidayPay,gross=base+bonus+allowance+premium;
+    const taxFreeCap=Math.round(Math.min(hourly,50)*100*(shifts.nightTaxFree+shifts.sundayTaxFree+shifts.holidayTaxFree));
+    const taxFree=Math.min(premium,Math.max(0,taxFreeCap));
+    const svFreeCap=Math.round(Math.min(hourly,25)*100*(shifts.nightTaxFree+shifts.sundayTaxFree+shifts.holidayTaxFree));
+    const svFree=Math.min(premium,Math.max(0,svFreeCap)),svGross=Math.max(0,gross-svFree);
+    const kvBase=Math.min(svGross,581250),rvBase=Math.min(svGross,845000);
+    const kvRate=(val("health_rate")+val("kv_extra"))/100;
+    const kvEmployee=Math.round(kvBase*kvRate/2),kvEmployer=kvEmployee;
+    const rvEmployee=Math.round(rvBase*0.093),rvEmployer=rvEmployee;
+    const avEmployee=Math.round(rvBase*0.013),avEmployer=avEmployee;
+    const saxony=$("state").value==="sachsen",childCount=Number($("children").value||0),under23=$("under23").checked;
+    let pvEmployeeRate=childCount>=2?1.8-(Math.min(childCount,5)-1)*0.25:(childCount===1||under23?1.8:2.4);
+    if(saxony)pvEmployeeRate+=0.5;
+    const pvEmployerRate=saxony?1.3:1.8;
+    const pvBase=Math.min(svGross,581250);
+    const pvEmployee=Math.round(pvBase*pvEmployeeRate/100),pvEmployer=Math.round(pvBase*pvEmployerRate/100);
+    const employeeSocial=kvEmployee+pvEmployee+rvEmployee+avEmployee,employerSocial=kvEmployer+pvEmployer+rvEmployer+avEmployer;
+    const manualTax=cents($("tax").value)+cents($("soli").value)+cents($("church").value),other=cents($("other").value)+cents($("advance").value);
+    const deductions=employeeSocial+manualTax+other,net=gross-deductions;
+    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,taxFree,svFree,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,other,deductions,net};
+  }
+  function update(){
+    const r=calc();
+    set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_overtime",r.premium);
+    set("p_gross",r.gross);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
+    set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);
+    set("p_deductions",r.deductions);set("p_net",r.net);
+    set("p_employer_health",r.kvEmployer);set("p_employer_care",r.pvEmployer);set("p_employer_pension",r.rvEmployer);set("p_employer_unemployment",r.avEmployer);
+    $("p_company").textContent=$("company").value||"-";$("p_company_address").textContent=$("company_address").value||"-";
+    $("p_employee").textContent=$("employee").value||"-";$("p_employee_no").textContent=$("employee_no").value||"-";
+    $("p_company_short").textContent=$("company").value||"-";$("p_period").textContent=$("period").value||"-";
+    $("p_start_date").textContent=$("start_date").value||"-";$("p_pay_date").textContent=$("pay_date").value||"-";
+    $("shift_summary").textContent="شب: "+r.nightHours.toFixed(2)+" ساعت | یکشنبه: "+r.sundayHours.toFixed(2)+" ساعت | تعطیل رسمی: "+r.holidayHours.toFixed(2)+" ساعت | Zuschläge: "+money(r.premium)+" € | معاف از بیمه (برآورد): "+money(r.svFree)+" € | مبنای بیمه: "+money(r.svGross)+" €"+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
+    $("p_gross").parentElement.cells[0].textContent="Gesamtbrutto einschließlich Zuschläge";
+    $("p_tax").parentElement.cells[0].textContent="Lohnsteuer / Soli / Kirchensteuer (manuell zusammengefasst)";
+    $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge und Vorschuss";
+    $("p_advance").parentElement.style.display="none";$("p_soli").parentElement.style.display="none";$("p_church").parentElement.style.display="none";
+    $("p_overtime").parentElement.cells[0].textContent="Nacht-, Sonntags- und Feiertagszuschläge (automatisch)";
+    $("p_tax").parentElement.cells[1].textContent=money(r.manualTax);$("p_other").parentElement.cells[1].textContent=money(r.other);
+    $("p_overtime").parentElement.cells[1].textContent=money(r.premium);$("p_gross").parentElement.cells[1].textContent=money(r.gross);
+    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=money(r.net)+" €";
+    $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
+  }
+  $("add_shift").addEventListener("click",()=>addShift());
+  $("pdf_button").addEventListener("click",()=>window.print());
+  $("reset_button").addEventListener("click",()=>{
     document.querySelectorAll(".editor input").forEach(el=>{
-      if(el.type==="file"){el.value="";return;}
-      if(el.type==="number"){el.value="0";return;}
-      el.value="";
+      if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
+      if(el.type==="number"){el.value=el.id==="base_pay"?"3000":el.id==="monthly_hours"?"173.33":el.id==="kv_extra"?"2.9":el.id==="health_rate"?"14.6":"0";return;}el.value="";
     });
-    document.getElementById("logo_area").innerHTML="LOGO<br>Unternehmen";
-    update();
+    $("state").value="other";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
+    $("logo_area").innerHTML="LOGO<br>Unternehmen";update();
   });
-  document.getElementById("logo_file").addEventListener("change",event=>{
-    const file=event.target.files && event.target.files[0];
-    const area=document.getElementById("logo_area");
+  $("logo_file").addEventListener("change",event=>{
+    const file=event.target.files&&event.target.files[0],area=$("logo_area");
     if(!file){area.innerHTML="LOGO<br>Unternehmen";return;}
-    if(!["image/png","image/jpeg","image/webp"].includes(file.type) || file.size>2*1024*1024){
-      event.target.value="";
-      area.textContent="فقط PNG، JPG یا WebP تا ۲ مگابایت";
-      return;
-    }
-    const reader=new FileReader();
-    reader.onload=()=>{area.innerHTML="";const img=document.createElement("img");img.alt="Company logo";img.src=reader.result;area.appendChild(img);};
-    reader.readAsDataURL(file);
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>2*1024*1024){event.target.value="";area.textContent="فقط PNG، JPG یا WebP تا ۲ مگابایت";return;}
+    const reader=new FileReader();reader.onload=()=>{area.innerHTML="";const img=document.createElement("img");img.alt="Company logo";img.src=reader.result;area.appendChild(img);};reader.readAsDataURL(file);
   });
-  update();
+  document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>el.addEventListener("input",update));
+  addShift();
 })();
 </script>
 </body></html>"""
