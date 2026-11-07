@@ -83,5 +83,34 @@ class PayrollEngineFoundationTests(unittest.TestCase):
             calculate_payroll(self.base_input(state="XX"), self.tax())
 
 
+    def test_childless_surcharge_does_not_apply_before_age_23(self):
+        result = calculate_payroll(self.base_input(age=22), self.tax())
+        self.assertEqual(result.employee_care, Decimal("72.00"))
+
+    def test_non_member_cannot_be_charged_church_tax(self):
+        tax = TaxResult(
+            wage_tax=Decimal("500.00"),
+            solidarity_surcharge=Decimal("0.00"),
+            church_tax=Decimal("36.00"),
+            source_id="TEST-BMF-PAP-2026-FIXTURE",
+        )
+        with self.assertRaises(PayrollInputError):
+            calculate_payroll(self.base_input(), tax)
+
+    def test_member_requires_tax_adapter_church_tax_amount(self):
+        tax = TaxResult(
+            wage_tax=Decimal("500.00"),
+            solidarity_surcharge=Decimal("0.00"),
+            church_tax=Decimal("0.00"),
+            source_id="TEST-BMF-PAP-2026-FIXTURE",
+        )
+        with self.assertRaises(PayrollInputError):
+            calculate_payroll(self.base_input(church_tax_member=True), tax)
+
+    def test_negative_deductions_are_rejected(self):
+        with self.assertRaises(PayrollInputError):
+            calculate_payroll(self.base_input(other_deductions=Decimal("-1")), self.tax())
+
+
 if __name__ == "__main__":
     unittest.main()
