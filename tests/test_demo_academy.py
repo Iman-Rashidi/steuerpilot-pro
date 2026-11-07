@@ -184,7 +184,7 @@ class DemoRouteTests(unittest.TestCase):
         wasm = b"".join(application(environ, start_response))
         self.assertEqual(captured["status"], "200 OK")
         self.assertEqual(captured["headers"]["Content-Type"], "application/wasm")
-        self.assertTrue(wasm.startswith(b"\\x00asm"))
+        self.assertTrue(wasm.startswith(b"\x00asm"))
         self.assertGreater(len(wasm), 1000)
 
     def test_sample_payroll_route_uses_synthetic_prefilled_values(self):
