@@ -69,7 +69,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
 </head>
 <body>
 <header>
-  <h1>ساخت فیش حقوقی | Lohnabrechnung</h1>
+  <h1>Lohnabrechnung erstellen</h1>
   <p class="muted">اطلاعات را وارد کن، پیش‌نمایش را بررسی کن و برای ساخت PDF از گزینه چاپ مرورگر استفاده کن.</p>
   <p><a class="back" href="/">← بازگشت به SteuerPilot Pro</a></p>
 </header>
@@ -154,8 +154,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     <div class="preview-top">
       <div class="logo-area" id="logo_area">LOGO<br>Unternehmen</div>
       <div class="company-block">
-        <strong id="p_company">نام شرکت</strong>
-        <div id="p_company_address">نشانی شرکت</div>
+        <strong id="p_company">Firmenname</strong>
+        <div id="p_company_address">Unternehmensanschrift</div>
       </div>
     </div>
     <h2 class="pay-title">Entgeltabrechnung</h2>
