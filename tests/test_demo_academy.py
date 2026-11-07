@@ -56,8 +56,16 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('id="employee"', body)
         self.assertIn('id="p_net"', body)
         self.assertIn("window.print()", body)
-        self.assertIn("Auszahlungsbetrag", body)
+        self.assertIn("<span>Auszahlungsbetrag</span>", body)
+        self.assertNotIn("خالص قابل پرداخت", body)
         self.assertIn("Arbeitgeberanteile", body)
+        self.assertIn('id="print_button"', body)
+        self.assertIn('id="pdf_button"', body)
+        self.assertIn("doc.save(", body)
+        self.assertIn("ENTGELTABRECHNUNG", body)
+        self.assertIn("@page{size:A4;margin:9mm}", body)
+        self.assertIn("output-actions{display:grid;grid-template-columns:1fr;gap:9px", body)
+        self.assertIn("window.print()", body)
 
     def test_payroll_page_has_automatic_social_insurance_and_shift_inputs(self):
         response, body = self.request("/payroll")
