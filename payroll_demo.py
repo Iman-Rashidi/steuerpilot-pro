@@ -5,7 +5,8 @@ PAYROLL_PAGE = r"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SteuerPilot Pro · فیش حقوقی</title>
+<title>Entgeltabrechnung</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{font-family:system-ui,sans-serif;color:#172033;background:#f3f5f8;line-height:1.55}
 *{box-sizing:border-box}
@@ -13,6 +14,8 @@ body{max-width:1180px;margin:24px auto;padding:0 16px}
 header,.panel{background:#fff;border:1px solid #dce2ea;border-radius:14px;padding:18px;margin:14px 0}
 h1,h2,h3{margin-top:0}
 header h1{margin-bottom:4px}
+.output-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+.output-actions button{width:100%;text-align:center}
 .muted{color:#5c6878;font-size:13px}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 .editor{display:grid;gap:14px}
@@ -29,36 +32,36 @@ button,.button{display:inline-block;border:0;border-radius:9px;padding:11px 16px
 .primary{background:#203b63;color:white}
 .secondary{background:#e8eef6;color:#203b63}
 .note{background:#fff8e8;border-right:4px solid #c58a00;padding:12px;border-radius:8px;font-size:13px}
-.preview{background:#fff;border:1px solid #cfd7e2;border-radius:12px;padding:22px;box-shadow:0 4px 18px #10243a0b;direction:ltr;text-align:left}
-.preview-top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #203b63;padding-bottom:15px}
-.logo-area{width:150px;height:82px;border:1px dashed #91a0b3;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#66758a;font-size:12px;text-align:center;padding:6px;flex-shrink:0}
+.preview{background:#fff;border:1px solid #cfd7e2;border-radius:4px;padding:15px;box-shadow:0 4px 18px #10243a0b;direction:ltr;text-align:left;font-family:Arial,Helvetica,sans-serif;color:#111;font-size:11px}
+.preview-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:8px}
+.logo-area{width:118px;height:58px;border:1px dashed #91a0b3;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#66758a;font-size:12px;text-align:center;padding:6px;flex-shrink:0}
 .logo-area img{max-width:100%;max-height:100%;object-fit:contain}
 .company-block{flex:1;text-align:right;direction:rtl}
 .company-block strong{font-size:17px}
-.pay-title{margin:18px 0 12px;font-size:21px}
-.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.meta div,.party{background:#f5f7fa;border-radius:7px;padding:9px}
+.pay-title{margin:10px 0 7px;font-size:18px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
+.meta div,.party{background:#f5f7fa;border-radius:2px;padding:6px}
 .meta small,.party small{display:block;color:#596779;font-size:11px}
-.parties{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
 .party b{display:block;min-height:22px}
-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0 14px}
-th,td{padding:7px 6px;border-bottom:1px solid #e2e7ed;text-align:left}
+table{width:100%;border-collapse:collapse;font-size:10px;margin:4px 0 7px}
+th,td{padding:4px 5px;border-bottom:1px solid #e2e7ed;text-align:left}
 th{background:#f1f4f8;font-weight:700}
 .amount{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-.section-title{margin:14px 0 4px;font-size:14px}
+.section-title{margin:7px 0 3px;font-size:11px;text-transform:uppercase;border-bottom:1px solid #888;padding-bottom:2px}
 .total-row{font-weight:700;background:#f4f7fb}
-.net-box{border:2px solid #203b63;border-radius:9px;padding:13px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:750}
-.preview-foot{margin-top:18px;padding-top:10px;border-top:1px solid #dce2ea;color:#596779;font-size:10px}
+.net-box{border:2px solid #222;border-radius:2px;padding:9px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:750}
+.preview-foot{margin-top:8px;padding-top:5px;border-top:1px solid #dce2ea;color:#596779;font-size:10px}
 a.back{color:#203b63;text-decoration:none;font-weight:650}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.preview{padding:15px}}
 @media(max-width:520px){.fields,.meta,.parties{grid-template-columns:1fr}.preview-top{gap:8px}.logo-area{width:105px;height:68px}.preview{padding:11px}table{font-size:11px}}
-@page{size:A4;margin:12mm}
+@page{size:A4;margin:9mm}
 @media print{
   html,body{background:white!important;margin:0!important;padding:0!important;max-width:none!important}
   header,.editor,.actions,.note,.screen-only{display:none!important}
   .layout{display:block!important}
-  .preview{display:block!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;width:100%!important}
-  .preview table{page-break-inside:avoid}
+  .preview{display:block!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;width:100%!important;font-size:9pt!important}
+  .preview table{page-break-inside:avoid;font-size:8pt!important;margin:3px 0 5px!important}\n  .preview th,.preview td{padding:3px 4px!important}\n  .preview .section-title{margin:5px 0 2px!important;font-size:9pt!important}
   .preview-top,.parties,.net-box{page-break-inside:avoid}
   .preview-foot{position:static}
 }
@@ -143,8 +146,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     </section>
 
     <div class="actions screen-only">
-      <button class="primary" id="pdf_button" type="button">ساخت PDF / Drucken</button>
-      <button class="secondary" id="reset_button" type="button">پاک‌کردن فرم</button>
+      <div class="output-actions"><button class="primary" id="pdf_button" type="button">PDF herunterladen · ذخیره PDF</button><button class="secondary" id="print_button" type="button">Drucken · چاپ</button><button class="secondary" id="reset_button" type="button">پاک‌کردن فرم</button></div>
     </div>
   </main>
 
@@ -203,7 +205,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>Arbeitslosenversicherung Arbeitgeber</td><td class="amount" id="p_employer_unemployment">0,00</td></tr>
       </tbody>
     </table>
-    <div class="net-box"><span>Auszahlungsbetrag / خالص قابل پرداخت</span><strong id="p_net">0,00 €</strong></div>
+    <div class="net-box"><span>Auszahlungsbetrag</span><strong id="p_net">0,00 €</strong></div>
     <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Zuschlagssätze richten sich nach Vertrag oder Tarif. Die ausgewiesenen Steuer-/SV-Freibeträge sind Näherungen nach den eingegebenen Schichtdaten. Lohnsteuer wird nicht berechnet. Sonderfälle, Nachweise und vollständige Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
   </section>
 </div>
@@ -348,11 +350,48 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_advance").parentElement.style.display="none";$("p_soli").parentElement.style.display="none";$("p_church").parentElement.style.display="none";
     $("p_tax").parentElement.cells[1].textContent=money(r.manualTax);$("p_other").parentElement.cells[1].textContent=money(r.other);
     $("p_gross").parentElement.cells[1].textContent=money(r.gross);
-    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=r.stateSelected?money(r.net)+" €":"ایالت محل کار را انتخاب کن";
+    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=r.stateSelected?money(r.net)+" €":"Bundesland auswählen";
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
   }
   $("add_shift").addEventListener("click",()=>addShift());
-  $("pdf_button").addEventListener("click",()=>{const r=calc();if(!r.stateSelected){window.alert("ابتدا ایالت محل کار را انتخاب کن.");return;}if(r.shifts.errors.length){window.alert(r.shifts.errors.join(String.fromCharCode(10)));return;}window.print();});
+  function validateForOutput(){
+    const r=calc();
+    if(!r.stateSelected){window.alert("Bitte zuerst das Bundesland auswählen.");return null;}
+    if(r.shifts.errors.length){window.alert(r.shifts.errors.join(String.fromCharCode(10)));return null;}
+    return r;
+  }
+  $("print_button").addEventListener("click",()=>{if(validateForOutput())window.print();});
+  $("pdf_button").addEventListener("click",()=>{
+    const r=validateForOutput();if(!r)return;
+    if(!window.jspdf||!window.jspdf.jsPDF){window.alert("PDF-Modul konnte nicht geladen werden. Bitte Internetverbindung prüfen oder die Druckfunktion verwenden.");return;}
+    const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+    const left=15,right=195,width=180;let y=15;
+    const line=(yy)=>{doc.setDrawColor(80);doc.line(left,yy,right,yy);};
+    const txt=(s,x,yy,size=9,bold=false)=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s||"-"),x,yy);};
+    const euro=(n)=>money(n)+" EUR";
+    const company=$("company").value||"-",address=$("company_address").value||"-";
+    const employee=$("employee").value||"-",employeeNo=$("employee_no").value||"-";
+    const logo=$("logo_area").querySelector("img");
+    if(logo&&logo.src&&logo.src.startsWith("data:image/")){try{doc.addImage(logo.src,logo.src.includes("png")?"PNG":"JPEG",left,y,28,15,undefined,"FAST");}catch(e){}}
+    txt(company,right,y+3,12,true);txt(address,right,y+8,8);y+=21;line(y);y+=8;
+    txt("ENTGELTABRECHNUNG",left,y,15,true);txt("Abrechnungszeitraum: "+($("period").value||"-"),right,y,9,true);y+=7;
+    txt("Arbeitnehmer: "+employee,left,y,9,true);txt("Personalnummer: "+employeeNo,105,y,9);y+=6;
+    txt("Arbeitgeber: "+company,left,y,9);txt("Auszahlungsdatum: "+($("pay_date").value||"-"),105,y,9);y+=6;
+    txt("Beschäftigungsbeginn: "+($("start_date").value||"-"),left,y,9);y+=5;line(y);y+=6;
+    const row=(label,value,bold=false)=>{txt(label,left,y,9,bold);txt(euro(value),right,y,9,bold,{align:"right"});y+=6;};
+    const section=(title)=>{y+=2;txt(title.toUpperCase(),left,y,9,true);y+=3;line(y);y+=5;};
+    section("Bruttoentgelt / Bezüge");
+    row("Grundgehalt",r.base);row("Nachtzuschläge",r.nightPay);row("Sonntagszuschläge",r.sundayPay);row("Feiertagszuschläge",r.holidayPay);row("Bonus / Einmalzahlungen",r.bonus);row("Zulagen / Sonstige Bezüge",r.allowance);row("Gesamtbrutto",r.gross,true);
+    section("Steuer- und Sozialversicherungsbasis");
+    row("Steuerfrei geschätzter Zuschlagsanteil",r.taxFree);row("SV-freier geschätzter Zuschlagsanteil",r.svFree);row("SV-pflichtiges Brutto",r.svGross,true);
+    section("Abzüge Arbeitnehmer");
+    row("Lohnsteuer / Soli / Kirchensteuer",r.manualTax);row("Krankenversicherung",r.kvEmployee);row("Pflegeversicherung",r.pvEmployee);row("Rentenversicherung",r.rvEmployee);row("Arbeitslosenversicherung",r.avEmployee);row("Sonstige Abzüge / Vorschuss",r.other);row("Gesamtabzüge",r.deductions,true);
+    section("Arbeitgeberanteile");
+    row("Krankenversicherung Arbeitgeber",r.kvEmployer);row("Pflegeversicherung Arbeitgeber",r.pvEmployer);row("Rentenversicherung Arbeitgeber",r.rvEmployer);row("Arbeitslosenversicherung Arbeitgeber",r.avEmployer);
+    y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
+    doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
+  });
   $("reset_button").addEventListener("click",()=>{
     document.querySelectorAll(".editor input").forEach(el=>{
       if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
