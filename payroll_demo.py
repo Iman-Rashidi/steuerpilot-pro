@@ -106,7 +106,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <div class="field"><label for="allowance">سایر مزایای ناخالص (€)</label><input id="allowance" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="kasse">Krankenkasse</label><input id="kasse" placeholder="نام صندوق بیمه"></div>
         <div class="field"><label for="kv_extra">Zusatzbeitrag صندوق (%)</label><input id="kv_extra" type="number" min="0" max="10" step="0.01" value="2.9"></div>
-        <div class="field"><label for="state">محل کار / Bundesland</label><select id="state"><option value="other">سایر ایالت‌ها</option><option value="sachsen">Sachsen</option></select></div>
+        <div class="field"><label for="state">محل کار / Bundesland</label><select id="state"><option value="">انتخاب ایالت محل کار</option><option value="BW">Baden-Württemberg</option><option value="BY">Bayern</option><option value="BE">Berlin</option><option value="BB">Brandenburg</option><option value="HB">Bremen</option><option value="HH">Hamburg</option><option value="HE">Hessen</option><option value="MV">Mecklenburg-Vorpommern</option><option value="NI">Niedersachsen</option><option value="NW">Nordrhein-Westfalen</option><option value="RP">Rheinland-Pfalz</option><option value="SL">Saarland</option><option value="SN">Sachsen</option><option value="ST">Sachsen-Anhalt</option><option value="SH">Schleswig-Holstein</option><option value="TH">Thüringen</option></select></div>
         <div class="field"><label for="children">تعداد فرزندان زیر ۲۵ سال</label><select id="children"><option value="0">۰</option><option value="1">۱</option><option value="2">۲</option><option value="3">۳</option><option value="4">۴</option><option value="5">۵ یا بیشتر</option></select></div>
         <div class="field"><label><input id="under23" type="checkbox" style="width:auto"> کارمند هنوز ۲۳ ساله نشده است</label></div>
         <div class="field"><label for="health_rate">نرخ پایه Krankenversicherung (%)</label><input id="health_rate" type="number" min="0" max="30" step="0.01" value="14.6"></div>
@@ -116,12 +116,12 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
 
     <section class="panel group">
       <h3>ساعات شیفت و Zuschläge</h3>
-      <p class="muted">برای هر شیفت تاریخ، ساعت شروع و پایان و بازه استراحت را وارد کن. عبور از نیمه‌شب پشتیبانی می‌شود. تعطیلات رسمی را به شکل تاریخ YYYY-MM-DD و هر تاریخ در یک خط وارد کن؛ تقویم تعطیلات به محل کار بستگی دارد.</p>
+      <p class="muted">برای هر شیفت تاریخ، ساعت شروع و پایان و بازه استراحت را وارد کن. عبور از نیمه‌شب پشتیبانی می‌شود. تعطیلات عمومی آلمان و تعطیلات ایالت انتخابی به‌صورت خودکار از تقویم ۲۰۲۶ تشخیص داده می‌شوند؛ تاریخ‌های محلی/خاص را نیز می‌توانی اضافه کنی.</p>
       <div class="fields">
         <div class="field"><label for="night_rate">Zuschlag شب طبق قرارداد (%)</label><input id="night_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
         <div class="field"><label for="sunday_rate">Zuschlag یکشنبه طبق قرارداد (%)</label><input id="sunday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
         <div class="field"><label for="holiday_rate">Zuschlag تعطیل رسمی طبق قرارداد (%)</label><input id="holiday_rate" type="number" min="0" max="300" step="0.5" value="0"></div>
-        <div class="field full"><label for="holidays">تاریخ تعطیلات رسمی محل کار</label><textarea id="holidays" rows="3" style="width:100%;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit" placeholder="2026-01-01&#10;2026-12-25"></textarea></div>
+        <div class="field full"><label for="holidays">تعطیلات محلی اضافه (اختیاری)</label><textarea id="holidays" rows="3" style="width:100%;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit" placeholder="2026-08-08"></textarea></div>
       </div>
       <div style="overflow-x:auto;margin-top:12px">
         <table id="shift_table"><thead><tr><th>تاریخ</th><th>شروع</th><th>پایان</th><th>استراحت از</th><th>استراحت تا</th><th></th></tr></thead><tbody id="shift_rows"></tbody></table>
@@ -234,8 +234,33 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const [h,m]=s.split(":").map(Number);return h*60+m;
   }
   function isoDate(d){return d.toISOString().slice(0,10);}
+  function easterSunday(year){
+    const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+    const h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+    const month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+    return new Date(Date.UTC(year,month-1,day));
+  }
+  function plusDays(date,days){const d=new Date(date);d.setUTCDate(d.getUTCDate()+days);return isoDate(d);}
+  function holidaysFor(year,state){
+    const easter=easterSunday(year),goodFriday=plusDays(easter,-2),easterMonday=plusDays(easter,1);
+    const ascension=plusDays(easter,39),whitMonday=plusDays(easter,50),corpus=plusDays(easter,60);
+    const set=new Set([year+"-01-01",goodFriday,easterMonday,year+"-05-01",ascension,whitMonday,year+"-10-03",year+"-12-25",year+"-12-26"]);
+    const add=(...dates)=>dates.forEach(d=>set.add(d));
+    if(["BW","BY","ST"].includes(state))add(year+"-01-06");
+    if(["BE","MV"].includes(state))add(year+"-03-08");
+    if(["BW","BY","HE","NW","RP","SL"].includes(state))add(corpus);
+    if(["BW","BY","NW","RP","SL"].includes(state))add(year+"-11-01");
+    if(["BB","HB","HH","MV","NI","SN","ST","SH","TH"].includes(state))add(year+"-10-31");
+    if(["BY","SL"].includes(state))add(year+"-08-15");
+    if(state==="TH")add(year+"-09-20");
+    if(state==="SN"){
+      const nov22=new Date(Date.UTC(year,10,22)),day=nov22.getUTCDay();
+      add(plusDays(nov22,-((day+6)%7)));
+    }
+    return set;
+  }
   function getShifts(){
-    const holidays=new Set($("holidays").value.split(/[\s,;]+/).map(x=>x.trim()).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)));
+    const holidays=new Set();[...shiftRows.querySelectorAll('input[data-shift="date"]')].forEach(el=>{if(/^\d{4}-\d{2}-\d{2}$/.test(el.value)) holidaysFor(Number(el.value.slice(0,4)),$("state").value).forEach(d=>holidays.add(d));});$("holidays").value.split(/[\s,;]+/).map(x=>x.trim()).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x)).forEach(d=>holidays.add(d));
     let night=0,sunday=0,holiday=0,nightTaxFree=0,sundayTaxFree=0,holidayTaxFree=0,errors=[];
     [...shiftRows.querySelectorAll("tr")].forEach((tr,index)=>{
       const get=name=>tr.querySelector('[data-shift="'+name+'"]').value;
@@ -244,11 +269,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       if(!date||start===null||end===null){errors.push("شیفت "+(index+1)+": تاریخ و ساعت شروع/پایان را کامل کن.");return;}
       if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("شیفت "+(index+1)+": هر دو ساعت استراحت را وارد کن یا هر دو را خالی بگذار.");return;}
       const [y,m,d]=date.split("-").map(Number);
-      let cursor=Date.UTC(y,m-1,d,0,start),finish=Date.UTC(y,m-1,d,0,end);
+      let cursor=Date.UTC(y,m-1,d,Math.floor(start/60),start%60),finish=Date.UTC(y,m-1,d,Math.floor(end/60),end%60);
       if(finish<=cursor) finish+=86400000;
       let breakFrom=null,breakTo=null;
       if(bs!==null&&be!==null){
-        breakFrom=Date.UTC(y,m-1,d,0,bs);breakTo=Date.UTC(y,m-1,d,0,be);
+        breakFrom=Date.UTC(y,m-1,d,Math.floor(bs/60),bs%60);breakTo=Date.UTC(y,m-1,d,Math.floor(be/60),be%60);
         if(breakFrom<cursor)breakFrom+=86400000;
         if(breakTo<=breakFrom)breakTo+=86400000;
         if(breakFrom<cursor||breakTo>finish){errors.push("شیفت "+(index+1)+": بازه استراحت باید داخل شیفت باشد.");return;}
@@ -287,7 +312,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const kvEmployee=Math.round(kvBase*kvRate/2),kvEmployer=kvEmployee;
     const rvEmployee=Math.round(rvBase*0.093),rvEmployer=rvEmployee;
     const avEmployee=Math.round(rvBase*0.013),avEmployer=avEmployee;
-    const saxony=$("state").value==="sachsen",childCount=Number($("children").value||0),under23=$("under23").checked;
+    const saxony=$("state").value==="SN",childCount=Number($("children").value||0),under23=$("under23").checked;
     let pvEmployeeRate=childCount>=2?1.8-(Math.min(childCount,5)-1)*0.25:(childCount===1||under23?1.8:2.4);
     if(saxony)pvEmployeeRate+=0.5;
     const pvEmployerRate=saxony?1.3:1.8;
@@ -327,7 +352,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
       if(el.type==="number"){el.value=el.id==="base_pay"?"3000":el.id==="monthly_hours"?"173.33":el.id==="kv_extra"?"2.9":el.id==="health_rate"?"14.6":"0";return;}el.value="";
     });
-    $("state").value="other";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
+    $("state").value="";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
     $("logo_area").innerHTML="LOGO<br>Unternehmen";update();
   });
   $("logo_file").addEventListener("change",event=>{
