@@ -415,6 +415,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       heading.hidden=!visible;
       let node=heading.nextElementSibling;
       while(node&&!(node.matches&&node.matches("h3.section-title"))){
+        if(node.matches&&node.matches(".net-box,.preview-foot"))break;
         node.hidden=!visible;node=node.nextElementSibling;
       }
     });
