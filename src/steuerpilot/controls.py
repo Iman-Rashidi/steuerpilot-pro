@@ -1,8 +1,9 @@
-"""Database-level period locks and append-only event history for LedgerStore.
+"""Database-enforced period locks and append-only technical events.
 
-Call LedgerControls(store) immediately after constructing LedgerStore. The
-controls share its SQLite connection and therefore participate in the same
-posting/reversal transactions. This is not a certified GoBD audit trail.
+Instantiate LedgerControls(store) immediately after LedgerStore. The extension
+shares the same SQLite connection and transaction boundary as the ledger.
+
+This is a technical integrity control, not a certified GoBD audit trail.
 """
 from __future__ import annotations
 
@@ -20,8 +21,6 @@ class LedgerControls:
 
     def __init__(self, store: LedgerStore) -> None:
         self.store = store
-        # Newer LedgerStore revisions provide equivalent controls natively. In
-        # that case do not add duplicate audit triggers to the same database.
         self._native_controls = callable(getattr(store, "close_period", None)) and callable(
             getattr(store, "audit_events", None)
         )
@@ -40,6 +39,7 @@ class LedgerControls:
                 );
                 CREATE INDEX IF NOT EXISTS idx_periods_org_dates
                     ON accounting_periods(organization_id, start_date, end_date);
+
                 CREATE TABLE IF NOT EXISTS audit_events (
                     id TEXT PRIMARY KEY,
                     organization_id TEXT NOT NULL REFERENCES organizations(id),
@@ -51,6 +51,7 @@ class LedgerControls:
                 );
                 CREATE INDEX IF NOT EXISTS idx_audit_entity
                     ON audit_events(organization_id, entity_type, entity_id, occurred_at);
+
                 CREATE TRIGGER IF NOT EXISTS reject_posting_to_closed_period
                 BEFORE INSERT ON journal_entries
                 WHEN EXISTS (
@@ -59,21 +60,33 @@ class LedgerControls:
                       AND p.start_date <= NEW.booking_date
                       AND p.end_date >= NEW.booking_date
                 )
-                BEGIN SELECT RAISE(ABORT, 'booking date belongs to a closed accounting period'); END;
+                BEGIN
+                    SELECT RAISE(ABORT, 'booking date belongs to a closed accounting period');
+                END;
+
                 CREATE TRIGGER IF NOT EXISTS immutable_audit_events_update
                 BEFORE UPDATE ON audit_events
-                BEGIN SELECT RAISE(ABORT, 'audit events are append-only'); END;
+                BEGIN
+                    SELECT RAISE(ABORT, 'audit events are append-only');
+                END;
                 CREATE TRIGGER IF NOT EXISTS immutable_audit_events_delete
                 BEFORE DELETE ON audit_events
-                BEGIN SELECT RAISE(ABORT, 'audit events are append-only'); END;
+                BEGIN
+                    SELECT RAISE(ABORT, 'audit events are append-only');
+                END;
                 CREATE TRIGGER IF NOT EXISTS immutable_accounting_periods_update
                 BEFORE UPDATE ON accounting_periods
-                BEGIN SELECT RAISE(ABORT, 'closed accounting periods cannot be modified'); END;
+                BEGIN
+                    SELECT RAISE(ABORT, 'closed accounting periods cannot be modified');
+                END;
                 CREATE TRIGGER IF NOT EXISTS immutable_accounting_periods_delete
                 BEFORE DELETE ON accounting_periods
-                BEGIN SELECT RAISE(ABORT, 'closed accounting periods cannot be deleted'); END;
+                BEGIN
+                    SELECT RAISE(ABORT, 'closed accounting periods cannot be deleted');
+                END;
                 """
             )
+
             if not self._native_controls:
                 self.store._connection.executescript(
                     """
@@ -82,39 +95,74 @@ class LedgerControls:
                     BEGIN
                         INSERT INTO audit_events
                         (id, organization_id, entity_type, entity_id, event_type, detail_json, occurred_at)
-                        VALUES (lower(hex(randomblob(16))), NEW.organization_id, 'journal_entry',
-                                NEW.id, 'journal_entry_posted', '{}', strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+                        VALUES (
+                            lower(hex(randomblob(16))),
+                            NEW.organization_id,
+                            'journal_entry',
+                            NEW.id,
+                            'journal_entry_posted',
+                            '{}',
+                            strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                        );
                     END;
+
                     CREATE TRIGGER IF NOT EXISTS audit_journal_entry_reversal
                     AFTER UPDATE OF status ON journal_entries
                     WHEN OLD.status = 'posted' AND NEW.status = 'reversed'
                     BEGIN
                         INSERT INTO audit_events
                         (id, organization_id, entity_type, entity_id, event_type, detail_json, occurred_at)
-                        VALUES (lower(hex(randomblob(16))), NEW.organization_id, 'journal_entry',
-                                NEW.id, 'journal_entry_reversed', '{}', strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+                        VALUES (
+                            lower(hex(randomblob(16))),
+                            NEW.organization_id,
+                            'journal_entry',
+                            NEW.id,
+                            'journal_entry_reversed',
+                            '{}',
+                            strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                        );
                     END;
+
                     CREATE TRIGGER IF NOT EXISTS audit_period_close
                     AFTER INSERT ON accounting_periods
                     BEGIN
                         INSERT INTO audit_events
                         (id, organization_id, entity_type, entity_id, event_type, detail_json, occurred_at)
-                        VALUES (lower(hex(randomblob(16))), NEW.organization_id, 'accounting_period',
-                                NEW.id, 'period_closed', '{}', strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+                        VALUES (
+                            lower(hex(randomblob(16))),
+                            NEW.organization_id,
+                            'accounting_period',
+                            NEW.id,
+                            'period_closed',
+                            json_object(
+                                'start_date', NEW.start_date,
+                                'end_date', NEW.end_date,
+                                'reason', NEW.close_reason
+                            ),
+                            strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                        );
                     END;
                     """
                 )
 
     def close_period(
-        self, organization_id: str, start_date: date, end_date: date, reason: str
+        self,
+        organization_id: str,
+        start_date: date,
+        end_date: date,
+        reason: str,
     ) -> str:
-        """Close a non-overlapping range. No period-reopen operation is provided."""
+        """Close a non-overlapping range. No reopen operation is provided."""
         if end_date < start_date:
             raise LedgerError("Period end date cannot be before its start date")
+        if not organization_id.strip():
+            raise LedgerError("Organization ID is required")
         if not reason.strip():
             raise LedgerError("A period-close reason is required")
+
         if self._native_controls:
             return self.store.close_period(organization_id, start_date, end_date, reason)
+
         period_id = str(uuid.uuid4())
         try:
             with self.store._transaction() as conn:
@@ -125,38 +173,56 @@ class LedgerControls:
                     (organization_id, start_date.isoformat(), end_date.isoformat()),
                 ).fetchone()
                 if overlap is not None:
-                    raise LedgerError(f"Period overlaps an already closed period ({overlap['id']})")
+                    raise LedgerError(
+                        f"Period overlaps an already closed period ({overlap['id']})"
+                    )
                 conn.execute(
                     """INSERT INTO accounting_periods
-                    (id, organization_id, start_date, end_date, close_reason, closed_at)
-                    VALUES (?, ?, ?, ?, ?, ?)""",
-                    (period_id, organization_id, start_date.isoformat(), end_date.isoformat(),
-                     reason.strip(), datetime.now(timezone.utc).isoformat()),
+                       (id, organization_id, start_date, end_date, close_reason, closed_at)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (
+                        period_id,
+                        organization_id,
+                        start_date.isoformat(),
+                        end_date.isoformat(),
+                        reason.strip(),
+                        datetime.now(timezone.utc).isoformat(),
+                    ),
                 )
             return period_id
-except sqlite3.IntegrityError as exc:
-            raise LedgerError("Could not close accounting period: {exc}") from exc
+        except sqlite3.IntegrityError as exc:
+            raise LedgerError(f"Could not close accounting period: {exc}") from exc
 
     def audit_events(
-        self, organization_id: str, entity_id: str | None = None
+        self,
+        organization_id: str,
+        entity_id: str | None = None,
     ) -> tuple[dict[str, Any], ...]:
         with self.store._lock:
             if entity_id is None:
                 rows = self.store._connection.execute(
-                    """SELECT * FROM audit_events WHERE organization_id = ?
-                       ORDER BY occurred_at, id""", (organization_id,)
+                    """SELECT * FROM audit_events
+                       WHERE organization_id = ?
+                       ORDER BY occurred_at, id""",
+                    (organization_id,),
                 ).fetchall()
             else:
                 rows = self.store._connection.execute(
-                    """SELECT * FROM audit_events WHERE organization_id = ? AND entity_id = ?
-                       ORDER BY occurred_at, id""", (organization_id, entity_id)
+                    """SELECT * FROM audit_events
+                       WHERE organization_id = ? AND entity_id = ?
+                       ORDER BY occurred_at, id""",
+                    (organization_id, entity_id),
                 ).fetchall()
-        return tuple({
-            "id": row["id"],
-            "organization_id": row["organization_id"],
-            "entity_type": row["entity_type"],
-            "entity_id": row["entity_id"],
-            "event_type": row["event_type"],
-            "details": json.loads(row["detail_json"]),
-            "occurred_at": row["occurred_at"],
-        } for row in rows)
+
+        return tuple(
+            {
+                "id": row["id"],
+                "organization_id": row["organization_id"],
+                "entity_type": row["entity_type"],
+                "entity_id": row["entity_id"],
+                "event_type": row["event_type"],
+                "details": json.loads(row["detail_json"]),
+                "occurred_at": row["occurred_at"],
+            }
+            for row in rows
+        )
