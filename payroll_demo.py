@@ -245,7 +245,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   function holidaysFor(year,state){
     const easter=easterSunday(year),goodFriday=plusDays(easter,-2),easterMonday=plusDays(easter,1);
     const ascension=plusDays(easter,39),whitMonday=plusDays(easter,50),corpus=plusDays(easter,60);
-    const set=new Set([year+"-01-01",goodFriday,easterMonday,year+"-05-01",ascension,whitMonday,year+"-10-03",year+"-12-25",year+"-12-26"]);
+    const set=new Set([year+"-01-01",goodFriday,plusDays(easter,0),easterMonday,ascension,plusDays(easter,49),whitMonday,year+"-05-01",year+"-10-03",year+"-12-25",year+"-12-26"]);
     const add=(...dates)=>dates.forEach(d=>set.add(d));
     if(state==="BB"){add(plusDays(easter,0),plusDays(easter,49));}
     if(["BW","BY","ST"].includes(state))add(year+"-01-06");
@@ -286,13 +286,12 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         const dt=new Date(t),day=dt.getUTCDay(),mins=dt.getUTCHours()*60+dt.getUTCMinutes();
         const dateIso=isoDate(new Date(Date.UTC(dt.getUTCFullYear(),dt.getUTCMonth(),dt.getUTCDate())));
         const isNight=mins>=1200||mins<360,isSunday=day===0;
-        const specialEve=(dateIso.endsWith("-12-24")||dateIso.endsWith("-12-31"))&&mins>=840;
-        const isHoliday=holidays.has(dateIso)||specialEve;
+        const isHoliday=holidays.has(dateIso);
         if(isNight)night++;if(isSunday)sunday++;if(isHoliday)holiday++;
         if(isNight)nightTaxFree+=(startedBeforeMidnight&&mins<240?0.40:0.25)/60;
-        if(isSunday)sundayTaxFree+=0.50/60;
+        if(isSunday&&!isHoliday)sundayTaxFree+=0.50/60;
         if(isHoliday){
-          const special150=dateIso.endsWith("-05-01")||dateIso.endsWith("-12-25")||dateIso.endsWith("-12-26")||(dateIso.endsWith("-12-24")&&mins>=840);
+          const special150=dateIso.endsWith("-05-01")||dateIso.endsWith("-12-25")||dateIso.endsWith("-12-26");
           holidayTaxFree+=(special150?1.50:1.25)/60;
         }
       }
