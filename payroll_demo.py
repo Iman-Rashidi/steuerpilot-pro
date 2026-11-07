@@ -170,13 +170,14 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     <table><thead><tr><th>Bezeichnung</th><th class="amount">Betrag (EUR)</th></tr></thead>
       <tbody>
         <tr><td>Grundgehalt</td><td class="amount" id="p_base_pay">0,00</td></tr>
-        <tr><td>Überstunden / Zuschläge</td><td class="amount" id="p_overtime">0,00</td></tr>
+        <tr><td>Nachtzuschläge</td><td class="amount" id="p_night_pay">0,00</td></tr><tr><td>Sonntagszuschläge</td><td class="amount" id="p_sunday_pay">0,00</td></tr><tr><td>Feiertagszuschläge</td><td class="amount" id="p_holiday_pay">0,00</td></tr>
         <tr><td>Bonus / Einmalzahlungen</td><td class="amount" id="p_bonus">0,00</td></tr>
         <tr><td>Zulagen / Sonstige Bezüge</td><td class="amount" id="p_allowance">0,00</td></tr>
         <tr class="total-row"><td>Gesamtbrutto (manuell erfasst)</td><td class="amount" id="p_gross">0,00</td></tr>
       </tbody>
     </table>
 
+    <h3 class="section-title">Steuer- und Sozialversicherungsbasis der Zuschläge</h3><table><tbody><tr><td>Steuerfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_tax_free">0,00</td></tr><tr><td>Sozialversicherungsfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_sv_free">0,00</td></tr><tr><td>SV-pflichtiges Brutto</td><td class="amount" id="p_sv_gross">0,00</td></tr></tbody></table>
     <h3 class="section-title">Abzüge Arbeitnehmer</h3>
     <table><thead><tr><th>Bezeichnung</th><th class="amount">Betrag (EUR)</th></tr></thead>
       <tbody>
@@ -203,7 +204,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       </tbody>
     </table>
     <div class="net-box"><span>Auszahlungsbetrag / خالص قابل پرداخت</span><strong id="p_net">0,00 €</strong></div>
-    <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Lohnsteuer wird nicht berechnet. Sonderfälle, Tarif-/Vertragsregeln, Nachweise und vollständige gesetzliche Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
+    <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Zuschlagssätze richten sich nach Vertrag oder Tarif. Die ausgewiesenen Steuer-/SV-Freibeträge sind Näherungen nach den eingegebenen Schichtdaten. Lohnsteuer wird nicht berechnet. Sonderfälle, Nachweise und vollständige Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
   </section>
 </div>
 
@@ -251,11 +252,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     if(["BW","BY","HE","NW","RP","SL"].includes(state))add(corpus);
     if(["BW","BY","NW","RP","SL"].includes(state))add(year+"-11-01");
     if(["BB","HB","HH","MV","NI","SN","ST","SH","TH"].includes(state))add(year+"-10-31");
-    if(["BY","SL"].includes(state))add(year+"-08-15");
+    if(state==="SL")add(year+"-08-15");
     if(state==="TH")add(year+"-09-20");
     if(state==="SN"){
-      const nov22=new Date(Date.UTC(year,10,22)),day=nov22.getUTCDay();
-      add(plusDays(nov22,-((day+6)%7)));
+      const nov23=new Date(Date.UTC(year,10,23)),delta=(nov23.getUTCDay()+4)%7;
+      add(plusDays(nov23,-delta));
     }
     return set;
   }
@@ -325,7 +326,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   }
   function update(){
     const r=calc();
-    set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_overtime",r.premium);
+    set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_night_pay",r.nightPay);set("p_sunday_pay",r.sundayPay);set("p_holiday_pay",r.holidayPay);set("p_tax_free",r.taxFree);set("p_sv_free",r.svFree);set("p_sv_gross",r.svGross);
     set("p_gross",r.gross);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
     set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);
     set("p_deductions",r.deductions);set("p_net",r.net);
@@ -339,9 +340,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_tax").parentElement.cells[0].textContent="Lohnsteuer / Soli / Kirchensteuer (manuell zusammengefasst)";
     $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge und Vorschuss";
     $("p_advance").parentElement.style.display="none";$("p_soli").parentElement.style.display="none";$("p_church").parentElement.style.display="none";
-    $("p_overtime").parentElement.cells[0].textContent="Nacht-, Sonntags- und Feiertagszuschläge (automatisch)";
     $("p_tax").parentElement.cells[1].textContent=money(r.manualTax);$("p_other").parentElement.cells[1].textContent=money(r.other);
-    $("p_overtime").parentElement.cells[1].textContent=money(r.premium);$("p_gross").parentElement.cells[1].textContent=money(r.gross);
+    $("p_gross").parentElement.cells[1].textContent=money(r.gross);
     $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=money(r.net)+" €";
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
   }
