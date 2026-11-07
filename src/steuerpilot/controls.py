@@ -203,14 +203,14 @@ class LedgerControls:
                 rows = self.store._connection.execute(
                     """SELECT * FROM audit_events
                        WHERE organization_id = ?
-                       ORDER BY occurred_at, id""",
+                       ORDER BY rowid""",
                     (organization_id,),
                 ).fetchall()
             else:
                 rows = self.store._connection.execute(
                     """SELECT * FROM audit_events
                        WHERE organization_id = ? AND entity_id = ?
-                       ORDER BY occurred_at, id""",
+                       ORDER BY rowid""",
                     (organization_id, entity_id),
                 ).fetchall()
 
