@@ -68,6 +68,42 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   .preview-top,.parties,.net-box{page-break-inside:avoid}
   .preview-foot{position:static}
 }
+
+/* Reference-style payroll slip: dense A4, ruled columns, monochrome print. */
+.preview{border:1px solid #222;border-radius:0;box-shadow:none;padding:12px;font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff}
+.preview-top{border-bottom:1px solid #111;padding:0 0 5px;gap:10px}
+.logo-area{border:0;border-radius:0;width:90px;height:42px;color:#222}
+.company-block{text-align:right;font-size:10px}
+.company-block strong{font-size:13px}
+.pay-title{font-family:Arial,Helvetica,sans-serif;font-size:15px;letter-spacing:.1px;margin:6px 0 3px;border-bottom:1px solid #111;padding-bottom:4px}
+.meta{gap:0;margin:0 0 4px}
+.meta div,.party{background:#fff;border:1px solid #222;border-radius:0;padding:3px 5px}
+.meta small,.party small{font-size:8px;color:#222}
+.parties{gap:0;margin-bottom:4px}
+.party b{min-height:0}
+.preview table{border-collapse:collapse;border:1px solid #222;margin:3px 0 5px;font-size:8.5px;line-height:1.2}
+.preview th,.preview td{border:1px solid #777;border-bottom:1px solid #777;padding:3px 4px;background:#fff;color:#111}
+.preview th{font-weight:700;background:#f2f2f2}
+.preview .section-title{text-transform:none;font-size:9px;letter-spacing:0;border:0;border-bottom:1px solid #222;padding:2px 0;margin:5px 0 2px}
+.preview .preview-meta td:first-child,.preview .preview-meta td:nth-child(3){font-weight:700}
+.preview .total-row{font-weight:700;background:#eee}
+.preview .net-box{border:2px solid #111;border-radius:0;padding:6px 8px;margin-top:5px;font-size:13px}
+.preview .summary-grid div{background:#fff;border:1px solid #222;border-radius:0;padding:4px}
+.preview-foot{border-top:1px solid #222;color:#222;font-size:8px}
+@media print{
+  @page{size:A4 portrait;margin:7mm}
+  html,body{width:100%!important;min-width:0!important;background:#fff!important;margin:0!important;padding:0!important}
+  .preview{width:100%!important;max-width:none!important;padding:0!important;border:0!important;box-shadow:none!important;font-size:7.5pt!important;line-height:1.12!important}
+  .preview-top{padding-bottom:3px!important}
+  .preview table{font-size:7pt!important;line-height:1.08!important;margin:2px 0 3px!important;break-inside:avoid!important}
+  .preview th,.preview td{padding:2px 3px!important}
+  .preview .section-title{font-size:7.5pt!important;margin:3px 0 1px!important;padding:1px 0!important;break-after:avoid!important}
+  .preview .parties,.preview .meta,.preview .net-box,.preview .summary-grid{break-inside:avoid!important}
+  .preview .net-box{font-size:11pt!important;padding:4px 6px!important}
+  .preview-foot{font-size:6.5pt!important;margin-top:4px!important;padding-top:3px!important}
+  .preview [hidden]{display:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -638,72 +674,10 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   }
   $("print_button").addEventListener("click",()=>{if(validateForOutput())window.print();});
   $("pdf_button").addEventListener("click",()=>{
-    const r=validateForOutput();if(!r)return;
-    if(!window.jspdf||!window.jspdf.jsPDF){window.alert("PDF-Modul konnte nicht geladen werden. Bitte Internetverbindung prüfen oder die Druckfunktion verwenden.");return;}
-    const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
-    const left=15,right=195,width=180;let y=15;
-    const ensureSpace=(space=8)=>{if(y+space>280){doc.addPage();y=15;};};
-    const line=(yy)=>{doc.setDrawColor(80);doc.line(left,yy,right,yy);};
-    const txt=(s,x,yy,size=9,bold=false,options={})=>{if(s===null||s===undefined||String(s).trim()==="")return;doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s),x,yy,options);};
-    const euro=(n)=>money(n)+" EUR";
-    const company=$("company").value.trim(),address=$("company_address").value.trim();
-    const employee=$("employee").value.trim(),employeeNo=$("employee_no").value.trim();
-    const logo=$("logo_area").querySelector("img");
-    if(logo&&logo.complete&&logo.naturalWidth>0){try{const canvas=document.createElement("canvas");canvas.width=logo.naturalWidth;canvas.height=logo.naturalHeight;canvas.getContext("2d").drawImage(logo,0,0);doc.addImage(canvas.toDataURL("image/png"),"PNG",left,y,28,15,undefined,"FAST");}catch(e){}}
-    txt(company,right,y+3,12,true);txt(address,right,y+8,8);y+=21;line(y);y+=8;
-    txt("ABRECHNUNG DER BRUTTO/NETTO-BEZÜGE",left,y,12,true);txt($("period").value?"Für: "+formatPeriod($("period").value):"",right,y,9,true);y+=7;
-    txt(employee?"Arbeitnehmer: "+employee:"",left,y,9,true);txt(employeeNo?"Personalnummer: "+employeeNo: "",105,y,9);y+=6;
-    txt(company?"Arbeitgeber: "+company:"",left,y,9);txt($("pay_date").value?"Auszahlungsdatum: "+$("pay_date").value:"",105,y,9);y+=6;
-    txt($("start_date").value?"Beschäftigungsbeginn: "+$("start_date").value:"",left,y,9);y+=5;line(y);y+=6;
-    let pdfSectionStarted=false;const startPdfSection=()=>{if(pdfSectionStarted)return;ensureSpace(13);y+=2;txt(activePdfTitle.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;pdfSectionStarted=true;};let activePdfTitle="";const hasPdfValue=value=>{const v=String(value??"").trim();return v!==""&&v!=="-"&&v!=="—"&&!/^(?:0+(?:[,.]0+)?(?:\s*EUR)?)$/i.test(v);};const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection)||!Number.isFinite(Number(value))||Number(value)===0)return;startPdfSection();ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
-    const section=(title)=>{const normalized=title.toLowerCase();const alias=normalized.includes("steuerrechtliche abzüge")||normalized.includes("sozialversicherungsabzüge")||normalized==="netto-abzüge";const match=alias?sectionDefinitions.find(item=>item[0]==="deductions"):sectionDefinitions.find(item=>normalized.startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";activePdfTitle=title;pdfSectionStarted=false;};
-    section("Steuermerkmale");
-    const pair=(label,value,label2="",value2="")=>{if(!sectionEnabled(activePdfSection))return;const first=hasPdfValue(value),second=Boolean(label2)&&hasPdfValue(value2);if(!first&&!second)return;startPdfSection();ensureSpace(7);if(first)txt(label+": "+value,left,y,8);if(second)txt(label2+": "+value2,first?105:left,y,8);y+=5;};
-    pair("Anschrift", $("employee_address").value,"Geburtsdatum",$("birth_date").value);
-    pair("Geburtsdatum", $("birth_date").value,"Steuerklasse",$("tax_class").value);
-    pair("Faktor",$("tax_factor").value,"Kinderfreibetrag",$("child_allowance").value);
-    pair("Konfession",$("religion").value,"Freibetrag jährlich",money(cents($("annual_allowance").value))+" EUR");
-    pair("Freibetrag monatlich",money(cents($("monthly_allowance").value))+" EUR","DBA-Staat",$("dba_country").value);
-    pair("Midijob",$("midijob").checked?"Ja":"","Steuer-ID (Testwert)",$("steuer_id_test").value);
-    section("Sozialversicherung");
-    pair("SV-Nummer (Testwert)",$("sv_number_test").value,"Krankenkasse",$("kasse").value);
-    pair("PGRS",$("pgrs").value,"BGRS",$("bgrs").value);
-    pair("SV-Tage",$("sv_days").value,"UV-Tage",$("uv_days").value);
-    pair("UV-Kennzeichen",$("uv_code_test").value,"Bundesland",$("state").selectedOptions[0]?.textContent||"");
-    pair("Kinder unter 25",Number($("children").value)>0?$("children").value:"","Unter 23 Jahre",$("under23").checked?"Ja":"");
-    section("Arbeitszeit und Fehlzeiten");
-    pair("Soll-/Iststunden",$("scheduled_hours").value+" / "+$("actual_hours").value,"Anwesenheitstage",$("attendance_days").value);
-    pair("Urlaubsanspruch",$("vacation_entitlement").value,"Übertrag Vorjahr",$("vacation_carryover").value);
-    pair("Genommene Urlaubstage",$("vacation_taken").value,"Resturlaub",String(Math.max(0,val("vacation_entitlement")+val("vacation_carryover")-val("vacation_taken"))));
-    pair("Krankheitstage",$("sick_days").value,"Sonstige Fehltage",$("absence_days").value);
-    section("Bruttoentgelt / Bezüge");
-    row("Grundgehalt",r.base);row("Nachtzuschläge",r.nightPay);row("Sonntagszuschläge",r.sundayPay);row("Feiertagszuschläge",r.holidayPay);row("Bonus / Einmalzahlungen",r.bonus);row("Zulagen / Sonstige Bezüge",r.allowance);
-    r.earnings.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
-    row("Gesamtbrutto",r.gross,true);
-    section("Steuer- und Sozialversicherungsbasis");
-    row("Steuer-Brutto",r.taxGross,true);row("KV-Brutto",r.kvBase);row("RV-/AV-Brutto",r.rvBase);row("Steuerfrei geschätzter Zuschlagsanteil",r.taxFree);row("SV-freier geschätzter Zuschlagsanteil",r.svFree);row("SV-pflichtiges Brutto",r.svGross,true);
-    section("Steuerrechtliche Abzüge");
-    row("Lohnsteuer",r.tax);row("Kirchensteuer",r.church);row("Solidaritätszuschlag",r.soli);
-    section("Sozialversicherungsabzüge Arbeitnehmer");
-    row("Krankenversicherung",r.kvEmployee);row("Pflegeversicherung",r.pvEmployee);row("Rentenversicherung",r.rvEmployee);row("Arbeitslosenversicherung",r.avEmployee);
-    section("Netto-Bezüge");
-    row("Kug-Auszahlung / Netto-Zuschuss",r.kugPayout);
-    r.netBenefits.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
-    section("Netto-Abzüge");
-    row("Sonstige Abzüge",r.other);row("Vorschuss / Abschlag",r.advance);row("VWL",r.vwl);row("Pfändung",r.garnishment);row("Darlehensrückzahlung",r.loanRepayment);
-    r.netDeductions.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
-    row("Gesamtabzüge",r.deductions,true);
-    section("Verdienstbescheinigung (Jahreswerte)");
-    const ytdLabels={gross:"Gesamt-Brutto",tax_gross:"Steuer-Brutto",kv_gross:"KV-Brutto",rv_gross:"RV-Brutto",av_gross:"AV-Brutto",pv_gross:"PV-Brutto",tax:"Lohnsteuer",church:"Kirchensteuer",soli:"Solidaritätszuschlag",kv:"KV-Beitrag",rv:"RV-Beitrag",av:"AV-Beitrag",pv:"PV-Beitrag",vwl:"VWL gesamt"};
-    ytdFields.forEach(id=>pair(ytdLabels[id],money(ytdValue("ytd_"+id))+" EUR"));
-    section("Arbeitgeberanteile und zusätzliche Kosten");
-    row("Krankenversicherung Arbeitgeber",r.kvEmployer);row("Pflegeversicherung Arbeitgeber",r.pvEmployer);row("Rentenversicherung Arbeitgeber",r.rvEmployer);row("Arbeitslosenversicherung Arbeitgeber",r.avEmployer);
-    row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));row("Gesamtkosten Arbeitgeber",r.gross+r.employerSocial+r.employerExtra,true);
-    pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
-    pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
-    ensureSpace(25);y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
-    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
-    doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
+    if(!validateForOutput())return;
+    // Use the same HTML document and print stylesheet as the visible preview.
+    // The browser's Save as PDF therefore matches the print layout exactly.
+    window.print();
   });
   $("reset_button").addEventListener("click",()=>{
     document.querySelectorAll(".editor input").forEach(el=>{
