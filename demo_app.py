@@ -9,6 +9,7 @@ from wsgiref.simple_server import make_server
 from datetime import date
 
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
+from payroll_demo import PAYROLL_PAGE
 
 PAGE = """<!doctype html>
 <html lang="fa"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -17,17 +18,17 @@ PAGE = """<!doctype html>
 :root{font-family:system-ui,sans-serif;color:#172033;background:#f3f5f8}
 body{max-width:760px;margin:40px auto;padding:0 18px}
 header,.panel{background:white;border:1px solid #dce2ea;border-radius:14px;padding:22px;margin:16px 0}
-h1{margin:0 0 8px}.tag{display:inline-block;background:#fff1cc;color:#765300;padding:5px 9px;border-radius:20px;font-size:13px;font-weight:700}
+h1{margin:0 0 8px}
 label{display:block;margin:14px 0 6px;font-weight:600}input,select,button{font:inherit;padding:11px;border:1px solid #bbc5d2;border-radius:8px}
 input{width:100%;box-sizing:border-box}button{margin-top:16px;background:#203b63;color:white;border:0;cursor:pointer}
 #result{white-space:pre-wrap;background:#eef4fb;padding:14px;border-radius:8px;margin-top:16px;display:none}
 .warning{border-left:4px solid #c58a00;padding:10px 14px;background:#fff8e6}
 small{color:#536174}.academy-link{display:inline-block;margin-top:14px;padding:10px 13px;background:#e7f0ff;border-radius:9px;color:#163b6b;text-decoration:none;font-weight:700}
 </style></head><body>
-<header><span class="tag">STAGING · TEST ONLY</span><h1>SteuerPilot Pro</h1>
+<header><h1>SteuerPilot Pro</h1>
 <p>آزمایش محاسبهٔ سادهٔ VAT با داده‌های ساختگی</p>
 <small>این محیط آزمایشی است؛ هیچ داده‌ای ذخیره نمی‌شود.</small>
-<br><a class="academy-link" href="/academy">🎓 ورود به آکادمی مدیرعامل و دستیار اجرایی</a></header>
+<br><a class="academy-link" href="/academy">🎓 ورود به آکادمی مدیرعامل و دستیار اجرایی</a> <a class="academy-link" href="/payroll">🧾 ساخت فیش حقوقی و PDF</a></header>
 <section class="panel">
 <h2>محاسبه‌گر مالیات نمونه</h2>
 <form id="vat">
@@ -66,11 +67,10 @@ ol,ul{padding-inline-start:24px}
 footer{padding:20px 4px;color:#536174;font-size:13px}
 </style></head><body>
 <header>
-<span class="tag">STAGING · TRAINING ONLY</span>
 <h1>🎓 آکادمی مدیرعامل | Geschäftsführer-Akademie</h1>
 <p>آموزش ساده، اجرای تمرینی و کنترل مرحله‌به‌مرحله برای مدیرانی که از حسابداری شروع می‌کنند.</p>
 <p class="de">Lernen · Verstehen · Ausführen · Kontrollieren</p>
-<a class="button" href="/">بازگشت به صفحه اصلی و VAT آزمایشی</a>
+<a class="button" href="/">بازگشت به صفحه اصلی</a> <a class="button" href="/payroll">ساخت فیش حقوقی و PDF</a>
 </header>
 
 <section class="panel">
@@ -154,6 +154,8 @@ def application(environ, start_response):
         return _response(start_response, "200 OK", PAGE, "text/html; charset=utf-8")
     if method == "GET" and path in ("/academy", "/academy/"):
         return _response(start_response, "200 OK", ACADEMY_PAGE, "text/html; charset=utf-8")
+    if method == "GET" and path in ("/payroll", "/payroll/"):
+        return _response(start_response, "200 OK", PAYROLL_PAGE, "text/html; charset=utf-8")
     if method == "GET" and path == "/health":
         return _response(start_response, "200 OK", json.dumps({"status": "ok", "environment": "staging", "persistence": False}))
     if method == "POST" and path == "/api/vat":
