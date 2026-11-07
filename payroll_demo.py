@@ -649,7 +649,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
   function previewValue(inputId,outputId,formatter=value=>value||"-"){const input=$(inputId),output=$(outputId);if(input&&output)output.textContent=formatter(input.type==="checkbox"?input.checked:input.value);}
   function ytdValue(id){return cents($(id).value);}
 
-  function addShift(date="",start="20:00",end="06:00",breakStart="",breakEnd=""){
+  function addShift(date="",start="",end="",breakStart="",breakEnd=""){
     const tr=document.createElement("tr");
     [["date","date",date],["start","time",start],["end","time",end],["break_start","time",breakStart],["break_end","time",breakEnd]].forEach(([name,type,value])=>{
       const td=document.createElement("td"),input=document.createElement("input");
@@ -699,6 +699,8 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
       const get=name=>tr.querySelector('[data-shift="'+name+'"]').value;
       const date=get("date"),start=parseClock(get("start")),end=parseClock(get("end"));
       const bs=get("break_start")?parseClock(get("break_start")):null,be=get("break_end")?parseClock(get("break_end")):null;
+      const hasAnyShiftInput=[date,get("start"),get("end"),get("break_start"),get("break_end")].some(value=>String(value||"").trim()!=="");
+      if(!hasAnyShiftInput)return;
       if(!date||start===null||end===null){errors.push("Schicht "+(index+1)+": Bitte Datum sowie Beginn und Ende vollständig eingeben.");return;}
       if((get("break_start")&&!get("break_end"))||(!get("break_start")&&get("break_end"))||((bs===null)!==(be===null))){errors.push("Schicht "+(index+1)+": Bitte beide Pausenzeiten eingeben oder beide Felder leer lassen.");return;}
       const [y,m,d]=date.split("-").map(Number);
