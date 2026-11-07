@@ -7,7 +7,7 @@ The `/payroll` page provides a Persian-first form and German-language A4 stateme
 - Company name, address, local logo preview, employee display name and internal number, pay period and payment date.
 - Monthly gross base salary, contracted monthly hours, one-off payments and other gross allowances.
 - Shift records with date, start/end time and break interval. Shifts crossing midnight are split minute-by-minute.
-- Night work (20:00-06:00), Sunday work, and public holidays are detected from the shift date. Christmas Eve after 14:00 and New Year’s Eve after 14:00 are handled as special supplement periods.
+- Night work (20:00-06:00), Sunday work, and public holidays are detected from the shift date. Easter Sunday and Pentecost Sunday are included in the §3b tax classification. Sunday and public-holiday classifications are not double-counted for the holiday component of the tax-free estimate; night work can still be combined with either category. Christmas Eve and New Year’s Eve special supplement rules are not included in this demo.
 - Public holidays include nationwide holidays and state-specific 2026 dates for the selected Bundesland. Additional local dates can be entered manually. Bavaria's Assumption Day is municipality-dependent and is not inferred automatically.
 - Contract-entered night, Sunday and public-holiday supplement rates are calculated separately and added to gross pay. These are contract rates, not mandatory statutory supplement rates.
 - The estimated tax-free portion and social-insurance-free portion of each supplement category are displayed separately, using the relevant Grundlohn caps and the entered work-time categories.
@@ -23,7 +23,7 @@ This is a learning/test calculation, not a certified payroll engine. It assumes 
 
 Wage tax (Lohnsteuer), solidarity surcharge, and church tax are not calculated. Those values are separate manual inputs because a correct calculation requires further personal and payroll data and a maintained official tax calculation engine. The Krankenkasse Zusatzbeitrag must be entered for the selected fund; 2.9% is only the 2026 average default.
 
-The tax/SV-free premium estimates assume actual qualifying work and are not a determination that the employer must pay any particular supplement. If night, Sunday and holiday periods overlap, the demo adds the contract-entered rates; the applicable agreement may use different combination rules. Contract or collective-agreement rules determine payment entitlement and rates. The user must select the workplace Bundesland before the net estimate is shown. Regional/local holiday variations may require additional dates.
+The tax/SV-free premium estimates assume actual qualifying work and are not a determination that the employer must pay any particular supplement. If night, Sunday and holiday periods overlap, the demo adds contract-entered payment rates for the separate time categories; the statutory tax-free classification follows the non-duplicative Sunday/holiday treatment, with night work separately combined. If night, Sunday and holiday periods overlap, the demo adds the contract-entered rates; the applicable agreement may use different combination rules. Contract or collective-agreement rules determine payment entitlement and rates. The user must select the workplace Bundesland before the net estimate is shown. Regional/local holiday variations may require additional dates.
 
 ## Data handling
 
