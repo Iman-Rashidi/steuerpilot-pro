@@ -895,7 +895,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
     pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
     pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
     ensureSpace(27);y+=3;doc.setDrawColor(20,20,20);doc.setLineWidth(0.8);doc.rect(left,y,width,17);doc.setTextColor(20,20,20);txt("NETTO-AUSZAHLUNG",left+5,y+10.5,10,true);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(20,20,20);doc.text(euro(r.net),right-5,y+11,{align:"right"});y+=24;
-    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("MUSTER - keine Auszahlung. Steuerberechnung nur fuer gepruefte Standardfaelle mit BMF-PAP 2026; keine zertifizierte Entgeltabrechnung.",left,y,{maxWidth:width});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Steuerberechnung nach BMF-PAP 2026 nur fuer gepruefte Standardfaelle; keine zertifizierte Entgeltabrechnung.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
   });
   $("reset_button").addEventListener("click",()=>{
