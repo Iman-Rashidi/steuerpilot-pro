@@ -159,6 +159,34 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('doc.rect(left,y,width,17)', body)
         self.assertNotIn('doc.setFillColor(23,59,103)', body)
 
+    def test_bmf_static_assets_are_served_without_personal_data(self):
+        xml_response, xml = self.request("/static/Lohnsteuer2026.xml")
+        self.assertEqual(xml_response["status"], "200 OK")
+        self.assertIn("application/xml", xml_response["headers"]["Content-Type"])
+        self.assertEqual(xml_response["headers"]["Cache-Control"], "no-store")
+        self.assertIn('PAP name="Lohnsteuer2026"', xml)
+
+        js_response, js = self.request("/static/steuerpilot_payroll_wasm.js")
+        self.assertEqual(js_response["status"], "200 OK")
+        self.assertIn("text/javascript", js_response["headers"]["Content-Type"])
+        self.assertIn("export class PayrollTaxEngine", js)
+
+        captured = {}
+        def start_response(status, headers):
+            captured["status"] = status
+            captured["headers"] = dict(headers)
+        environ = {
+            "REQUEST_METHOD": "GET",
+            "PATH_INFO": "/static/steuerpilot_payroll_wasm_bg.wasm",
+            "CONTENT_LENGTH": "0",
+            "wsgi.input": BytesIO(b""),
+        }
+        wasm = b"".join(application(environ, start_response))
+        self.assertEqual(captured["status"], "200 OK")
+        self.assertEqual(captured["headers"]["Content-Type"], "application/wasm")
+        self.assertTrue(wasm.startswith(b"\\x00asm"))
+        self.assertGreater(len(wasm), 1000)
+
     def test_sample_payroll_route_uses_synthetic_prefilled_values(self):
         response, body = self.request("/payroll/sample")
         self.assertEqual(response["status"], "200 OK")
