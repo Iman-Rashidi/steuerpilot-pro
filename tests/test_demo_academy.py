@@ -70,7 +70,7 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('id="print_button"', body)
         self.assertIn('id="pdf_button"', body)
         self.assertIn("doc.save(", body)
-        self.assertIn("ENTGELTABRECHNUNG", body)
+        self.assertIn("ABRECHNUNG DER BRUTTO/NETTO-BEZÜGE", body)
         self.assertIn("@page{size:A4;margin:9mm}", body)
         self.assertIn("output-actions{display:grid;grid-template-columns:1fr;gap:9px", body)
         self.assertIn("window.print()", body)
@@ -104,6 +104,50 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("Math.floor(start/60),start%60", body)
         self.assertIn("0.093", body)
         self.assertIn("0.013", body)
+
+    def test_payroll_page_has_datev_inspired_payroll_fields_and_summaries(self):
+        _, body = self.request("/payroll")
+        required_fields = (
+            "employee_address", "birth_date", "steuer_id_test", "sv_number_test",
+            "tax_class", "tax_factor", "child_allowance", "religion",
+            "annual_allowance", "monthly_allowance", "dba_country", "midijob",
+            "pgrs", "bgrs", "sv_days", "uv_code_test", "uv_days",
+            "scheduled_hours", "actual_hours", "attendance_days",
+            "vacation_entitlement", "vacation_carryover", "vacation_taken",
+            "sick_days", "absence_days", "holiday_days",
+            "earnings_rows", "net_benefit_rows", "net_deduction_rows",
+            "kug_payout", "vwl_deduction", "garnishment", "loan_repayment",
+            "rest_garnishment", "rest_loan", "payment_method", "bank_name_test",
+            "ytd_gross", "ytd_tax_gross", "ytd_kv_gross", "ytd_rv_gross",
+            "ytd_av_gross", "ytd_pv_gross", "ytd_tax", "ytd_church",
+            "ytd_soli", "ytd_kv", "ytd_rv", "ytd_av", "ytd_pv", "ytd_vwl",
+            "u1_cost", "u2_cost", "insolvency_cost", "accident_cost",
+        )
+        for field in required_fields:
+            self.assertIn('id="' + field + '"', body, field)
+
+        for label in (
+            "Abrechnung der Brutto/Netto-Bezüge", "Geburtsdatum", "Steuerklasse",
+            "Faktor (Steuerklasse IV)", "Kinderfreibetrag", "Konfession",
+            "Freibetrag jährlich", "Freibetrag monatlich", "DBA-Staat",
+            "Midijob", "Krankenkasse", "Personengruppenschlüssel (PGRS)",
+            "Beitragsgruppenschlüssel (BGRS)", "Anwesenheitstage",
+            "Urlaubsanspruch", "Krankheitstage", "Feiertage",
+            "Lohnart", "Einheit", "Menge", "Faktor (EUR)", "Prozentsatz",
+            "Netto-Bezüge", "Netto-Abzüge", "Verdienstbescheinigung",
+            "Pfändung", "Darlehensrückzahlung", "Auszahlungsweg",
+            "Gesamtkosten Arbeitgeber", "Auszahlungsbetrag",
+        ):
+            self.assertIn(label, body)
+
+        self.assertIn('["taxable","sv","gb"]', body)
+        self.assertIn("input.dataset.wage=field", body)
+        self.assertIn("function addWageRow", body)
+        self.assertIn("function readWageRows", body)
+        self.assertIn("taxGross", body)
+        self.assertIn("doc.addPage()", body)
+        self.assertIn("Keine echten Steuer- oder Sozialversicherungsnummern", body)
+        self.assertNotRegex(body, r"[\u0600-\u06FF]")
 
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
