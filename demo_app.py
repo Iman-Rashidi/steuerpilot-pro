@@ -151,6 +151,27 @@ def _response(start_response, status, payload, content_type="application/json; c
 
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
+    if method == "GET" and path.startswith("/static/"):
+        asset_name = path.removeprefix("/static/")
+        assets = {
+            "steuerpilot_payroll_wasm.js": ("text/javascript; charset=utf-8",),
+            "steuerpilot_payroll_wasm_bg.wasm": ("application/wasm",),
+            "Lohnsteuer2026.xml": ("application/xml; charset=utf-8",),
+        }
+        asset = assets.get(asset_name)
+        if asset is None:
+            return _response(start_response, "404 Not Found", json.dumps({"error": "not found"}))
+        asset_path = Path(__file__).with_name("static") / asset_name
+        if not asset_path.is_file():
+            return _response(start_response, "503 Service Unavailable", json.dumps({"error": "payroll tax assets are not built"}))
+        body = asset_path.read_bytes()
+        start_response("200 OK", [
+            ("Content-Type", asset[0]),
+            ("Content-Length", str(len(body))),
+            ("Cache-Control", "no-store"),
+            ("X-Content-Type-Options", "nosniff"),
+        ])
+        return [body]
     if method == "GET" and path == "/":
         return _response(start_response, "200 OK", PAGE, "text/html; charset=utf-8")
     if method == "GET" and path in ("/academy", "/academy/"):
