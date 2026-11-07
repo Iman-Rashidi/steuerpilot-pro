@@ -246,6 +246,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const easter=easterSunday(year),goodFriday=plusDays(easter,-2),easterMonday=plusDays(easter,1);
     const ascension=plusDays(easter,39),whitMonday=plusDays(easter,50),corpus=plusDays(easter,60);
     const set=new Set([year+"-01-01",goodFriday,easterMonday,year+"-05-01",ascension,whitMonday,year+"-10-03",year+"-12-25",year+"-12-26"]);
+    if(state==="BB"){add(plusDays(easter,0),plusDays(easter,49));}
     const add=(...dates)=>dates.forEach(d=>set.add(d));
     if(["BW","BY","ST"].includes(state))add(year+"-01-06");
     if(["BE","MV"].includes(state))add(year+"-03-08");
@@ -304,10 +305,10 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const sundayPay=Math.round(hourly*sundayHours*rate("sunday_rate")*100);
     const holidayPay=Math.round(hourly*holidayHours*rate("holiday_rate")*100);
     const premium=nightPay+sundayPay+holidayPay,gross=base+bonus+allowance+premium;
-    const taxFreeCap=Math.round(Math.min(hourly,50)*100*(shifts.nightTaxFree+shifts.sundayTaxFree+shifts.holidayTaxFree));
-    const taxFree=Math.min(premium,Math.max(0,taxFreeCap));
-    const svFreeCap=Math.round(Math.min(hourly,25)*100*(shifts.nightTaxFree+shifts.sundayTaxFree+shifts.holidayTaxFree));
-    const svFree=Math.min(premium,Math.max(0,svFreeCap)),svGross=Math.max(0,gross-svFree);
+    const taxHourly=Math.min(hourly,50),svHourly=Math.min(hourly,25);
+    const taxFree=Math.min(nightPay,Math.round(taxHourly*100*shifts.nightTaxFree))+Math.min(sundayPay,Math.round(taxHourly*100*shifts.sundayTaxFree))+Math.min(holidayPay,Math.round(taxHourly*100*shifts.holidayTaxFree));
+    const svFree=Math.min(nightPay,Math.round(svHourly*100*shifts.nightTaxFree))+Math.min(sundayPay,Math.round(svHourly*100*shifts.sundayTaxFree))+Math.min(holidayPay,Math.round(svHourly*100*shifts.holidayTaxFree));
+    const svGross=Math.max(0,gross-svFree);
     const kvBase=Math.min(svGross,581250),rvBase=Math.min(svGross,845000);
     const kvRate=(val("health_rate")+val("kv_extra"))/100;
     const kvEmployee=Math.round(kvBase*kvRate/2),kvEmployer=kvEmployee;
@@ -346,7 +347,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
   }
   $("add_shift").addEventListener("click",()=>addShift());
-  $("pdf_button").addEventListener("click",()=>window.print());
+  $("pdf_button").addEventListener("click",()=>{const r=calc();if(!r.stateSelected){window.alert("ابتدا ایالت محل کار را انتخاب کن.");return;}if(r.shifts.errors.length){window.alert(r.shifts.errors.join("\\n"));return;}window.print();});
   $("reset_button").addEventListener("click",()=>{
     document.querySelectorAll(".editor input").forEach(el=>{
       if(el.type==="file"){el.value="";return;}if(el.type==="checkbox"){el.checked=false;return;}
