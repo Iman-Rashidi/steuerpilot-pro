@@ -154,6 +154,7 @@ function readShift(shift) {
   if (hasBreakStart) {
     breakStart = parseDateTime(shift.date, shift.breakStart);
     breakEnd = parseDateTime(shift.date, shift.breakEnd);
+    if (breakStart < start) breakStart = new Date(breakStart.getTime() + 24 * 60 * 60 * 1000);
     if (breakEnd <= breakStart) breakEnd = new Date(breakEnd.getTime() + 24 * 60 * 60 * 1000);
     if (breakStart < start || breakEnd > end || breakEnd <= breakStart) {
       throw new Error("زمان استراحت باید داخل همان شیفت باشد.");
