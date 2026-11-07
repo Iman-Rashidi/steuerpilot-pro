@@ -485,20 +485,20 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
       rows.forEach(tr=>{
         if(tr.classList.contains("total-row"))return;
         const amount=tr.querySelector(".amount");
-        if(amount&&/^(?:0+(?:[,.]0+)?)(?:\\s*EUR)?$/i.test(amount.textContent.trim()))tr.hidden=true;
+        if(amount)tr.hidden=/^(?:0+(?:[,.]0+)?)(?:\s*EUR)?$/i.test(amount.textContent.trim());
       });
       const hasVisible=[...table.querySelectorAll("tbody tr")].some(tr=>!tr.hidden);
       if(table.closest(".preview")&&table.querySelector("tbody")&&!hasVisible)table.hidden=true;
       else if(hasVisible)table.hidden=false;
     });
     root.querySelectorAll(".section-title").forEach(heading=>{
-      if(heading.hidden)return;
+      if(!sectionEnabled(heading.dataset.sectionKey))return;
       let node=heading.nextElementSibling,hasContent=false;
       while(node&&!(node.matches&&node.matches(".section-title"))){
         if(!node.hidden&&node.matches&&node.matches("table,.summary-grid"))hasContent=true;
         node=node.nextElementSibling;
       }
-      if(!hasContent)heading.hidden=true;
+      heading.hidden=!hasContent;
     });
   }
   function buildSectionControls(){
