@@ -39,7 +39,7 @@ document.getElementById('vat').addEventListener('submit',async e=>{
  e.preventDefault();const box=document.getElementById('result');box.style.display='block';box.textContent='در حال محاسبه…';
  try{const r=await fetch('/api/vat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:document.getElementById('amount').value,rate:document.getElementById('rate').value,mode:document.getElementById('mode').value})});
  const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');
- box.textContent='خالص: €'+d.net+'\nمالیات: €'+d.tax+'\nناخالص: €'+d.gross+'\n\nاین فقط محاسبهٔ ریاضی بر اساس نرخ واردشده است.';
+ box.textContent='خالص: €'+d.net+'\\nمالیات: €'+d.tax+'\\nناخالص: €'+d.gross+'\\n\\nاین فقط محاسبهٔ ریاضی بر اساس نرخ واردشده است.';
  }catch(err){box.textContent='خطا: '+err.message;}
 });
 </script></body></html>"""
