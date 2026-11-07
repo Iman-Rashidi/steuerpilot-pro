@@ -70,7 +70,7 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('id="print_button"', body)
         self.assertIn('id="pdf_button"', body)
         self.assertIn("doc.save(", body)
-        self.assertIn("ENTGELTABRECHNUNG", body)
+        self.assertIn("ABRECHNUNG DER BRUTTO/NETTO-BEZÜGE", body)
         self.assertIn("@page{size:A4;margin:9mm}", body)
         self.assertIn("output-actions{display:grid;grid-template-columns:1fr;gap:9px", body)
         self.assertIn("window.print()", body)
