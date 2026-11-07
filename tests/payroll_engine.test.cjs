@@ -115,6 +115,16 @@ test("break time is excluded from paid shift hours", () => {
   assert.equal(result.shifts.amount.night, 10);
 });
 
+test("break time after midnight is applied to an overnight shift", () => {
+  const result = payroll.calculatePayroll(base({
+    monthlyGross: 3466.6667,
+    premiumRates: { night: 25, sunday: 0, holiday: 0, specialHoliday: 0 },
+    shifts: [{ date: "2026-11-02", start: "20:00", end: "04:00", breakStart: "01:00", breakEnd: "02:00" }]
+  }));
+  assert.equal(result.shifts.hours.worked, 7);
+  assert.equal(result.shifts.amount.night, 35);
+});
+
 test("invalid or overlong shifts are rejected", () => {
   assert.throws(() => payroll.calculateShiftPremiums({
     shifts: [{ date: "2026-11-02", start: "06:00", end: "23:00" }],
