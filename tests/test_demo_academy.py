@@ -57,6 +57,10 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('id="p_net"', body)
         self.assertIn("window.print()", body)
         self.assertIn("<span>Auszahlungsbetrag</span>", body)
+        preview = body.split('<section class="preview" id="payroll_preview"', 1)[1].split("</section>", 1)[0]
+        self.assertNotRegex(preview, r"[\\u0600-\\u06FF]")
+        self.assertIn("Firmenname", preview)
+        self.assertIn("Unternehmensanschrift", preview)
         self.assertNotIn("خالص قابل پرداخت", body)
         self.assertIn("Arbeitgeberanteile", body)
         self.assertIn('id="print_button"', body)
