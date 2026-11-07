@@ -80,7 +80,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
 <div class="layout">
   <main class="editor">
     <section class="panel">
-      <div class="note">Dieses Formular wird ausschließlich im Browser ausgeführt. Angaben und Logo werden nicht an den Server übertragen. Verwenden Sie ausschließlich Testdaten. Die Sozialversicherungsberechnung gilt für einen Standardfall 2026 und ersetzt keine zertifizierte Lohnabrechnung.</div>
+      <div class="note">Dieses Formular wird ausschließlich im Browser ausgeführt. Angaben und Logo werden nicht an den Server übertragen. Verwenden Sie ausschließlich synthetische Testdaten. Keine echten Steuer- oder Sozialversicherungsnummern und keine IBAN eingeben. Die Angaben werden nicht gespeichert. Die Sozialversicherungsberechnung gilt für einen Standardfall 2026 und ersetzt keine zertifizierte Lohnabrechnung.</div>
     </section>
 
     <section class="panel group">
@@ -181,7 +181,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       <h3>Brutto-Bezüge und Lohnarten</h3>
       <p class="muted">Zusätzliche Lohnarten können mit Menge, Faktor und Prozentsatz erfasst werden. Die Steuer- und SV-Kennzeichen dienen hier der Anzeige und der vereinfachten Basis-Summenbildung, nicht einer zertifizierten Lohnartenprüfung.</p>
       <div class="form-table-wrap">
-        <table class="entry-table"><thead><tr><th>Lohnart</th><th>Bezeichnung</th><th>Einheit</th><th>Menge</th><th>Faktor (EUR)</th><th>Prozentsatz</th><th>Steuer</th><th>SV</th><th>Betrag (EUR)</th><th></th></tr></thead><tbody id="earnings_rows"></tbody></table>
+        <table class="entry-table"><thead><tr><th>Lohnart</th><th>Bezeichnung</th><th>Einheit</th><th>Menge</th><th>Faktor (EUR)</th><th>Prozentsatz</th><th>Steuer</th><th>SV</th><th>GB</th><th>Betrag (EUR)</th><th></th></tr></thead><tbody id="earnings_rows"></tbody></table>
       </div>
       <div class="actions"><button class="secondary" id="add_earning" type="button">Brutto-Lohnart hinzufügen</button></div>
     </section>
@@ -292,9 +292,10 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       <tr><td>Krankenkasse</td><td id="p_kasse">-</td><td>KV-Zusatzbeitrag</td><td id="p_kv_extra">-</td></tr>
       <tr><td>KV-Grundbeitrag</td><td id="p_health_rate">-</td><td>Versicherungsart</td><td id="p_kv_type">-</td></tr>
       <tr><td>PGRS</td><td id="p_pgrs">-</td><td>BGRS</td><td id="p_bgrs">-</td></tr>
-      <tr><td>SV-Tage</td><td id="p_sv_days">-</td><td>Bundesland</td><td id="p_state">-</td></tr>
+      <tr><td>SV-Tage</td><td id="p_sv_days">-</td><td>UV-Tage</td><td id="p_uv_days">-</td></tr>
+      <tr><td>Bundesland</td><td id="p_state">-</td><td>UV-Kennzeichen</td><td id="p_uv_code_test">-</td></tr>
       <tr><td>UV-Kennzeichen</td><td id="p_uv_code_test">-</td><td>Kinder unter 25</td><td id="p_children">-</td></tr>
-      <tr><td>Unter 23 Jahre</td><td id="p_under23">-</td><td>KV-Status</td><td id="p_kv_status">-</td></tr>
+      <tr><td>Unter 23 Jahre</td><td id="p_under23">-</td><td>Beitragsart</td><td id="p_kv_type">-</td></tr>
     </tbody></table>
     <h3 class="section-title">Arbeitszeit und Fehlzeiten</h3>
     <table class="preview-meta"><tbody>
@@ -397,7 +398,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     makeCell(makeInput("factor","number",preset.factor??"0"));
     makeCell(makeInput("percent","number",preset.percent??"100"));
     if(kind==="earnings"){
-      ["taxable","sv"].forEach(field=>{const td=document.createElement("td"),input=document.createElement("input");input.type="checkbox";input.dataset.wage=field;input.checked=preset[field]!==false;input.addEventListener("change",update);td.appendChild(input);tr.appendChild(td);});
+      ["taxable","sv","gb"].forEach(field=>{const td=document.createElement("td"),input=document.createElement("input");input.type="checkbox";input.dataset.wage=field;input.checked=preset[field]!==false;input.addEventListener("change",update);td.appendChild(input);tr.appendChild(td);});
     }
     const amountCell=document.createElement("td"),amount=document.createElement("span");amount.dataset.wageAmount="";amount.textContent="0,00";amountCell.appendChild(amount);tr.appendChild(amountCell);
     const action=document.createElement("td"),remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="Entfernen";remove.addEventListener("click",()=>{tr.remove();update();});action.appendChild(remove);tr.appendChild(action);
@@ -408,14 +409,14 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       const get=name=>tr.querySelector('[data-wage="'+name+'"]');
       const qty=Number(get("qty").value||0),factor=Number(get("factor").value||0),percent=Number(get("percent").value||100);
       const amount=Math.max(0,Math.round(qty*factor*percent));
-      return {code:get("code").value.trim(),description:get("description").value.trim(),unit:get("unit").value,qty,factor,percent,amount,taxable:kind!=="earnings"||get("taxable").checked,sv:kind!=="earnings"||get("sv").checked};
+      return {code:get("code").value.trim(),description:get("description").value.trim(),unit:get("unit").value,qty,factor,percent,amount,taxable:kind!=="earnings"||get("taxable").checked,sv:kind!=="earnings"||get("sv").checked,gb:kind!=="earnings"||get("gb").checked};
     }).filter(item=>item.amount!==0||item.code||item.description);
   }
   function renderWageRows(kind,items){
     const body=$(wagePreviewIds[kind]);body.textContent="";
-    items.forEach(item=>{const tr=document.createElement("tr"),label=document.createElement("td"),amount=document.createElement("td");label.textContent=(item.code?item.code+" ":"")+item.description+(item.qty!==0?" ("+item.qty+" "+item.unit+")":"");amount.className="amount";amount.textContent=money(item.amount);tr.appendChild(label);tr.appendChild(amount);body.appendChild(tr);});
+    items.forEach(item=>{const tr=document.createElement("tr"),label=document.createElement("td"),amount=document.createElement("td");label.textContent=(item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor.toLocaleString("de-DE")+" EUR × "+item.percent.toLocaleString("de-DE")+" %";amount.className="amount";amount.textContent=money(item.amount);tr.appendChild(label);tr.appendChild(amount);body.appendChild(tr);});
     const formRows=$(wageBodyIds[kind]).querySelectorAll(".wage-row");
-    formRows.forEach((tr,index)=>{const span=tr.querySelector("[data-wage-amount]"),item=readWageRows(kind).find((x,i)=>i===index);span.textContent=money(item?item.amount:0);});
+    formRows.forEach(tr=>{const get=name=>tr.querySelector('[data-wage="'+name+'"]');const q=Number(get("qty").value||0),factor=Number(get("factor").value||0),percent=Number(get("percent").value||100);tr.querySelector("[data-wage-amount]").textContent=money(Math.max(0,Math.round(q*factor*percent)));});
   }
   function formatPeriod(value){if(!/^\d{4}-\d{2}$/.test(value||""))return value||"-";const [year,month]=value.split("-").map(Number);return new Date(year,month-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});}
   function previewValue(inputId,outputId,formatter=value=>value||"-"){const input=$(inputId),output=$(outputId);if(input&&output)output.textContent=formatter(input.type==="checkbox"?input.checked:input.value);}
@@ -508,7 +509,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   function calc(){
     const base=cents($("base_pay").value),hours=val("monthly_hours"),bonus=cents($("bonus").value),allowance=cents($("allowance").value);
     const earnings=readWageRows("earnings"),netBenefits=readWageRows("netPlus"),netDeductions=readWageRows("netMinus");
-    const earningsTotal=earnings.reduce((sum,item)=>sum+item.amount,0),taxableItems=earnings.filter(item=>item.taxable).reduce((sum,item)=>sum+item.amount,0),svItems=earnings.filter(item=>item.sv).reduce((sum,item)=>sum+item.amount,0);
+    const earningsTotal=earnings.filter(item=>item.gb).reduce((sum,item)=>sum+item.amount,0),taxableItems=earnings.filter(item=>item.taxable).reduce((sum,item)=>sum+item.amount,0),svItems=earnings.filter(item=>item.sv).reduce((sum,item)=>sum+item.amount,0);
     const netBenefitsTotal=netBenefits.reduce((sum,item)=>sum+item.amount,0),netDeductionsTotal=netDeductions.reduce((sum,item)=>sum+item.amount,0);
     const hourly=hours>0?(base/100)/hours:0,shifts=getShifts();
     const nightHours=shifts.night/60,sundayHours=shifts.sunday/60,holidayHours=shifts.holiday/60;
@@ -569,7 +570,6 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     previewValue("kv_type","p_kv_type");
     previewValue("children","p_children");
     previewValue("under23","p_under23",v=>v?"Ja":"Nein");
-    previewValue("kv_type","p_kv_status");
     previewValue("state","p_state",v=>$("state").selectedOptions[0]?.textContent||"-");
     previewValue("payment_method","p_payment_method");
     ["annual_allowance","monthly_allowance"].forEach(id=>previewValue(id,id==="annual_allowance"?"p_annual_allowance":"p_monthly_allowance",v=>money(cents(v))+" EUR"));
@@ -632,7 +632,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     pair("Krankheitstage",$("sick_days").value,"Sonstige Fehltage",$("absence_days").value);
     section("Bruttoentgelt / Bezüge");
     row("Grundgehalt",r.base);row("Nachtzuschläge",r.nightPay);row("Sonntagszuschläge",r.sundayPay);row("Feiertagszuschläge",r.holidayPay);row("Bonus / Einmalzahlungen",r.bonus);row("Zulagen / Sonstige Bezüge",r.allowance);
-    r.earnings.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    r.earnings.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
     row("Gesamtbrutto",r.gross,true);
     section("Steuer- und Sozialversicherungsbasis");
     row("Steuer-Brutto",r.taxGross,true);row("KV-Brutto",r.kvBase);row("RV-/AV-Brutto",r.rvBase);row("Steuerfrei geschätzter Zuschlagsanteil",r.taxFree);row("SV-freier geschätzter Zuschlagsanteil",r.svFree);row("SV-pflichtiges Brutto",r.svGross,true);
@@ -642,10 +642,10 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     row("Krankenversicherung",r.kvEmployee);row("Pflegeversicherung",r.pvEmployee);row("Rentenversicherung",r.rvEmployee);row("Arbeitslosenversicherung",r.avEmployee);
     section("Netto-Bezüge");
     row("Kug-Auszahlung / Netto-Zuschuss",r.kugPayout);
-    r.netBenefits.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    r.netBenefits.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
     section("Netto-Abzüge");
     row("Sonstige Abzüge",r.other);row("Vorschuss / Abschlag",r.advance);row("VWL",r.vwl);row("Pfändung",r.garnishment);row("Darlehensrückzahlung",r.loanRepayment);
-    r.netDeductions.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    r.netDeductions.forEach(item=>row((item.code?item.code+" ":"")+item.description+" · "+item.qty+" "+item.unit+" × "+item.factor+" EUR × "+item.percent+" %",item.amount));
     row("Gesamtabzüge",r.deductions,true);
     section("Verdienstbescheinigung (Jahreswerte)");
     const ytdLabels={gross:"Gesamt-Brutto",tax_gross:"Steuer-Brutto",kv_gross:"KV-Brutto",rv_gross:"RV-Brutto",av_gross:"AV-Brutto",pv_gross:"PV-Brutto",tax:"Lohnsteuer",church:"Kirchensteuer",soli:"Solidaritätszuschlag",kv:"KV-Beitrag",rv:"RV-Beitrag",av:"AV-Beitrag",pv:"PV-Beitrag",vwl:"VWL gesamt"};
@@ -667,7 +667,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     document.querySelectorAll(".editor select").forEach(el=>el.selectedIndex=0);
     $("state").value="";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
     Object.values(wageBodyIds).forEach(id=>$(id).textContent="");
-    $("logo_area").innerHTML="LOGO<br>Unternehmen";addWageRow("earnings",{code:"1000",description:"Stundenlohn",unit:"Std"});update();
+    $("logo_area").innerHTML="LOGO<br>Unternehmen";addWageRow("earnings");update();
   });
   $("logo_file").addEventListener("change",event=>{
     const file=event.target.files&&event.target.files[0],area=$("logo_area");
@@ -677,7 +677,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   });
   document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>{el.addEventListener("input",update);el.addEventListener("change",update);});
   addShift();
-  addWageRow("earnings",{code:"1000",description:"Stundenlohn",unit:"Std"});
+  addWageRow("earnings");
   addWageRow("netPlus");
   addWageRow("netMinus");
 })();
