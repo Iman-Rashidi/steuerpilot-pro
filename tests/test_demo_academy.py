@@ -214,6 +214,8 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('id="tax_engine_status"', body)
         self.assertIn('id="church_tax_state"', body)
         self.assertIn("calculateBmfTax", body)
+        self.assertIn("fließen in die BMF-PAP-Berechnung ein", body)
+        self.assertIn("Nicht unterstützte Sonderfälle werden ausdrücklich blockiert", body)
         self.assertIn('/static/steuerpilot_payroll_wasm.js', body)
         self.assertIn('id="tax" type="number" min="0" step="0.01" value="0" readonly', body)
         self.assertIn('id="soli" type="number" min="0" step="0.01" value="0" readonly', body)
