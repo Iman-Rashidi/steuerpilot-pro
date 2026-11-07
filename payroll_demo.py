@@ -313,36 +313,36 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const kvEmployee=Math.round(kvBase*kvRate/2),kvEmployer=kvEmployee;
     const rvEmployee=Math.round(rvBase*0.093),rvEmployer=rvEmployee;
     const avEmployee=Math.round(rvBase*0.013),avEmployer=avEmployee;
-    const saxony=$("state").value==="SN",childCount=Number($("children").value||0),under23=$("under23").checked;
+    const selectedState=$("state").value,saxony=selectedState==="SN",stateSelected=Boolean(selectedState),childCount=Number($("children").value||0),under23=$("under23").checked;
     let pvEmployeeRate=childCount>=2?1.8-(Math.min(childCount,5)-1)*0.25:(childCount===1||under23?1.8:2.4);
     if(saxony)pvEmployeeRate+=0.5;
     const pvEmployerRate=saxony?1.3:1.8;
     const pvBase=Math.min(svGross,581250);
-    const pvEmployee=Math.round(pvBase*pvEmployeeRate/100),pvEmployer=Math.round(pvBase*pvEmployerRate/100);
+    const pvEmployee=stateSelected?Math.round(pvBase*pvEmployeeRate/100):0,pvEmployer=stateSelected?Math.round(pvBase*pvEmployerRate/100):0;
     const employeeSocial=kvEmployee+pvEmployee+rvEmployee+avEmployee,employerSocial=kvEmployer+pvEmployer+rvEmployer+avEmployer;
     const manualTax=cents($("tax").value)+cents($("soli").value)+cents($("church").value),other=cents($("other").value)+cents($("advance").value);
     const deductions=employeeSocial+manualTax+other,net=gross-deductions;
-    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,taxFree,svFree,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,other,deductions,net};
+    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,taxFree,svFree,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,other,deductions,net,stateSelected};
   }
   function update(){
     const r=calc();
     set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_night_pay",r.nightPay);set("p_sunday_pay",r.sundayPay);set("p_holiday_pay",r.holidayPay);set("p_tax_free",r.taxFree);set("p_sv_free",r.svFree);set("p_sv_gross",r.svGross);
     set("p_gross",r.gross);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
-    set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);
+    set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);$("p_care").textContent=r.stateSelected?money(r.pvEmployee):"—";$("p_employer_care").textContent=r.stateSelected?money(r.pvEmployer):"—";
     set("p_deductions",r.deductions);set("p_net",r.net);
     set("p_employer_health",r.kvEmployer);set("p_employer_care",r.pvEmployer);set("p_employer_pension",r.rvEmployer);set("p_employer_unemployment",r.avEmployer);
     $("p_company").textContent=$("company").value||"-";$("p_company_address").textContent=$("company_address").value||"-";
     $("p_employee").textContent=$("employee").value||"-";$("p_employee_no").textContent=$("employee_no").value||"-";
     $("p_company_short").textContent=$("company").value||"-";$("p_period").textContent=$("period").value||"-";
     $("p_start_date").textContent=$("start_date").value||"-";$("p_pay_date").textContent=$("pay_date").value||"-";
-    $("shift_summary").textContent="شب: "+r.nightHours.toFixed(2)+" ساعت | یکشنبه: "+r.sundayHours.toFixed(2)+" ساعت | تعطیل رسمی: "+r.holidayHours.toFixed(2)+" ساعت | Zuschläge: "+money(r.premium)+" € | معاف از بیمه (برآورد): "+money(r.svFree)+" € | مبنای بیمه: "+money(r.svGross)+" €"+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
+    $("shift_summary").textContent="شب: "+r.nightHours.toFixed(2)+" ساعت | یکشنبه: "+r.sundayHours.toFixed(2)+" ساعت | تعطیل رسمی: "+r.holidayHours.toFixed(2)+" ساعت | Zuschläge: "+money(r.premium)+" € | معاف از بیمه (برآورد): "+money(r.svFree)+" € | مبنای بیمه: "+money(r.svGross)+" €"+(!r.stateSelected?" | برای محاسبه خالص، ایالت محل کار را انتخاب کن.":"")+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
     $("p_gross").parentElement.cells[0].textContent="Gesamtbrutto einschließlich Zuschläge";
     $("p_tax").parentElement.cells[0].textContent="Lohnsteuer / Soli / Kirchensteuer (manuell zusammengefasst)";
     $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge und Vorschuss";
     $("p_advance").parentElement.style.display="none";$("p_soli").parentElement.style.display="none";$("p_church").parentElement.style.display="none";
     $("p_tax").parentElement.cells[1].textContent=money(r.manualTax);$("p_other").parentElement.cells[1].textContent=money(r.other);
     $("p_gross").parentElement.cells[1].textContent=money(r.gross);
-    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=money(r.net)+" €";
+    $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=r.stateSelected?money(r.net)+" €":"ایالت محل کار را انتخاب کن";
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
   }
   $("add_shift").addEventListener("click",()=>addShift());
