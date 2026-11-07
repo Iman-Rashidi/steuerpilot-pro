@@ -173,7 +173,7 @@ tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
         <div class="field"><label for="dba_country">DBA-Staat (falls zutreffend)</label><input id="dba_country" placeholder="Optional"></div>
         <div class="field"><label><input id="midijob" type="checkbox" style="width:auto"> Beschäftigung im Übergangsbereich (Midijob)</label></div>
       </div>
-      <p class="muted">Steuerklasse, Faktor, Kinderfreibetrag, Konfession und Freibeträge werden in dieser Demo angezeigt, aber nicht zur automatischen Lohnsteuerberechnung verwendet.</p>
+      <p class="muted">Die Steuerklasse, der Faktor, Kinderfreibeträge und die eingetragenen Freibeträge fließen in die BMF-PAP-Berechnung ein. Die Kirchensteuer wird aus der PAP-Bemessungsgrundlage und dem Bundesland des steuerlichen Wohnsitzes abgeleitet. Nicht unterstützte Sonderfälle werden ausdrücklich blockiert, statt mit Näherungswerten eine Nettoauszahlung vorzutäuschen.</p>
     </section>
 
     <section class="panel group">
