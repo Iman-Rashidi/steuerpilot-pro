@@ -159,6 +159,25 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn('doc.rect(left,y,width,17)', body)
         self.assertNotIn('doc.setFillColor(23,59,103)', body)
 
+    def test_sample_payroll_route_uses_synthetic_prefilled_values(self):
+        response, body = self.request("/payroll/sample")
+        self.assertEqual(response["status"], "200 OK")
+        self.assertIn("MUSTERDATEN · NICHT ZUR AUSZAHLUNG", body)
+        self.assertIn('id="company" data-bind="company" placeholder="Muster GmbH" value="Muster GmbH"', body)
+        self.assertIn('id="employee" data-bind="employee" placeholder="Max Mustermann" value="Max Mustermann"', body)
+        self.assertIn('id="employee_no" data-bind="employee_no" placeholder="TEST-001" value="TEST-001"', body)
+        self.assertIn('id="birth_date" type="date" value="1990-01-01"', body)
+        self.assertIn('<option selected>I</option>', body)
+        self.assertIn('<option selected value="Keine">Keine</option>', body)
+        self.assertIn('<option selected value="NW">Nordrhein-Westfalen</option>', body)
+        self.assertIn("MUSTER - keine Auszahlung; ausschliesslich erfundene Testdaten.", body)
+        self.assertNotIn("123456789", body)
+
+    def test_empty_optional_shift_row_does_not_block_regular_payroll(self):
+        _, body = self.request("/payroll")
+        self.assertIn('function addShift(date="",start="",end=""', body)
+        self.assertIn("if(!hasAnyShiftInput)return;", body)
+
     def test_payroll_page_uses_browser_only_and_discloses_limitations(self):
         _, body = self.request("/payroll/")
         self.assertIn("Angaben und Logo werden nicht an den Server übertragen", body)
