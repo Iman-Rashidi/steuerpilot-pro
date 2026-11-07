@@ -26,6 +26,9 @@ header h1{margin-bottom:4px}
 .field.full{grid-column:1/-1}
 label{display:block;margin:0 0 5px;font-weight:650;font-size:13px}
 input{width:100%;min-width:0;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit;background:#fff}
+select,textarea{width:100%;min-width:0;padding:10px;border:1px solid #bbc5d2;border-radius:8px;font:inherit;background:#fff}
+.entry-table{min-width:860px;font-size:11px}.entry-table input,.entry-table select{min-width:68px;padding:6px;font-size:11px}.entry-table input[type=checkbox]{width:auto;min-width:0}.form-table-wrap{overflow-x:auto;margin-top:8px}.entry-table th,.entry-table td{vertical-align:middle}.entry-table .remove-cell{min-width:74px}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.summary-grid div{padding:7px;background:#f5f7fa;border-radius:4px}.summary-grid small{display:block;color:#596779}.preview-meta{font-size:10px}.preview-meta td:first-child{font-weight:600;width:28%}.preview-meta td:nth-child(3){font-weight:600;width:28%}
+@media print{.form-table-wrap{overflow:visible}.preview{font-size:8pt!important}}
 input[type=file]{padding:7px}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 button,.button{display:inline-block;border:0;border-radius:9px;padding:11px 16px;font:inherit;text-decoration:none;cursor:pointer}
@@ -93,11 +96,30 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       <h3>Angaben zum Arbeitnehmer und Abrechnungszeitraum</h3>
       <div class="fields">
         <div class="field"><label for="employee">Name des Arbeitnehmers</label><input id="employee" data-bind="employee" placeholder="Max Mustermann"></div>
-        <div class="field"><label for="employee_no">Personalnummer</label><input id="employee_no" data-bind="employee_no" placeholder="M-001"></div>
-        <div class="field"><label for="start_date">Beschäftigungsbeginn</label><input id="start_date" type="date" data-bind="start_date"></div>
-        <div class="field"><label for="period">Abrechnungszeitraum</label><input id="period" data-bind="period" placeholder="November 2026"></div>
+        <div class="field"><label for="employee_no">Personalnummer</label><input id="employee_no" data-bind="employee_no" placeholder="TEST-001"></div>
+        <div class="field"><label for="employee_address">Anschrift des Arbeitnehmers</label><input id="employee_address" placeholder="Beispielstraße 1, 00000 Musterstadt"></div>
+        <div class="field"><label for="birth_date">Geburtsdatum</label><input id="birth_date" type="date"></div>
+        <div class="field"><label for="start_date">Eintrittsdatum</label><input id="start_date" type="date" data-bind="start_date"></div>
+        <div class="field"><label for="period">Abrechnungsmonat</label><input id="period" type="month" value="2026-11" data-bind="period"></div>
         <div class="field"><label for="pay_date">Auszahlungsdatum</label><input id="pay_date" type="date" data-bind="pay_date"></div>
+        <div class="field"><label for="steuer_id_test">Steuer-ID (nur synthetischer Testwert)</label><input id="steuer_id_test" autocomplete="off" placeholder="Nur Testwert eingeben"></div>
+        <div class="field"><label for="sv_number_test">SV-Nummer (nur synthetischer Testwert)</label><input id="sv_number_test" autocomplete="off" placeholder="Nur Testwert eingeben"></div>
       </div>
+    </section>
+
+    <section class="panel group">
+      <h3>Steuermerkmale</h3>
+      <div class="fields">
+        <div class="field"><label for="tax_class">Steuerklasse</label><select id="tax_class"><option value="">Bitte auswählen</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>IV mit Faktor</option><option>V</option><option>VI</option></select></div>
+        <div class="field"><label for="tax_factor">Faktor (Steuerklasse IV)</label><input id="tax_factor" type="number" min="0" step="0.001" placeholder="z. B. 0,984"></div>
+        <div class="field"><label for="child_allowance">Kinderfreibetrag</label><input id="child_allowance" type="number" min="0" max="10" step="0.5" placeholder="z. B. 0,5"></div>
+        <div class="field"><label for="religion">Konfession</label><select id="religion"><option value="">Bitte auswählen</option><option value="Keine">Keine</option><option value="ev">Evangelisch (ev)</option><option value="rk">Römisch-katholisch (rk)</option><option value="Andere">Andere</option></select></div>
+        <div class="field"><label for="annual_allowance">Freibetrag jährlich (EUR)</label><input id="annual_allowance" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="monthly_allowance">Freibetrag monatlich (EUR)</label><input id="monthly_allowance" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="dba_country">DBA-Staat (falls zutreffend)</label><input id="dba_country" placeholder="Optional"></div>
+        <div class="field"><label><input id="midijob" type="checkbox" style="width:auto"> Beschäftigung im Übergangsbereich (Midijob)</label></div>
+      </div>
+      <p class="muted">Steuerklasse, Faktor, Kinderfreibetrag, Konfession und Freibeträge werden in dieser Demo angezeigt, aber nicht zur automatischen Lohnsteuerberechnung verwendet.</p>
     </section>
 
     <section class="panel group">
@@ -113,6 +135,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <div class="field"><label for="children">Anzahl der Kinder unter 25 Jahren</label><select id="children"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 oder mehr</option></select></div>
         <div class="field"><label><input id="under23" type="checkbox" style="width:auto"> Arbeitnehmer ist noch keine 23 Jahre alt</label></div>
         <div class="field"><label for="health_rate">Allgemeiner Beitragssatz der Krankenversicherung (%)</label><input id="health_rate" type="number" min="0" max="30" step="0.01" value="14.6"></div>
+        <div class="field"><label for="pgrs">Personengruppenschlüssel (PGRS)</label><input id="pgrs" inputmode="numeric" placeholder="z. B. 101"></div>
+        <div class="field"><label for="bgrs">Beitragsgruppenschlüssel (BGRS)</label><input id="bgrs" inputmode="numeric" placeholder="z. B. 1111"></div>
+        <div class="field"><label for="sv_days">SV-Tage im Abrechnungsmonat</label><input id="sv_days" type="number" min="0" max="31" step="1" placeholder="Kalendertage"></div>
+        <div class="field"><label for="uv_code_test">UV-/Gefahrtarif-Kennzeichen (Testwert)</label><input id="uv_code_test" placeholder="Optionaler Testwert"></div>
+        <div class="field"><label for="kv_type">Krankenversicherungsart</label><select id="kv_type"><option value="Gesetzlich">Gesetzlich</option><option value="Privat (nur Anzeige)">Privat (nur Anzeige)</option></select></div>
       </div>
       <p class="muted">Annahmen: regulär beschäftigter Arbeitnehmer in der gesetzlichen Krankenversicherung, voller Abrechnungsmonat und ein Arbeitgeber. Tragen Sie den Zusatzbeitrag der gewählten Krankenkasse ein. Minijobs, private Krankenversicherung, mehrere Arbeitgeber, Kurzarbeit sowie Ein- oder Austritte während des Monats sind nicht abgedeckt.</p>
     </section>
@@ -134,8 +161,61 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     </section>
 
     <section class="panel group">
+      <h3>Arbeitszeit und Fehlzeiten</h3>
+      <div class="fields">
+        <div class="field"><label for="scheduled_hours">Soll-Arbeitsstunden</label><input id="scheduled_hours" type="number" min="0" step="0.25"></div>
+        <div class="field"><label for="actual_hours">Ist-Arbeitsstunden</label><input id="actual_hours" type="number" min="0" step="0.25"></div>
+        <div class="field"><label for="attendance_days">Anwesenheitstage</label><input id="attendance_days" type="number" min="0" max="31" step="0.5"></div>
+        <div class="field"><label for="vacation_entitlement">Urlaubsanspruch laufendes Jahr (Tage)</label><input id="vacation_entitlement" type="number" min="0" step="0.5"></div>
+        <div class="field"><label for="vacation_carryover">Resturlaub aus Vorjahr (Tage)</label><input id="vacation_carryover" type="number" min="0" step="0.5"></div>
+        <div class="field"><label for="vacation_taken">Genommene Urlaubstage</label><input id="vacation_taken" type="number" min="0" step="0.5"></div>
+        <div class="field"><label for="sick_days">Krankheitstage</label><input id="sick_days" type="number" min="0" max="31" step="0.5"></div>
+        <div class="field"><label for="absence_days">Sonstige Fehltage</label><input id="absence_days" type="number" min="0" max="31" step="0.5"></div>
+        <div class="field"><label for="holiday_days">Feiertage im Abrechnungsmonat</label><input id="holiday_days" type="number" min="0" max="31" step="0.5"></div>
+      </div>
+      <p class="muted">Der Resturlaub wird als Urlaubsanspruch plus Übertrag aus dem Vorjahr abzüglich genommener Urlaubstage angezeigt.</p>
+    </section>
+
+    <section class="panel group">
+      <h3>Brutto-Bezüge und Lohnarten</h3>
+      <p class="muted">Zusätzliche Lohnarten können mit Menge, Faktor und Prozentsatz erfasst werden. Die Steuer- und SV-Kennzeichen dienen hier der Anzeige und der vereinfachten Basis-Summenbildung, nicht einer zertifizierten Lohnartenprüfung.</p>
+      <div class="form-table-wrap">
+        <table class="entry-table"><thead><tr><th>Lohnart</th><th>Bezeichnung</th><th>Einheit</th><th>Menge</th><th>Faktor (EUR)</th><th>Prozentsatz</th><th>Steuer</th><th>SV</th><th>Betrag (EUR)</th><th></th></tr></thead><tbody id="earnings_rows"></tbody></table>
+      </div>
+      <div class="actions"><button class="secondary" id="add_earning" type="button">Brutto-Lohnart hinzufügen</button></div>
+    </section>
+
+    <section class="panel group">
+      <h3>Netto-Bezüge</h3>
+      <div class="fields">
+        <div class="field"><label for="kug_payout">Kug-Auszahlung / Netto-Zuschuss (EUR)</label><input id="kug_payout" type="number" min="0" step="0.01" value="0"></div>
+      </div>
+      <div class="form-table-wrap">
+        <table class="entry-table"><thead><tr><th>Lohnart</th><th>Bezeichnung</th><th>Einheit</th><th>Menge</th><th>Faktor (EUR)</th><th>Prozentsatz</th><th>Betrag (EUR)</th><th></th></tr></thead><tbody id="net_benefit_rows"></tbody></table>
+      </div>
+      <div class="actions"><button class="secondary" id="add_net_benefit" type="button">Netto-Bezug hinzufügen</button></div>
+    </section>
+
+    <section class="panel group">
+      <h3>Netto-Abzüge und Auszahlungsweg</h3>
+      <div class="fields">
+        <div class="field"><label for="vwl_deduction">VWL / vermögenswirksame Leistungen (EUR)</label><input id="vwl_deduction" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="garnishment">Pfändung (EUR)</label><input id="garnishment" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="loan_repayment">Darlehensrückzahlung (EUR)</label><input id="loan_repayment" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="rest_garnishment">Restpfändung (nur Anzeige, EUR)</label><input id="rest_garnishment" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="rest_loan">Darlehen Rest (nur Anzeige, EUR)</label><input id="rest_loan" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="payment_method">Auszahlungsweg</label><select id="payment_method"><option>Überweisung</option><option>Barzahlung</option><option>Sonstiger Zahlungsweg</option></select></div>
+        <div class="field"><label for="bank_name_test">Bankbezeichnung (nur Testwert)</label><input id="bank_name_test" placeholder="Keine Kontonummer oder IBAN eingeben"></div>
+      </div>
+      <div class="form-table-wrap">
+        <table class="entry-table"><thead><tr><th>Lohnart</th><th>Bezeichnung</th><th>Einheit</th><th>Menge</th><th>Faktor (EUR)</th><th>Prozentsatz</th><th>Betrag (EUR)</th><th></th></tr></thead><tbody id="net_deduction_rows"></tbody></table>
+      </div>
+      <div class="actions"><button class="secondary" id="add_net_deduction" type="button">Netto-Abzug hinzufügen</button></div>
+    </section>
+
+    <section class="panel group">
       <h3>Steuern und sonstige manuelle Abzüge</h3>
-      <p class="muted">Die Lohnsteuer wird in dieser Version nicht anhand der Steuerklasse und persönlichen Merkmale berechnet. Tragen Sie Steuerbeträge nur auf Grundlage einer separaten, verlässlichen Berechnung ein.</p>
+      <p class="muted">Die Steuerklasse und die persönlichen Merkmale werden erfasst und auf der Abrechnung ausgegeben. Die Lohnsteuer, Kirchensteuer und der Solidaritätszuschlag werden in dieser Demo weiterhin manuell eingegeben und nicht automatisch aus den Steuermerkmalen berechnet.</p>
       <div class="fields">
         <div class="field"><label for="tax">Lohnsteuer (€)</label><input id="tax" type="number" min="0" step="0.01" value="0"></div>
         <div class="field"><label for="soli">Solidaritätszuschlag (€)</label><input id="soli" type="number" min="0" step="0.01" value="0"></div>
@@ -145,7 +225,38 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       </div>
     </section>
 
-    <div class="actions screen-only">
+    <section class="panel group">
+      <h3>Verdienstbescheinigung (Jahreswerte bis einschließlich Abrechnungsmonat)</h3>
+      <p class="muted">Die kumulierten Jahreswerte werden manuell als Testwerte erfasst und unverändert in der Verdienstbescheinigung ausgegeben.</p>
+      <div class="fields">
+        <div class="field"><label for="ytd_gross">Gesamt-Brutto (Jahr, EUR)</label><input id="ytd_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_tax_gross">Steuer-Brutto (Jahr, EUR)</label><input id="ytd_tax_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_kv_gross">KV-Brutto (Jahr, EUR)</label><input id="ytd_kv_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_rv_gross">RV-Brutto (Jahr, EUR)</label><input id="ytd_rv_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_av_gross">AV-Brutto (Jahr, EUR)</label><input id="ytd_av_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_pv_gross">PV-Brutto (Jahr, EUR)</label><input id="ytd_pv_gross" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_tax">Lohnsteuer (Jahr, EUR)</label><input id="ytd_tax" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_church">Kirchensteuer (Jahr, EUR)</label><input id="ytd_church" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_soli">Solidaritätszuschlag (Jahr, EUR)</label><input id="ytd_soli" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_kv">KV-Beitrag (Jahr, EUR)</label><input id="ytd_kv" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_rv">RV-Beitrag (Jahr, EUR)</label><input id="ytd_rv" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_av">AV-Beitrag (Jahr, EUR)</label><input id="ytd_av" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_pv">PV-Beitrag (Jahr, EUR)</label><input id="ytd_pv" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="ytd_vwl">VWL gesamt (Jahr, EUR)</label><input id="ytd_vwl" type="number" min="0" step="0.01" value="0"></div>
+      </div>
+    </section>
+
+    <section class="panel group">
+      <h3>Zusätzliche Arbeitgeberkosten</h3>
+      <div class="fields">
+        <div class="field"><label for="u1_cost">Umlage U1 (EUR)</label><input id="u1_cost" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="u2_cost">Umlage U2 (EUR)</label><input id="u2_cost" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="insolvency_cost">Insolvenzgeldumlage (EUR)</label><input id="insolvency_cost" type="number" min="0" step="0.01" value="0"></div>
+        <div class="field"><label for="accident_cost">Unfallversicherung / BG (EUR)</label><input id="accident_cost" type="number" min="0" step="0.01" value="0"></div>
+      </div>
+    </section>
+
+    <div class="actions screen-only">    <div class="actions screen-only">
       <div class="output-actions"><button class="primary" id="pdf_button" type="button">PDF herunterladen · PDF herunterladen</button><button class="secondary" id="print_button" type="button">Drucken · Drucken</button><button class="secondary" id="reset_button" type="button">Formular zurücksetzen</button></div>
     </div>
   </main>
@@ -158,15 +269,37 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <div id="p_company_address">Unternehmensanschrift</div>
       </div>
     </div>
-    <h2 class="pay-title">Entgeltabrechnung</h2>
+    <h2 class="pay-title">Abrechnung der Brutto/Netto-Bezüge</h2>
     <div class="meta">
       <div><small>Abrechnungszeitraum</small><b id="p_period">-</b></div>
       <div><small>Auszahlungsdatum</small><b id="p_pay_date">-</b></div>
     </div>
     <div class="parties">
-      <div class="party"><small>Arbeitnehmer</small><b id="p_employee">-</b><span><small>Personalnummer</small><span id="p_employee_no">-</span></span></div>
-      <div class="party"><small>Arbeitgeber</small><b id="p_company_short">-</b><span><small>Beschäftigungsbeginn</small><span id="p_start_date">-</span></span></div>
+      <div class="party"><small>Arbeitnehmer</small><b id="p_employee">-</b><span><small>Personalnummer</small><span id="p_employee_no">-</span></span><span><small>Anschrift</small><span id="p_employee_address">-</span></span></div>
+      <div class="party"><small>Arbeitgeber</small><b id="p_company_short">-</b><span><small>Eintrittsdatum</small><span id="p_start_date">-</span></span></div>
     </div>
+    <h3 class="section-title">Steuermerkmale</h3>
+    <table class="preview-meta"><tbody>
+      <tr><td>Geburtsdatum</td><td id="p_birth_date">-</td><td>Steuerklasse / Faktor</td><td id="p_tax_class">-</td></tr>
+      <tr><td>Kinderfreibetrag</td><td id="p_child_allowance">-</td><td>Konfession</td><td id="p_religion">-</td></tr>
+      <tr><td>Freibetrag jährlich</td><td id="p_annual_allowance">0,00 EUR</td><td>Freibetrag monatlich</td><td id="p_monthly_allowance">0,00 EUR</td></tr>
+      <tr><td>DBA-Staat</td><td id="p_dba_country">-</td><td>Midijob</td><td id="p_midijob">Nein</td></tr>
+      <tr><td>Steuer-ID</td><td id="p_steuer_id_test">-</td><td>SV-Nummer</td><td id="p_sv_number_test">-</td></tr>
+    </tbody></table>
+    <h3 class="section-title">Sozialversicherung</h3>
+    <table class="preview-meta"><tbody>
+      <tr><td>Krankenkasse</td><td id="p_kasse">-</td><td>KV-Zusatzbeitrag</td><td id="p_kv_extra">-</td></tr>
+      <tr><td>PGRS</td><td id="p_pgrs">-</td><td>BGRS</td><td id="p_bgrs">-</td></tr>
+      <tr><td>SV-Tage</td><td id="p_sv_days">-</td><td>Bundesland</td><td id="p_state">-</td></tr>
+    </tbody></table>
+    <h3 class="section-title">Arbeitszeit und Fehlzeiten</h3>
+    <table class="preview-meta"><tbody>
+      <tr><td>Soll-/Iststunden</td><td id="p_hours">-</td><td>Anwesenheitstage</td><td id="p_attendance_days">-</td></tr>
+      <tr><td>Urlaubsanspruch</td><td id="p_vacation_entitlement">-</td><td>Übertrag Vorjahr</td><td id="p_vacation_carryover">-</td></tr>
+      <tr><td>Genommene Urlaubstage</td><td id="p_vacation_taken">-</td><td>Resturlaub</td><td id="p_vacation_balance">-</td></tr>
+      <tr><td>Krankheitstage</td><td id="p_sick_days">-</td><td>Sonstige Fehltage</td><td id="p_absence_days">-</td></tr>
+      <tr><td>Feiertage</td><td id="p_holiday_days">-</td><td>Abrechnungsmonat</td><td id="p_period_days">-</td></tr>
+    </tbody></table>
 
     <h3 class="section-title">Bruttoentgelt / Bezüge</h3>
     <table><thead><tr><th>Bezeichnung</th><th class="amount">Betrag (EUR)</th></tr></thead>
@@ -175,11 +308,14 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>Nachtzuschläge</td><td class="amount" id="p_night_pay">0,00</td></tr><tr><td>Sonntagszuschläge</td><td class="amount" id="p_sunday_pay">0,00</td></tr><tr><td>Feiertagszuschläge</td><td class="amount" id="p_holiday_pay">0,00</td></tr>
         <tr><td>Bonus / Einmalzahlungen</td><td class="amount" id="p_bonus">0,00</td></tr>
         <tr><td>Zulagen / Sonstige Bezüge</td><td class="amount" id="p_allowance">0,00</td></tr>
-        <tr class="total-row"><td>Gesamtbrutto (manuell erfasst)</td><td class="amount" id="p_gross">0,00</td></tr>
+        <tr id="p_earnings_anchor" class="total-row"><td>Gesamtbrutto einschließlich Lohnarten</td><td class="amount" id="p_gross">0,00</td></tr>
       </tbody>
     </table>
+    <table><tbody id="p_earnings_rows"></tbody></table>
 
-    <h3 class="section-title">Steuer- und Sozialversicherungsbasis der Zuschläge</h3><table><tbody><tr><td>Steuerfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_tax_free">0,00</td></tr><tr><td>Sozialversicherungsfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_sv_free">0,00</td></tr><tr><td>SV-pflichtiges Brutto</td><td class="amount" id="p_sv_gross">0,00</td></tr></tbody></table>
+    <h3 class="section-title">Steuer- und Sozialversicherungsbasis</h3><table><tbody><tr><td>Steuer-Brutto</td><td class="amount" id="p_tax_gross">0,00</td></tr><tr><td>KV-Brutto</td><td class="amount" id="p_kv_gross">0,00</td></tr><tr><td>RV-/AV-Brutto</td><td class="amount" id="p_rv_gross">0,00</td></tr><tr><td>Steuerfrei geschätzter Zuschlagsanteil</td><td class="amount" id="p_tax_free">0,00</td></tr><tr><td>SV-freier geschätzter Zuschlagsanteil</td><td class="amount" id="p_sv_free">0,00</td></tr><tr><td>SV-pflichtiges Brutto</td><td class="amount" id="p_sv_gross">0,00</td></tr></tbody></table>
+    <h3 class="section-title">Netto-Bezüge</h3>
+    <table><tbody><tr><td>Kug-Auszahlung / Netto-Zuschuss</td><td class="amount" id="p_kug_payout">0,00</td></tr></tbody><tbody id="p_net_benefit_rows"></tbody></table>
     <h3 class="section-title">Abzüge Arbeitnehmer</h3>
     <table><thead><tr><th>Bezeichnung</th><th class="amount">Betrag (EUR)</th></tr></thead>
       <tbody>
@@ -192,19 +328,40 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
         <tr><td>Arbeitslosenversicherung</td><td class="amount" id="p_unemployment">0,00</td></tr>
         <tr><td>Sonstige Abzüge</td><td class="amount" id="p_other">0,00</td></tr>
         <tr><td>Vorschuss / Abschlag</td><td class="amount" id="p_advance">0,00</td></tr>
+        <tr><td>VWL</td><td class="amount" id="p_vwl">0,00</td></tr>
+        <tr><td>Pfändung</td><td class="amount" id="p_garnishment">0,00</td></tr>
+        <tr><td>Darlehensrückzahlung</td><td class="amount" id="p_loan_repayment">0,00</td></tr>
         <tr class="total-row"><td>Gesamtabzüge</td><td class="amount" id="p_deductions">0,00</td></tr>
+        <tr id="p_net_deduction_anchor"><td>Weitere Netto-Abzüge</td><td class="amount">-</td></tr>
       </tbody>
     </table>
+    <table><tbody id="p_net_deduction_rows"></tbody></table>
 
-    <h3 class="section-title">Arbeitgeberanteile (nicht vom Nettolohn abgezogen)</h3>
+    <h3 class="section-title">Verdienstbescheinigung</h3>
+    <table class="preview-meta"><tbody>
+      <tr><td>Gesamt-Brutto</td><td id="p_ytd_gross">0,00 EUR</td><td>Steuer-Brutto</td><td id="p_ytd_tax_gross">0,00 EUR</td></tr>
+      <tr><td>KV-Brutto</td><td id="p_ytd_kv_gross">0,00 EUR</td><td>RV-Brutto</td><td id="p_ytd_rv_gross">0,00 EUR</td></tr>
+      <tr><td>AV-Brutto</td><td id="p_ytd_av_gross">0,00 EUR</td><td>PV-Brutto</td><td id="p_ytd_pv_gross">0,00 EUR</td></tr>
+      <tr><td>Lohnsteuer</td><td id="p_ytd_tax">0,00 EUR</td><td>Kirchensteuer</td><td id="p_ytd_church">0,00 EUR</td></tr>
+      <tr><td>Solidaritätszuschlag</td><td id="p_ytd_soli">0,00 EUR</td><td>VWL gesamt</td><td id="p_ytd_vwl">0,00 EUR</td></tr>
+      <tr><td>KV-Beitrag</td><td id="p_ytd_kv">0,00 EUR</td><td>RV-Beitrag</td><td id="p_ytd_rv">0,00 EUR</td></tr>
+      <tr><td>AV-Beitrag</td><td id="p_ytd_av">0,00 EUR</td><td>PV-Beitrag</td><td id="p_ytd_pv">0,00 EUR</td></tr>
+    </tbody></table>
+
+    <h3 class="section-title">Arbeitgeberanteile und zusätzliche Arbeitgeberkosten</h3>
     <table><thead><tr><th>Bezeichnung</th><th class="amount">Betrag (EUR)</th></tr></thead>
       <tbody>
         <tr><td>Krankenversicherung Arbeitgeber</td><td class="amount" id="p_employer_health">0,00</td></tr>
         <tr><td>Pflegeversicherung Arbeitgeber</td><td class="amount" id="p_employer_care">0,00</td></tr>
         <tr><td>Rentenversicherung Arbeitgeber</td><td class="amount" id="p_employer_pension">0,00</td></tr>
         <tr><td>Arbeitslosenversicherung Arbeitgeber</td><td class="amount" id="p_employer_unemployment">0,00</td></tr>
+        <tr><td>Umlage U1</td><td class="amount" id="p_u1_cost">0,00</td></tr>
+        <tr><td>Umlage U2</td><td class="amount" id="p_u2_cost">0,00</td></tr>
+        <tr><td>Insolvenzgeldumlage</td><td class="amount" id="p_insolvency_cost">0,00</td></tr>
+        <tr><td>Unfallversicherung / BG</td><td class="amount" id="p_accident_cost">0,00</td></tr>
       </tbody>
     </table>
+    <div class="summary-grid preview-meta"><div><small>Auszahlungsweg</small><b id="p_payment_method">Überweisung</b></div><div><small>Bankbezeichnung (Testwert)</small><b id="p_bank_name_test">-</b></div><div><small>Restpfändung</small><b id="p_rest_garnishment">0,00 EUR</b></div><div><small>Darlehen Rest</small><b id="p_rest_loan">0,00 EUR</b></div></div>
     <div class="net-box"><span>Auszahlungsbetrag</span><strong id="p_net">0,00 €</strong></div>
     <div class="preview-foot">Automatische Beispielrechnung mit 2026-Rechengrößen für den Standardfall. Zuschlagssätze richten sich nach Vertrag oder Tarif. Die ausgewiesenen Steuer-/SV-Freibeträge sind Näherungen nach den eingegebenen Schichtdaten. Lohnsteuer wird nicht berechnet. Sonderfälle, Nachweise und vollständige Abrechnung müssen durch ein geeignetes Lohnabrechnungssystem geprüft werden.</div>
   </section>
@@ -219,6 +376,44 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   const set = (id,n) => { if($(id)) $(id).textContent=money(n); };
   const rate = id => Math.max(0,Math.min(300,val(id)))/100;
   const shiftRows = $("shift_rows");
+  const wageBodyIds = {earnings:"earnings_rows",netPlus:"net_benefit_rows",netMinus:"net_deduction_rows"};
+  const wagePreviewIds = {earnings:"p_earnings_rows",netPlus:"p_net_benefit_rows",netMinus:"p_net_deduction_rows"};
+  const ytdFields = ["gross","tax_gross","kv_gross","rv_gross","av_gross","pv_gross","tax","church","soli","kv","rv","av","pv","vwl"];
+  function addWageRow(kind,preset={}){
+    const body=$(wageBodyIds[kind]);if(!body)return;
+    const tr=document.createElement("tr");tr.className="wage-row";tr.dataset.kind=kind;
+    const makeInput=(field,type,value,min)=>{const input=document.createElement("input");input.type=type;input.dataset.wage=field;input.value=value??"";if(type==="number"){input.min=min??"0";input.step=field==="qty"?"0.01":"0.01";}input.addEventListener("input",update);input.addEventListener("change",update);return input;};
+    const makeCell=node=>{const td=document.createElement("td");td.appendChild(node);tr.appendChild(td);};
+    makeCell(makeInput("code","text",preset.code||"",null));
+    makeCell(makeInput("description","text",preset.description||"",null));
+    const unit=document.createElement("select");unit.dataset.wage="unit";["EUR","Std","Tag","Stück"].forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;unit.appendChild(o);});unit.value=preset.unit||"EUR";unit.addEventListener("change",update);makeCell(unit);
+    makeCell(makeInput("qty","number",preset.qty??"1"));
+    makeCell(makeInput("factor","number",preset.factor??"0"));
+    makeCell(makeInput("percent","number",preset.percent??"100"));
+    if(kind==="earnings"){
+      ["taxable","sv"].forEach(field=>{const td=document.createElement("td"),input=document.createElement("input");input.type="checkbox";input.dataset.wage=field;input.checked=preset[field]!==false;input.addEventListener("change",update);td.appendChild(input);tr.appendChild(td);});
+    }
+    const amountCell=document.createElement("td"),amount=document.createElement("span");amount.dataset.wageAmount="";amount.textContent="0,00";amountCell.appendChild(amount);tr.appendChild(amountCell);
+    const action=document.createElement("td"),remove=document.createElement("button");remove.type="button";remove.className="secondary";remove.textContent="Entfernen";remove.addEventListener("click",()=>{tr.remove();update();});action.appendChild(remove);tr.appendChild(action);
+    body.appendChild(tr);update();
+  }
+  function readWageRows(kind){
+    return [...$(wageBodyIds[kind]).querySelectorAll(".wage-row")].map(tr=>{
+      const get=name=>tr.querySelector('[data-wage="'+name+'"]');
+      const qty=Number(get("qty").value||0),factor=Number(get("factor").value||0),percent=Number(get("percent").value||100);
+      const amount=Math.max(0,Math.round(qty*factor*percent));
+      return {code:get("code").value.trim(),description:get("description").value.trim(),unit:get("unit").value,qty,factor,percent,amount,taxable:kind!=="earnings"||get("taxable").checked,sv:kind!=="earnings"||get("sv").checked};
+    }).filter(item=>item.amount!==0||item.code||item.description);
+  }
+  function renderWageRows(kind,items){
+    const body=$(wagePreviewIds[kind]);body.textContent="";
+    items.forEach(item=>{const tr=document.createElement("tr"),label=document.createElement("td"),amount=document.createElement("td");label.textContent=(item.code?item.code+" ":"")+item.description+(item.qty!==0?" ("+item.qty+" "+item.unit+")":"");amount.className="amount";amount.textContent=money(item.amount);tr.appendChild(label);tr.appendChild(amount);body.appendChild(tr);});
+    const formRows=$(wageBodyIds[kind]).querySelectorAll(".wage-row");
+    formRows.forEach((tr,index)=>{const span=tr.querySelector("[data-wage-amount]"),item=readWageRows(kind).find((x,i)=>i===index);span.textContent=money(item?item.amount:0);});
+  }
+  function formatPeriod(value){if(!/^\\d{4}-\\d{2}$/.test(value||""))return value||"-";const [year,month]=value.split("-").map(Number);return new Date(year,month-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});}
+  function previewValue(inputId,outputId,formatter=value=>value||"-"){const input=$(inputId),output=$(outputId);if(input&&output)output.textContent=formatter(input.type==="checkbox"?input.checked:input.value);}
+  function ytdValue(id){return cents($(id).value);}
 
   function addShift(date="",start="20:00",end="06:00",breakStart="",breakEnd=""){
     const tr=document.createElement("tr");
@@ -306,16 +501,19 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
   }
   function calc(){
     const base=cents($("base_pay").value),hours=val("monthly_hours"),bonus=cents($("bonus").value),allowance=cents($("allowance").value);
+    const earnings=readWageRows("earnings"),netBenefits=readWageRows("netPlus"),netDeductions=readWageRows("netMinus");
+    const earningsTotal=earnings.reduce((sum,item)=>sum+item.amount,0),taxableItems=earnings.filter(item=>item.taxable).reduce((sum,item)=>sum+item.amount,0),svItems=earnings.filter(item=>item.sv).reduce((sum,item)=>sum+item.amount,0);
+    const netBenefitsTotal=netBenefits.reduce((sum,item)=>sum+item.amount,0),netDeductionsTotal=netDeductions.reduce((sum,item)=>sum+item.amount,0);
     const hourly=hours>0?(base/100)/hours:0,shifts=getShifts();
     const nightHours=shifts.night/60,sundayHours=shifts.sunday/60,holidayHours=shifts.holiday/60;
     const nightPay=Math.round(hourly*nightHours*rate("night_rate")*100);
     const sundayPay=Math.round(hourly*sundayHours*rate("sunday_rate")*100);
     const holidayPay=Math.round(hourly*holidayHours*rate("holiday_rate")*100);
-    const premium=nightPay+sundayPay+holidayPay,gross=base+bonus+allowance+premium;
+    const premium=nightPay+sundayPay+holidayPay,gross=base+bonus+allowance+premium+earningsTotal;
     const taxHourly=Math.min(hourly,50),svHourly=Math.min(hourly,25);
     const taxFree=Math.min(nightPay,Math.round(taxHourly*100*shifts.nightTaxFree))+Math.min(sundayPay,Math.round(taxHourly*100*shifts.sundayTaxFree))+Math.min(holidayPay,Math.round(taxHourly*100*shifts.holidayTaxFree));
     const svFree=Math.min(nightPay,Math.round(svHourly*100*shifts.nightTaxFree))+Math.min(sundayPay,Math.round(svHourly*100*shifts.sundayTaxFree))+Math.min(holidayPay,Math.round(svHourly*100*shifts.holidayTaxFree));
-    const svGross=Math.max(0,gross-svFree);
+    const taxGross=Math.max(0,base+bonus+allowance+premium-taxFree+taxableItems),svGross=Math.max(0,base+bonus+allowance+premium-svFree+svItems);
     const kvBase=Math.min(svGross,581250),rvBase=Math.min(svGross,845000);
     const kvRate=(val("health_rate")+val("kv_extra"))/100;
     const kvEmployee=Math.round(kvBase*kvRate/2),kvEmployer=kvEmployee;
@@ -328,14 +526,16 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const pvBase=Math.min(svGross,581250);
     const pvEmployee=stateSelected?Math.round(pvBase*pvEmployeeRate/100):0,pvEmployer=stateSelected?Math.round(pvBase*pvEmployerRate/100):0;
     const employeeSocial=kvEmployee+pvEmployee+rvEmployee+avEmployee,employerSocial=kvEmployer+pvEmployer+rvEmployer+avEmployer;
-    const manualTax=cents($("tax").value)+cents($("soli").value)+cents($("church").value),other=cents($("other").value)+cents($("advance").value);
-    const deductions=employeeSocial+manualTax+other,net=gross-deductions;
-    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,taxFree,svFree,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,other,deductions,net,stateSelected};
+    const tax=cents($("tax").value),soli=cents($("soli").value),church=cents($("church").value),manualTax=tax+soli+church,other=cents($("other").value),advance=cents($("advance").value);
+    const vwl=cents($("vwl_deduction").value),garnishment=cents($("garnishment").value),loanRepayment=cents($("loan_repayment").value),kugPayout=cents($("kug_payout").value);
+    const netFixedDeductions=vwl+garnishment+loanRepayment,employerExtra=cents($("u1_cost").value)+cents($("u2_cost").value)+cents($("insolvency_cost").value)+cents($("accident_cost").value);
+    const deductions=employeeSocial+manualTax+other+advance+netFixedDeductions+netDeductionsTotal,net=gross-deductions+netBenefitsTotal+kugPayout;
+    return {base,bonus,allowance,hourly,shifts,nightHours,sundayHours,holidayHours,nightPay,sundayPay,holidayPay,premium,gross,earnings,netBenefits,netDeductions,netBenefitsTotal,netDeductionsTotal,taxFree,svFree,taxGross,svGross,kvBase,rvBase,kvEmployee,kvEmployer,pvEmployee,pvEmployer,rvEmployee,rvEmployer,avEmployee,avEmployer,employeeSocial,employerSocial,manualTax,tax,soli,church,other,advance,vwl,garnishment,loanRepayment,kugPayout,employerExtra,deductions,net,stateSelected};
   }
   function update(){
     const r=calc();
     set("p_base_pay",r.base);set("p_bonus",r.bonus);set("p_allowance",r.allowance);set("p_night_pay",r.nightPay);set("p_sunday_pay",r.sundayPay);set("p_holiday_pay",r.holidayPay);set("p_tax_free",r.taxFree);set("p_sv_free",r.svFree);set("p_sv_gross",r.svGross);
-    set("p_gross",r.gross);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
+    set("p_gross",r.gross);set("p_tax_gross",r.taxGross);set("p_kv_gross",r.kvBase);set("p_rv_gross",r.rvBase);set("p_tax",r.manualTax);set("p_health",r.kvEmployee);set("p_care",r.pvEmployee);
     set("p_pension",r.rvEmployee);set("p_unemployment",r.avEmployee);set("p_other",r.other);$("p_care").textContent=r.stateSelected?money(r.pvEmployee):"—";$("p_employer_care").textContent=r.stateSelected?money(r.pvEmployer):"—";
     set("p_deductions",r.deductions);set("p_net",r.net);
     set("p_employer_health",r.kvEmployer);set("p_employer_care",r.pvEmployer);set("p_employer_pension",r.rvEmployer);set("p_employer_unemployment",r.avEmployer);
@@ -345,15 +545,34 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     $("p_start_date").textContent=$("start_date").value||"-";$("p_pay_date").textContent=$("pay_date").value||"-";
     $("shift_summary").textContent="Nacht: "+r.nightHours.toFixed(2)+" Std. | Sonntag: "+r.sundayHours.toFixed(2)+" Std. | Feiertag: "+r.holidayHours.toFixed(2)+" Std. | Zuschläge: "+money(r.premium)+" € | Geschätzter SV-freier Anteil: "+money(r.svFree)+" € | SV-pflichtiges Entgelt: "+money(r.svGross)+" €"+(!r.stateSelected?" | Bitte wählen Sie das Bundesland des Arbeitsortes aus, um das Nettoentgelt zu berechnen.":"")+(r.shifts.errors.length?" | "+r.shifts.errors.join(" "):"");
     $("p_gross").parentElement.cells[0].textContent="Gesamtbrutto einschließlich Zuschläge";
-    $("p_tax").parentElement.cells[0].textContent="Lohnsteuer / Soli / Kirchensteuer (manuell zusammengefasst)";
-    $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge und Vorschuss";
-    $("p_advance").parentElement.style.display="none";$("p_soli").parentElement.style.display="none";$("p_church").parentElement.style.display="none";
-    $("p_tax").parentElement.cells[1].textContent=money(r.manualTax);$("p_other").parentElement.cells[1].textContent=money(r.other);
+    $("p_other").parentElement.cells[0].textContent="Sonstige Abzüge";
     $("p_gross").parentElement.cells[1].textContent=money(r.gross);
     $("p_deductions").parentElement.cells[1].textContent=money(r.deductions);$("p_net").textContent=r.stateSelected?money(r.net)+" €":"Bundesland auswählen";
     $("shift_summary").style.color=r.shifts.errors.length?"#9b2c2c":"";
+    set("p_tax",r.tax);set("p_soli",r.soli);set("p_church",r.church);set("p_advance",r.advance);set("p_vwl",r.vwl);set("p_garnishment",r.garnishment);set("p_loan_repayment",r.loanRepayment);set("p_kug_payout",r.kugPayout);
+    $("p_tax").parentElement.style.display="table-row";$("p_soli").parentElement.style.display="table-row";$("p_church").parentElement.style.display="table-row";$("p_advance").parentElement.style.display="table-row";
+    $("p_tax").parentElement.cells[1].textContent=money(r.tax);$("p_soli").parentElement.cells[1].textContent=money(r.soli);$("p_church").parentElement.cells[1].textContent=money(r.church);$("p_other").parentElement.cells[1].textContent=money(r.other);$("p_advance").parentElement.cells[1].textContent=money(r.advance);
+    renderWageRows("earnings",r.earnings);renderWageRows("netPlus",r.netBenefits);renderWageRows("netMinus",r.netDeductions);
+    set("p_u1_cost",cents($("u1_cost").value));set("p_u2_cost",cents($("u2_cost").value));set("p_insolvency_cost",cents($("insolvency_cost").value));set("p_accident_cost",cents($("accident_cost").value));
+    const previewPairs=[["employee_address","p_employee_address"],["birth_date","p_birth_date"],["child_allowance","p_child_allowance"],["religion","p_religion"],["dba_country","p_dba_country"],["steuer_id_test","p_steuer_id_test"],["sv_number_test","p_sv_number_test"],["kasse","p_kasse"],["pgrs","p_pgrs"],["bgrs","p_bgrs"],["sv_days","p_sv_days"],["attendance_days","p_attendance_days"],["vacation_entitlement","p_vacation_entitlement"],["vacation_carryover","p_vacation_carryover"],["vacation_taken","p_vacation_taken"],["sick_days","p_sick_days"],["absence_days","p_absence_days"],["holiday_days","p_holiday_days"],["rest_garnishment","p_rest_garnishment"],["rest_loan","p_rest_loan"],["bank_name_test","p_bank_name_test"]];
+    previewPairs.forEach(([inputId,outputId])=>previewValue(inputId,outputId));
+    previewValue("tax_class","p_tax_class",v=>v? v+($("tax_factor").value?" / Faktor "+$("tax_factor").value:""):"-");
+    previewValue("midijob","p_midijob",v=>v?"Ja":"Nein");
+    previewValue("kv_extra","p_kv_extra",v=>v+" %");
+    previewValue("state","p_state",v=>$("state").selectedOptions[0]?.textContent||"-");
+    previewValue("payment_method","p_payment_method");
+    ["annual_allowance","monthly_allowance"].forEach(id=>previewValue(id,id==="annual_allowance"?"p_annual_allowance":"p_monthly_allowance",v=>money(cents(v))+" EUR"));
+    previewValue("scheduled_hours","p_hours",v=>v+" / "+$("actual_hours").value+" Std.");
+    const leaveBalance=Math.max(0,val("vacation_entitlement")+val("vacation_carryover")-val("vacation_taken"));
+    $("p_vacation_balance").textContent=leaveBalance.toLocaleString("de-DE")+" Tage";
+    $("p_period_days").textContent=$("period").value?new Date(Number($("period").value.slice(0,4)),Number($("period").value.slice(5,7)),0).getDate()+" Kalendertage":"-";
+    $("p_period").textContent=formatPeriod($("period").value);$("p_pay_date").textContent=$("pay_date").value||"-";
+    ytdFields.forEach(id=>{const out=$("p_ytd_"+id);if(out)out.textContent=money(ytdValue("ytd_"+id))+" EUR";});
   }
   $("add_shift").addEventListener("click",()=>addShift());
+  $("add_earning").addEventListener("click",()=>addWageRow("earnings"));
+  $("add_net_benefit").addEventListener("click",()=>addWageRow("netPlus"));
+  $("add_net_deduction").addEventListener("click",()=>addWageRow("netMinus"));
   function validateForOutput(){
     const r=calc();
     if(!r.stateSelected){window.alert("Bitte zuerst das Bundesland auswählen.");return null;}
@@ -366,6 +585,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     if(!window.jspdf||!window.jspdf.jsPDF){window.alert("PDF-Modul konnte nicht geladen werden. Bitte Internetverbindung prüfen oder die Druckfunktion verwenden.");return;}
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const left=15,right=195,width=180;let y=15;
+    const ensureSpace=(space=8)=>{if(y+space>280){doc.addPage();y=15;}};
     const line=(yy)=>{doc.setDrawColor(80);doc.line(left,yy,right,yy);};
     const txt=(s,x,yy,size=9,bold=false,options={})=>{doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s||"-"),x,yy,options);};
     const euro=(n)=>money(n)+" EUR";
@@ -374,20 +594,52 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const logo=$("logo_area").querySelector("img");
     if(logo&&logo.complete&&logo.naturalWidth>0){try{const canvas=document.createElement("canvas");canvas.width=logo.naturalWidth;canvas.height=logo.naturalHeight;canvas.getContext("2d").drawImage(logo,0,0);doc.addImage(canvas.toDataURL("image/png"),"PNG",left,y,28,15,undefined,"FAST");}catch(e){}}
     txt(company,right,y+3,12,true);txt(address,right,y+8,8);y+=21;line(y);y+=8;
-    txt("ENTGELTABRECHNUNG",left,y,15,true);txt("Abrechnungszeitraum: "+($("period").value||"-"),right,y,9,true);y+=7;
+    txt("ABRECHNUNG DER BRUTTO/NETTO-BEZÜGE",left,y,12,true);txt("Für: "+formatPeriod($("period").value),right,y,9,true);y+=7;
     txt("Arbeitnehmer: "+employee,left,y,9,true);txt("Personalnummer: "+employeeNo,105,y,9);y+=6;
     txt("Arbeitgeber: "+company,left,y,9);txt("Auszahlungsdatum: "+($("pay_date").value||"-"),105,y,9);y+=6;
     txt("Beschäftigungsbeginn: "+($("start_date").value||"-"),left,y,9);y+=5;line(y);y+=6;
-    const row=(label,value,bold=false)=>{txt(label,left,y,9,bold);txt(euro(value),right,y,9,bold,{align:"right"});y+=6;};
-    const section=(title)=>{y+=2;txt(title.toUpperCase(),left,y,9,true);y+=3;line(y);y+=5;};
+    const row=(label,value,bold=false)=>{ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
+    const section=(title)=>{ensureSpace(13);y+=2;txt(title.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;};
+    section("Steuermerkmale");
+    const pair=(label,value,label2="",value2="")=>{ensureSpace(7);txt(label+": "+(value||"-"),left,y,8);if(label2)txt(label2+": "+(value2||"-"),105,y,8);y+=5;};
+    pair("Geburtsdatum",$("birth_date").value,"Steuerklasse",$("tax_class").value);
+    pair("Faktor",$("tax_factor").value,"Kinderfreibetrag",$("child_allowance").value);
+    pair("Konfession",$("religion").value,"Freibetrag jährlich",money(cents($("annual_allowance").value))+" EUR");
+    pair("Freibetrag monatlich",money(cents($("monthly_allowance").value))+" EUR","DBA-Staat",$("dba_country").value);
+    pair("Midijob",$("midijob").checked?"Ja":"Nein","Steuer-ID (Testwert)",$("steuer_id_test").value);
+    section("Sozialversicherung");
+    pair("SV-Nummer (Testwert)",$("sv_number_test").value,"Krankenkasse",$("kasse").value);
+    pair("PGRS",$("pgrs").value,"BGRS",$("bgrs").value);
+    pair("SV-Tage",$("sv_days").value,"Bundesland",$("state").selectedOptions[0]?.textContent||"");
+    section("Arbeitszeit und Fehlzeiten");
+    pair("Soll-/Iststunden",$("scheduled_hours").value+" / "+$("actual_hours").value,"Anwesenheitstage",$("attendance_days").value);
+    pair("Urlaubsanspruch",$("vacation_entitlement").value,"Übertrag Vorjahr",$("vacation_carryover").value);
+    pair("Genommene Urlaubstage",$("vacation_taken").value,"Resturlaub",String(Math.max(0,val("vacation_entitlement")+val("vacation_carryover")-val("vacation_taken"))));
+    pair("Krankheitstage",$("sick_days").value,"Sonstige Fehltage",$("absence_days").value);
     section("Bruttoentgelt / Bezüge");
-    row("Grundgehalt",r.base);row("Nachtzuschläge",r.nightPay);row("Sonntagszuschläge",r.sundayPay);row("Feiertagszuschläge",r.holidayPay);row("Bonus / Einmalzahlungen",r.bonus);row("Zulagen / Sonstige Bezüge",r.allowance);row("Gesamtbrutto",r.gross,true);
+    row("Grundgehalt",r.base);row("Nachtzuschläge",r.nightPay);row("Sonntagszuschläge",r.sundayPay);row("Feiertagszuschläge",r.holidayPay);row("Bonus / Einmalzahlungen",r.bonus);row("Zulagen / Sonstige Bezüge",r.allowance);
+    r.earnings.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    row("Gesamtbrutto",r.gross,true);
     section("Steuer- und Sozialversicherungsbasis");
-    row("Steuerfrei geschätzter Zuschlagsanteil",r.taxFree);row("SV-freier geschätzter Zuschlagsanteil",r.svFree);row("SV-pflichtiges Brutto",r.svGross,true);
-    section("Abzüge Arbeitnehmer");
-    row("Lohnsteuer / Soli / Kirchensteuer",r.manualTax);row("Krankenversicherung",r.kvEmployee);row("Pflegeversicherung",r.pvEmployee);row("Rentenversicherung",r.rvEmployee);row("Arbeitslosenversicherung",r.avEmployee);row("Sonstige Abzüge / Vorschuss",r.other);row("Gesamtabzüge",r.deductions,true);
-    section("Arbeitgeberanteile");
+    row("Steuer-Brutto",r.taxGross,true);row("KV-Brutto",r.kvBase);row("RV-/AV-Brutto",r.rvBase);row("Steuerfrei geschätzter Zuschlagsanteil",r.taxFree);row("SV-freier geschätzter Zuschlagsanteil",r.svFree);row("SV-pflichtiges Brutto",r.svGross,true);
+    section("Steuerrechtliche Abzüge");
+    row("Lohnsteuer",r.tax);row("Kirchensteuer",r.church);row("Solidaritätszuschlag",r.soli);
+    section("Sozialversicherungsabzüge Arbeitnehmer");
+    row("Krankenversicherung",r.kvEmployee);row("Pflegeversicherung",r.pvEmployee);row("Rentenversicherung",r.rvEmployee);row("Arbeitslosenversicherung",r.avEmployee);
+    section("Netto-Bezüge");
+    row("Kug-Auszahlung / Netto-Zuschuss",r.kugPayout);
+    r.netBenefits.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    section("Netto-Abzüge");
+    row("Sonstige Abzüge",r.other);row("Vorschuss / Abschlag",r.advance);row("VWL",r.vwl);row("Pfändung",r.garnishment);row("Darlehensrückzahlung",r.loanRepayment);
+    r.netDeductions.forEach(item=>row((item.code?item.code+" ":"")+item.description,item.amount));
+    row("Gesamtabzüge",r.deductions,true);
+    section("Verdienstbescheinigung (Jahreswerte)");
+    ytdFields.forEach(id=>pair(id.replaceAll("_"," ").toUpperCase(),money(ytdValue("ytd_"+id))+" EUR"));
+    section("Arbeitgeberanteile und zusätzliche Kosten");
     row("Krankenversicherung Arbeitgeber",r.kvEmployer);row("Pflegeversicherung Arbeitgeber",r.pvEmployer);row("Rentenversicherung Arbeitgeber",r.rvEmployer);row("Arbeitslosenversicherung Arbeitgeber",r.avEmployer);
+    row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));
+    pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
+    pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
     y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
@@ -398,7 +650,8 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
       if(el.type==="number"){el.value=el.id==="base_pay"?"3000":el.id==="monthly_hours"?"173.33":el.id==="kv_extra"?"2.9":el.id==="health_rate"?"14.6":"0";return;}el.value="";
     });
     $("state").value="";$("children").value="0";$("holidays").value="";shiftRows.innerHTML="";
-    $("logo_area").innerHTML="LOGO<br>Unternehmen";update();
+    Object.values(wageBodyIds).forEach(id=>$(id).textContent="");
+    $("logo_area").innerHTML="LOGO<br>Unternehmen";addWageRow("earnings",{code:"1000",description:"Stundenlohn",unit:"Std"});update();
   });
   $("logo_file").addEventListener("change",event=>{
     const file=event.target.files&&event.target.files[0],area=$("logo_area");
@@ -406,8 +659,11 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>2*1024*1024){event.target.value="";area.textContent="Nur PNG, JPG oder WebP bis 2 MB";return;}
     const reader=new FileReader();reader.onload=()=>{area.innerHTML="";const img=document.createElement("img");img.alt="Company logo";img.src=reader.result;area.appendChild(img);};reader.readAsDataURL(file);
   });
-  document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>el.addEventListener("input",update));
+  document.querySelectorAll(".editor input,.editor select,.editor textarea").forEach(el=>{el.addEventListener("input",update);el.addEventListener("change",update);});
   addShift();
+  addWageRow("earnings",{code:"1000",description:"Stundenlohn",unit:"Std"});
+  addWageRow("netPlus");
+  addWageRow("netMinus");
 })();
 </script>
 </body></html>"""
