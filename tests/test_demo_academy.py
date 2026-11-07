@@ -64,7 +64,7 @@ class DemoRouteTests(unittest.TestCase):
         self.assertIn("doc.save(", body)
         self.assertIn("ENTGELTABRECHNUNG", body)
         self.assertIn("@page{size:A4;margin:9mm}", body)
-        self.assertIn("output-actions{display:grid;grid-template-columns:1fr}", body)
+        self.assertIn("output-actions{display:grid;grid-template-columns:1fr;gap:9px", body)
         self.assertIn("window.print()", body)
 
     def test_payroll_page_has_automatic_social_insurance_and_shift_inputs(self):
