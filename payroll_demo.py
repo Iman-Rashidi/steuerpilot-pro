@@ -56,6 +56,38 @@ th{background:#f1f4f8;font-weight:700}
 .net-box{border:2px solid #222;border-radius:2px;padding:9px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:750}
 .preview-foot{margin-top:8px;padding-top:5px;border-top:1px solid #dce2ea;color:#596779;font-size:10px}
 a.back{color:#203b63;text-decoration:none;font-weight:650}
+
+/* SteuerPilot Pro payslip refresh: clean navy/blue payroll document */
+.preview{background:#fff;border:1px solid #d7e0ec;border-radius:12px;padding:24px;box-shadow:0 14px 38px rgba(24,49,82,.10);direction:ltr;text-align:left;font-family:Arial,Helvetica,sans-serif;color:#1b2b42;font-size:11px}
+.preview-top{display:flex;gap:16px;align-items:center;justify-content:space-between;border-bottom:3px solid #1d426f;padding:0 0 16px;margin-bottom:14px}
+.logo-area{width:116px;height:62px;border:1px solid #d9e3ef;border-radius:9px;background:#f5f8fc;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#64758c;font-size:11px;text-align:center;padding:6px;flex-shrink:0}
+.company-block{flex:1;text-align:right;direction:ltr;color:#53647b;font-size:10px;line-height:1.5}
+.company-block strong{font-size:18px;letter-spacing:.1px;color:#173b67}
+.pay-title{margin:13px 0 10px;font-size:19px;line-height:1.25;color:#173b67;font-weight:750}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.meta div,.party{background:#f3f7fc;border:1px solid #e0e8f2;border-radius:8px;padding:10px}
+.meta small,.party small{display:block;color:#6a7b91;font-size:9px;margin-bottom:3px}
+.meta b,.party b{color:#1d3555}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
+.party b{display:block;min-height:22px;font-size:12px}
+.party span{display:block;margin-top:4px;color:#34465e;font-size:10px}
+table{width:100%;border-collapse:collapse;font-size:10px;margin:5px 0 9px}
+th,td{padding:6px 8px;border-bottom:1px solid #e7edf4;text-align:left}
+th{background:#eaf1f9;color:#24466f;font-weight:700}
+tbody tr:nth-child(even):not(.total-row){background:#fbfcfe}
+.amount{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.section-title{margin:14px 0 5px;font-size:10px;letter-spacing:.55px;text-transform:uppercase;color:#1d4778;border-bottom:1px solid #d5e0ed;border-left:3px solid #2f6da8;padding:4px 0 5px 8px}
+.preview-meta td:first-child,.preview-meta td:nth-child(3){color:#61738a;font-weight:650}
+.preview-meta td:nth-child(2),.preview-meta td:nth-child(4){color:#263c59}
+.total-row{font-weight:750;background:#edf3fa;color:#183b66}
+.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.summary-grid div{padding:9px;background:#f3f7fc;border:1px solid #e1e9f3;border-radius:7px}
+.summary-grid small{display:block;color:#687b92;margin-bottom:3px}
+.net-box{background:#173b67;color:#fff;border:0;border-radius:9px;padding:14px 16px;margin-top:13px;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:750;box-shadow:0 5px 12px rgba(23,59,103,.14)}
+.net-box strong{font-size:21px;letter-spacing:.2px}
+.preview-foot{margin-top:12px;padding:9px 10px;border:1px solid #e0e8f2;border-radius:7px;background:#f8fafc;color:#617188;font-size:9px;line-height:1.45}
+@media print{.preview{border:0;border-radius:0;box-shadow:none;padding:0}.net-box{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
 @media(max-width:850px){.layout{grid-template-columns:1fr}.preview{padding:15px}}
 @media(max-width:520px){.fields,.meta,.parties{grid-template-columns:1fr}.preview-top{gap:8px}.logo-area{width:105px;height:68px}.preview{padding:11px}table{font-size:11px}}
 @page{size:A4;margin:9mm}
@@ -643,7 +675,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
     const left=15,right=195,width=180;let y=15;
     const ensureSpace=(space=8)=>{if(y+space>280){doc.addPage();y=15;};};
-    const line=(yy)=>{doc.setDrawColor(80);doc.line(left,yy,right,yy);};
+    const line=(yy)=>{doc.setDrawColor(205,218,234);doc.setLineWidth(0.35);doc.line(left,yy,right,yy);};
     const txt=(s,x,yy,size=9,bold=false,options={})=>{if(s===null||s===undefined||String(s).trim()==="")return;doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(size);doc.text(String(s),x,yy,options);};
     const euro=(n)=>money(n)+" EUR";
     const company=$("company").value.trim(),address=$("company_address").value.trim();
@@ -655,7 +687,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     txt(employee?"Arbeitnehmer: "+employee:"",left,y,9,true);txt(employeeNo?"Personalnummer: "+employeeNo: "",105,y,9);y+=6;
     txt(company?"Arbeitgeber: "+company:"",left,y,9);txt($("pay_date").value?"Auszahlungsdatum: "+$("pay_date").value:"",105,y,9);y+=6;
     txt($("start_date").value?"Beschäftigungsbeginn: "+$("start_date").value:"",left,y,9);y+=5;line(y);y+=6;
-    let pdfSectionStarted=false;const startPdfSection=()=>{if(pdfSectionStarted)return;ensureSpace(13);y+=2;txt(activePdfTitle.toUpperCase(),left,y,8,true);y+=3;line(y);y+=5;pdfSectionStarted=true;};let activePdfTitle="";const hasPdfValue=value=>{const v=String(value??"").trim();return v!==""&&v!=="-"&&v!=="—"&&!/^(?:0+(?:[,.]0+)?(?:\s*EUR)?)$/i.test(v);};const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection)||!Number.isFinite(Number(value))||Number(value)===0)return;startPdfSection();ensureSpace(8);txt(label,left,y,8,bold);txt(euro(value),right,y,8,bold,{align:"right"});y+=5;};
+    let pdfSectionStarted=false;const startPdfSection=()=>{if(pdfSectionStarted)return;ensureSpace(15);y+=2;doc.setFillColor(235,242,250);doc.setDrawColor(218,229,241);doc.roundedRect(left,y-5,width,9,1.5,1.5,"FD");doc.setFillColor(43,105,164);doc.rect(left,y-5,2,9,"F");doc.setTextColor(29,67,112);txt(activePdfTitle.toUpperCase(),left+5,y+1,8,true);doc.setTextColor(35,48,67);y+=9;pdfSectionStarted=true;};let activePdfTitle="";const hasPdfValue=value=>{const v=String(value??"").trim();return v!==""&&v!=="-"&&v!=="—"&&!/^(?:0+(?:[,.]0+)?(?:\s*EUR)?)$/i.test(v);};const row=(label,value,bold=false)=>{if(!sectionEnabled(activePdfSection)||!Number.isFinite(Number(value))||Number(value)===0)return;startPdfSection();ensureSpace(8);if(bold){doc.setFillColor(242,247,252);doc.roundedRect(left,y-4,width,6,0.8,0.8,"F");}doc.setTextColor(38,55,78);txt(label,left+1,y,8,bold);doc.setTextColor(29,67,112);txt(euro(value),right-1,y,8,bold,{align:"right"});doc.setTextColor(35,48,67);y+=6;};
     const section=(title)=>{const normalized=title.toLowerCase();const alias=normalized.includes("steuerrechtliche abzüge")||normalized.includes("sozialversicherungsabzüge")||normalized==="netto-abzüge";const match=alias?sectionDefinitions.find(item=>item[0]==="deductions"):sectionDefinitions.find(item=>normalized.startsWith(item[1].toLowerCase().slice(0,Math.min(12,item[1].length))));activePdfSection=match?match[0]:"";activePdfTitle=title;pdfSectionStarted=false;};
     section("Steuermerkmale");
     const pair=(label,value,label2="",value2="")=>{if(!sectionEnabled(activePdfSection))return;const first=hasPdfValue(value),second=Boolean(label2)&&hasPdfValue(value2);if(!first&&!second)return;startPdfSection();ensureSpace(7);if(first)txt(label+": "+value,left,y,8);if(second)txt(label2+": "+value2,first?105:left,y,8);y+=5;};
@@ -701,7 +733,7 @@ a.back{color:#203b63;text-decoration:none;font-weight:650}
     row("Umlage U1",cents($("u1_cost").value));row("Umlage U2",cents($("u2_cost").value));row("Insolvenzgeldumlage",cents($("insolvency_cost").value));row("Unfallversicherung / BG",cents($("accident_cost").value));row("Gesamtkosten Arbeitgeber",r.gross+r.employerSocial+r.employerExtra,true);
     pair("Auszahlungsweg",$("payment_method").value,"Bank (Testwert)",$("bank_name_test").value);
     pair("Restpfändung",money(cents($("rest_garnishment").value))+" EUR","Darlehen Rest",money(cents($("rest_loan").value))+" EUR");
-    ensureSpace(25);y+=2;doc.setDrawColor(20);doc.setLineWidth(0.7);doc.rect(left,y,width,12);txt("AUSZAHLUNGSBETRAG",left+3,y+8,11,true);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(euro(r.net),right-3,y+8,{align:"right"});y+=18;
+    ensureSpace(27);y+=3;doc.setFillColor(23,59,103);doc.roundedRect(left,y,width,17,2,2,"F");doc.setTextColor(255,255,255);txt("NETTO-AUSZAHLUNG",left+5,y+10.5,10,true);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(255,255,255);doc.text(euro(r.net),right-5,y+11,{align:"right"});doc.setTextColor(35,48,67);y+=24;
     doc.setFont("helvetica","normal");doc.setFontSize(7);doc.text("Berechnung auf Basis der eingegebenen Angaben. Lohnsteuer nicht automatisch berechnet. Bitte Angaben und gesetzliche Abrechnungsvorgaben prüfen.",left,y,{maxWidth:width});
     doc.save("Entgeltabrechnung-"+(($("period").value||"Zeitraum").replace(/[^a-zA-Z0-9_-]/g,"_"))+".pdf");
   });
