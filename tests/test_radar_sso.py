@@ -1,11 +1,12 @@
+import base64
+import json
 import unittest
 from urllib.parse import parse_qs, urlsplit
 
 from steuerpilot.radar_sso import (
+    TOKEN_TTL_SECONDS,
     build_radar_embed_url,
-    create_portal_session,
-    verify_portal_password,
-    verify_portal_session,
+    get_radar_sso_secret,
 )
 
 
@@ -18,9 +19,17 @@ class RadarSSOTests(unittest.TestCase):
         url = build_radar_embed_url(RADAR_URL, SECRET, now=1_800_000_000)
         parts = urlsplit(url)
         params = parse_qs(parts.query)
+        self.assertEqual(parts.scheme, "https")
         self.assertEqual(parts.hostname, "reinigungsai-pr7-staging.onrender.com")
         self.assertEqual(params["embed"], ["true"])
-        self.assertEqual(len(params["sso"][0].split(".")), 2)
+        token = params["sso"][0]
+        self.assertEqual(len(token.split(".")), 2)
+        payload = token.split(".")[0]
+        claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+        self.assertEqual(claims["iss"], "steuerpilot-pro")
+        self.assertEqual(claims["aud"], "reinigungsradar")
+        self.assertEqual(claims["sub"], "demo-admin")
+        self.assertEqual(claims["exp"] - claims["iat"], TOKEN_TTL_SECONDS)
 
     def test_rejects_non_staging_hosts(self):
         with self.assertRaises(ValueError):
@@ -30,14 +39,37 @@ class RadarSSOTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_radar_embed_url("http://reinigungsai-pr7-staging.onrender.com", SECRET)
 
-    def test_portal_password_requires_long_configured_value(self):
-        self.assertTrue(verify_portal_password("pilot-password-123456", "pilot-password-123456"))
-        self.assertFalse(verify_portal_password("short", "short"))
+    def test_rejects_url_with_existing_query_or_userinfo(self):
+        with self.assertRaises(ValueError):
+            build_radar_embed_url(RADAR_URL + "/?sso=anything", SECRET)
+        with self.assertRaises(ValueError):
+            build_radar_embed_url("https://user:pass@reinigungsai-pr7-staging.onrender.com", SECRET)
 
-    def test_signed_portal_session_expires(self):
-        token = create_portal_session(SECRET, now=1_800_000_000)
-        self.assertTrue(verify_portal_session(token, SECRET, now=1_800_000_100))
-        self.assertFalse(verify_portal_session(token, SECRET, now=1_800_028_801))
+    def test_rejects_short_secret(self):
+        with self.assertRaises(ValueError):
+            build_radar_embed_url(RADAR_URL, "too-short")
+
+    def test_reads_canonical_secret_name(self):
+        self.assertEqual(
+            get_radar_sso_secret({"STEUERPILOT_RADAR_SSO_SECRET": "  " + SECRET + "  "}),
+            SECRET,
+        )
+
+    def test_supports_existing_legacy_secret_name(self):
+        self.assertEqual(
+            get_radar_sso_secret({"STEUEERPILOT_RADAR_SSO_SECRET": SECRET}),
+            SECRET,
+        )
+
+    def test_canonical_secret_takes_precedence(self):
+        other = SECRET + "-canonical"
+        self.assertEqual(
+            get_radar_sso_secret({
+                "STEUERPILOT_RADAR_SSO_SECRET": other,
+                "STEUEERPILOT_RADAR_SSO_SECRET": SECRET,
+            }),
+            other,
+        )
 
 
 if __name__ == "__main__":

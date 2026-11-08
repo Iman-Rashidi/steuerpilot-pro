@@ -2,7 +2,7 @@ name: Python tests
 
 on:
   push:
-    branches: [main, "feat/**", "fix/**"]
+    branches: [main, "feat/**", "fix/**", "staging/**"]
   pull_request:
 
 permissions:

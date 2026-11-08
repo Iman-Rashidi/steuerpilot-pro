@@ -3,8 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-from http.cookies import SimpleCookie
-from urllib.parse import parse_qs
 from pathlib import Path
 from decimal import Decimal, InvalidOperation
 from wsgiref.simple_server import make_server
@@ -13,12 +11,7 @@ from datetime import date
 
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
 from payroll_demo import PAYROLL_PAGE
-from steuerpilot.radar_sso import (
-    build_radar_embed_url,
-    create_portal_session,
-    verify_portal_password,
-    verify_portal_session,
-)
+from steuerpilot.radar_sso import build_radar_embed_url, get_radar_sso_secret
 
 PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SteuerPilot Pro · مرکز مدیریت کسب‌وکار</title><style>
@@ -239,63 +232,38 @@ def _profile_page(title: str, description: str, fields: list[tuple[str, str, str
 <script>document.getElementById('profile-form').addEventListener('submit',e=>{{e.preventDefault();const b=document.getElementById('profile-result');b.style.display='block';b.textContent='فرم در مرورگر بررسی شد؛ ذخیره‌سازی در این نسخه فعال نیست.';}});</script></body></html>"""
 
 
-def _radar_login_page(error: str = "") -> str:
-    error_html = f'<p class="error">{error}</p>' if error else ""
-    return f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ورود به ReinigungsRadar</title>
-<style>:root{{font-family:Tahoma,Arial,sans-serif;color:#17243a;background:#f3f6fa;line-height:1.7}}body{{max-width:650px;margin:30px auto;padding:0 18px}}.panel{{background:white;border:1px solid #dce4ee;border-radius:18px;padding:24px;margin:18px 0}}label{{display:block;font-weight:700;margin:12px 0 5px}}input{{width:100%;padding:12px;border:1px solid #c8d3e0;border-radius:9px;font:inherit}}button{{margin-top:16px;padding:11px 18px;background:#244f79;color:white;border:0;border-radius:9px;font:inherit}}.note{{background:#fff8e7;border:1px solid #f0dca9;border-radius:12px;padding:13px;color:#6e5313}}.error{{color:#a11;font-weight:700}}</style></head><body>
-<section class="panel"><h1>📡 ورود یکپارچه به ReinigungsRadar</h1><p>رمز آزمایشی پورتال را وارد کنید.</p>{error_html}<form method="post" action="/radar-login"><label for="password">رمز عبور آزمایشی</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">ورود</button></form></section>
-<section class="note">این دسترسی فقط برای نسخهٔ آزمایشی است. نشست امضاشده پس از ۸ ساعت منقضی می‌شود. دادهٔ واقعی وارد نکنید.</section></body></html>"""
-
-
 def _radar_page(environ) -> tuple[str, str]:
-    secret = os.environ.get("STEUEERPILOT_RADAR_SSO_SECRET", "").strip()
-    password = os.environ.get("STEUEERPILOT_RADAR_PORTAL_PASSWORD", "").strip()
-    if len(secret) < 32 or len(password) < 20:
-        return "503 Service Unavailable", '<!doctype html><html lang="fa"><meta charset="utf-8"><body><h1>اتصال آزمایشی هنوز پیکربندی نشده است</h1><p>تنظیمات امن سرویس آزمایشی کامل نیست.</p></body></html>'
-    cookie = SimpleCookie()
+    """Render Radar directly through a short-lived SteuerPilot-issued SSO token."""
+    secret = get_radar_sso_secret()
+    if len(secret) < 32:
+        return (
+            "503 Service Unavailable",
+            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
+            '<h1>ورود یکپارچه هنوز آماده نیست</h1>'
+            '<p>تنظیم امن اتصال بین دو سرویس آزمایشی کامل نیست.</p></body></html>',
+        )
     try:
-        cookie.load(environ.get("HTTP_COOKIE", ""))
-        item = cookie.get("sp_radar_session")
-        session = item.value if item else ""
-    except Exception:
-        session = ""
-    if not verify_portal_session(session, secret):
-        return "200 OK", _with_navigation(_radar_login_page(), "radar")
-    try:
-        iframe_url = build_radar_embed_url("https://reinigungsai-pr7-staging.onrender.com", secret)
+        iframe_url = build_radar_embed_url(
+            "https://reinigungsai-pr7-staging.onrender.com",
+            secret,
+        )
     except ValueError:
-        return "503 Service Unavailable", _with_navigation(_radar_login_page("نشانی محیط آزمایشی معتبر نیست."), "radar")
+        return (
+            "503 Service Unavailable",
+            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
+            '<h1>اتصال آزمایشی قابل استفاده نیست</h1>'
+            '<p>نشانی سرویس مقصد یا تنظیمات SSO معتبر نیست.</p></body></html>',
+        )
+
+    # Keep the short-lived token out of the parent page's markup except for the
+    # iframe destination, and prevent it being sent as a Referer header.
     iframe_url = iframe_url.replace("&", "&amp;").replace('"', "&quot;")
     page = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SteuerPilot Pro · ReinigungsRadar</title>
-<style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}.external{{color:#1b4d7b;font-weight:700}}</style></head><body>
+<style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}</style></head><body>
 <section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
-<p class="muted">ورود از پورتال مرکزی انجام شده است. سرویس Radar در زیرساخت آزمایشی جداگانه اجرا می‌شود، اما در همین صفحه باز می‌شود.</p>
-<span class="muted">برای استفاده، از همین صفحه و منوی بالای داشبورد وارد Radar شوید.</span></section>
+<p class="muted">ورود شما از داشبورد مرکزی SteuerPilot انجام شده است؛ نیازی به رمز عبور آزمایشی جداگانه نیست.</p></section>
 <iframe class="radar-frame" src="{iframe_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
     return "200 OK", _with_navigation(page, "radar")
-
-
-def _handle_radar_login(environ, start_response):
-    secret = os.environ.get("STEUEERPILOT_RADAR_SSO_SECRET", "").strip()
-    password = os.environ.get("STEUEERPILOT_RADAR_PORTAL_PASSWORD", "").strip()
-    try:
-        length = int(environ.get("CONTENT_LENGTH") or "0")
-        if length <= 0 or length > 4096:
-            raise ValueError("bad form")
-        form = parse_qs(environ["wsgi.input"].read(length).decode("utf-8"), keep_blank_values=True)
-        candidate = form.get("password", [""])[0]
-    except (ValueError, KeyError, UnicodeError):
-        candidate = ""
-    if len(secret) < 32 or not verify_portal_password(candidate, password):
-        page = _with_navigation(_radar_login_page("رمز معتبر نیست یا تنظیمات دسترسی کامل نیست."), "radar")
-        return _response(start_response, "401 Unauthorized", page, "text/html; charset=utf-8")
-    cookie = create_portal_session(secret)
-    start_response("303 See Other", [
-        ("Location", "/reinigungsradar"),
-        ("Set-Cookie", f"sp_radar_session={cookie}; Path=/; Max-Age=28800; HttpOnly; Secure; SameSite=Lax"),
-        ("Cache-Control", "no-store"), ("Content-Length", "0"),
-    ])
-    return [b""]
 
 
 def application(environ, start_response):
@@ -321,8 +289,6 @@ def application(environ, start_response):
             ("X-Content-Type-Options", "nosniff"),
         ])
         return [body]
-    if method == "POST" and path == "/radar-login":
-        return _handle_radar_login(environ, start_response)
     if method == "GET" and path == "/":
         return _response(start_response, "200 OK", _with_navigation(PAGE, "home"), "text/html; charset=utf-8")
     if method == "GET" and path in ("/academy", "/academy/"):
