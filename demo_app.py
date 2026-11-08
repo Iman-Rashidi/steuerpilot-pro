@@ -37,8 +37,9 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 <div class="stats"><div><strong>مالی و حسابداری</strong><small>VAT · Rechnung · Payroll</small></div><div><strong>مدیریت شرکت</strong><small>پروفایل شرکت · مدیرعامل · آکادمی</small></div><div><strong>فرصت‌های رشد</strong><small>شرکت‌ها · پیمانکاران · مناقصه‌ها</small></div></div>
 <h2>مالی و امور اداری</h2><div class="cards">
 <a class="card" href="/"><span class="ico">🧮</span><h3>محاسبه‌گر VAT</h3><p>محاسبهٔ نمونهٔ Netto، Steuer و Brutto.</p></a>
-<a class="card" href="/invoice"><span class="ico">🧾</span><h3>فاکتور و PDF</h3><p>ساخت و پیش‌نمایش Rechnung در محیط آزمایشی.</p></a>
-<a class="card" href="/payroll"><span class="ico">👥</span><h3>فیش حقوقی و PDF</h3><p>فرم حقوق و دستمزد نمایشی.</p></a>
+<a class="card" href="/invoice"><span class="ico">🧾</span><h3>Rechnung · فاکتور</h3><p>ساخت و پیش‌نمایش فاکتور در محیط آزمایشی.</p></a>
+<a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar</h3><p>جست‌وجوی مشتریان، شرکت‌ها و مناقصه‌های نظافت در همان داشبورد.</p></a>
+<a class="card" href="/payroll"><span class="ico">👥</span><h3>Lohnabrechnung · فیش حقوقی</h3><p>ساخت و پیش‌نمایش فیش حقوقی در محیط آزمایشی.</p></a>
 <a class="card" href="/academy"><span class="ico">🎓</span><h3>آکادمی مدیرعامل</h3><p>حسابداری، کارکنان، مالیات و بررسی ماهانه.</p></a></div>
 <h2>پروفایل و مدیریت</h2><div class="cards">
 <a class="card" href="/company-profile"><span class="ico">🏢</span><h3>پروفایل شرکت</h3><p>ساختار حقوقی، حوزهٔ فعالیت و اطلاعات پایه.</p></a>
@@ -209,8 +210,8 @@ def _sample_payroll_page() -> str:
 def _with_navigation(page: str, active: str = "home") -> str:
     links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
         ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
-        ("payroll","/payroll","حقوق"),("invoice","/invoice","فاکتور"),
-        ("radar","/reinigungsradar","ReinigungsRadar")]
+        ("invoice","/invoice","فاکتور"),("radar","/reinigungsradar","ReinigungsRadar"),
+        ("payroll","/payroll","حقوق")]
     items = []
     for key, href, label in links:
         current = ' aria-current="page"' if key == active else ""
