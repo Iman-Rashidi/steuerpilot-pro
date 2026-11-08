@@ -225,6 +225,8 @@ def _with_navigation(page: str, active: str = "home") -> str:
     css = """<style>.sp-nav{max-width:1120px;margin:0 auto 18px;padding:10px;display:flex;gap:6px;flex-wrap:wrap;background:white;border:1px solid #dce4ee;border-radius:14px;direction:rtl}
 .sp-nav a{padding:7px 9px;text-decoration:none;color:#29415f;border-radius:9px;font-size:13px;font-weight:700}.sp-nav a[aria-current="page"],.sp-nav a:hover{background:#e9f1fa;color:#173d67}
 .sp-nav .sp-brand{margin-left:auto;color:#173d67;font-size:15px}@media(max-width:640px){.sp-nav{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}}</style>"""
+    if active == "payroll":
+        css = css.replace("direction:rtl", "direction:ltr")
     if "</head>" in page:
         page = page.replace("</head>", css + "</head>", 1)
     i = page.lower().find("<body")
