@@ -201,10 +201,22 @@ def _sample_payroll_page() -> str:
 
 
 def _with_navigation(page: str, active: str = "home") -> str:
-    links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
-        ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
-        ("invoice","/invoice","فاکتور"),("radar","/reinigungsradar","ReinigungsRadar"),
-        ("payroll","/payroll","حقوق")]
+    if active == "payroll":
+        # Keep the German payroll workflow fully LTR and free of mixed-language labels.
+        links = [
+            ("home", "/", "Home"),
+            ("company", "/company-profile", "Company"),
+            ("ceo", "/ceo-profile", "CEO"),
+            ("academy", "/academy", "Academy"),
+            ("invoice", "/invoice", "Invoice"),
+            ("radar", "/reinigungsradar", "ReinigungsRadar"),
+            ("payroll", "/payroll", "Lohnabrechnung"),
+        ]
+    else:
+        links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
+            ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
+            ("invoice","/invoice","فاکتور"),("radar","/reinigungsradar","ReinigungsRadar"),
+            ("payroll","/payroll","حقوق")]
     items = []
     for key, href, label in links:
         current = ' aria-current="page"' if key == active else ""
