@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import os
+from http.cookies import SimpleCookie
+from urllib.parse import parse_qs
 from pathlib import Path
 from decimal import Decimal, InvalidOperation
 from wsgiref.simple_server import make_server
@@ -11,42 +13,42 @@ from datetime import date
 
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
 from payroll_demo import PAYROLL_PAGE
+from steuerpilot.radar_sso import (
+    build_radar_embed_url,
+    create_portal_session,
+    verify_portal_password,
+    verify_portal_session,
+)
 
-PAGE = """<!doctype html>
-<html lang="fa"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SteuerPilot Pro · Testumgebung</title>
-<style>
-:root{font-family:system-ui,sans-serif;color:#172033;background:#f3f5f8}
-body{max-width:760px;margin:40px auto;padding:0 18px}
-header,.panel{background:white;border:1px solid #dce2ea;border-radius:14px;padding:22px;margin:16px 0}
-h1{margin:0 0 8px}
-label{display:block;margin:14px 0 6px;font-weight:600}input,select,button{font:inherit;padding:11px;border:1px solid #bbc5d2;border-radius:8px}
-input{width:100%;box-sizing:border-box}button{margin-top:16px;background:#203b63;color:white;border:0;cursor:pointer}
-#result{white-space:pre-wrap;background:#eef4fb;padding:14px;border-radius:8px;margin-top:16px;display:none}
-.warning{border-left:4px solid #c58a00;padding:10px 14px;background:#fff8e6}
-small{color:#536174}.academy-link{display:inline-block;margin-top:14px;padding:10px 13px;background:#e7f0ff;border-radius:9px;color:#163b6b;text-decoration:none;font-weight:700}
+PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SteuerPilot Pro · مرکز مدیریت کسب‌وکار</title><style>
+:root{font-family:Tahoma,Arial,sans-serif;color:#18253b;background:#f2f5fa;line-height:1.7}*{box-sizing:border-box}body{max-width:1120px;margin:26px auto;padding:0 18px}
+.hero{background:linear-gradient(125deg,#122846,#244f79);color:#fff;border-radius:22px;padding:28px;display:grid;grid-template-columns:1.5fr .8fr;gap:20px;align-items:center}
+.hero h1{font-size:34px;margin:5px 0}.hero p{color:#e0eaf6;margin:7px 0}.pilot{display:inline-block;background:#f8d986;color:#543b08;padding:4px 11px;border-radius:24px;font-weight:800;font-size:12px}
+.hero-side{background:#ffffff18;border:1px solid #ffffff30;border-radius:14px;padding:16px}.stats,.cards{display:grid;gap:12px;margin:16px 0}.stats{grid-template-columns:repeat(3,1fr)}.stats div,.card,.feature{background:#fff;border:1px solid #dfe6ef;border-radius:15px;padding:16px}.stats strong{display:block;color:#1d426c}.stats small,.card p,.muted{color:#66758a;font-size:13px}
+h2{font-size:21px;margin:26px 0 10px}.cards{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.card{display:block;color:#18253b;text-decoration:none;min-height:130px}.card:hover{border-color:#86a4c8}.card h3{font-size:17px;margin:4px 0}.card .ico{font-size:24px}.card p{margin:0}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}.warning{background:#fff8e7;border:1px solid #f0dca9;border-radius:12px;padding:13px;color:#6e5313}
+input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-radius:9px}input{width:100%;margin:5px 0 10px}button{background:#244f79;color:white;border:0;cursor:pointer;padding:11px 16px}#result{white-space:pre-wrap;background:#edf4fb;padding:12px;border-radius:10px;margin-top:12px;display:none}
+@media(max-width:700px){.hero,.feature-grid,.stats{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
 </style></head><body>
-<header><h1>SteuerPilot Pro</h1>
-<p>آزمایش محاسبهٔ سادهٔ VAT با داده‌های ساختگی</p>
-<small>این محیط آزمایشی است؛ هیچ داده‌ای ذخیره نمی‌شود.</small>
-<br><a class="academy-link" href="/academy">🎓 ورود به آکادمی مدیرعامل و دستیار اجرایی</a> <a class="academy-link" href="/payroll">🧾 ساخت فیش حقوقی و PDF</a> <a class="academy-link" href="/invoice">🧾 صدور Rechnung و PDF</a></header>
-<section class="panel">
-<h2>محاسبه‌گر مالیات نمونه</h2>
-<form id="vat">
-<label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100.00" required>
-<label for="rate">درصد واردشده برای آزمایش</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
-<label for="mode">مبنای مبلغ</label><select id="mode"><option value="net">مبلغ خالص (Netto)</option><option value="gross">مبلغ ناخالص (Brutto)</option></select>
-<button type="submit">محاسبه</button></form><div id="result"></div></section>
-<section class="panel warning"><strong>محدودیت مهم</strong><p>درصد مالیات را کاربر وارد می‌کند و این ابزار تشخیص نمی‌دهد کدام نرخ از نظر قانون آلمان برای معامله مناسب است. برای اظهارنامه، فاکتور واقعی، حقوق یا اطلاعات اشخاص استفاده نکنید.</p></section>
-<script>
-document.getElementById('vat').addEventListener('submit',async e=>{
- e.preventDefault();const box=document.getElementById('result');box.style.display='block';box.textContent='در حال محاسبه…';
- try{const r=await fetch('/api/vat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:document.getElementById('amount').value,rate:document.getElementById('rate').value,mode:document.getElementById('mode').value})});
- const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');
- box.textContent='خالص: €'+d.net+'\\nمالیات: €'+d.tax+'\\nناخالص: €'+d.gross+'\\n\\nاین فقط محاسبهٔ ریاضی بر اساس نرخ واردشده است.';
- }catch(err){box.textContent='خطا: '+err.message;}
-});
-</script></body></html>"""
+<section class="hero"><div><span class="pilot">نسخهٔ آزمایشی · Pilot</span><h1>SteuerPilot Pro</h1><p>یک فضای کاری واحد برای امور مالی، مدیریت شرکت، آموزش و فرصت‌های تجاری خدمات نظافت در NRW.</p><p class="muted" style="color:#d4e0ef">داده‌ها در این نسخه ذخیره نمی‌شوند و همهٔ بخش‌ها فقط برای آزمایش هستند.</p></div>
+<div class="hero-side"><strong>مرکز مدیریت کسب‌وکار</strong><p>مالی · کارکنان · مدیریت · رشد شرکت</p><a href="/reinigungsradar" style="color:white;font-weight:700">ورود به ReinigungsRadar ←</a></div></section>
+<div class="stats"><div><strong>مالی و حسابداری</strong><small>VAT · Rechnung · Payroll</small></div><div><strong>مدیریت شرکت</strong><small>پروفایل شرکت · مدیرعامل · آکادمی</small></div><div><strong>فرصت‌های رشد</strong><small>شرکت‌ها · پیمانکاران · مناقصه‌ها</small></div></div>
+<h2>مالی و امور اداری</h2><div class="cards">
+<a class="card" href="/"><span class="ico">🧮</span><h3>محاسبه‌گر VAT</h3><p>محاسبهٔ نمونهٔ Netto، Steuer و Brutto.</p></a>
+<a class="card" href="/invoice"><span class="ico">🧾</span><h3>فاکتور و PDF</h3><p>ساخت و پیش‌نمایش Rechnung در محیط آزمایشی.</p></a>
+<a class="card" href="/payroll"><span class="ico">👥</span><h3>فیش حقوقی و PDF</h3><p>فرم حقوق و دستمزد نمایشی.</p></a>
+<a class="card" href="/academy"><span class="ico">🎓</span><h3>آکادمی مدیرعامل</h3><p>حسابداری، کارکنان، مالیات و بررسی ماهانه.</p></a></div>
+<h2>پروفایل و مدیریت</h2><div class="cards">
+<a class="card" href="/company-profile"><span class="ico">🏢</span><h3>پروفایل شرکت</h3><p>ساختار حقوقی، حوزهٔ فعالیت و اطلاعات پایه.</p></a>
+<a class="card" href="/ceo-profile"><span class="ico">🧑‍💼</span><h3>پروفایل مدیرعامل</h3><p>نقش مدیریتی و تنظیمات نمایشی.</p></a></div>
+<h2>فرصت‌های تجاری و بازار</h2><div class="feature"><div class="feature-grid"><div><span class="pilot">ماژول یکپارچه</span><h3>📡 ReinigungsRadar NRW</h3><p>جست‌وجوی شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED در NRW.</p><p class="muted">نتایج نیازمند بررسی دستی هستند؛ هیچ تماس خودکار یا ارسال پیشنهاد انجام نمی‌شود.</p><a href="/reinigungsradar">بازکردن Radar در همین صفحه ←</a></div><div class="warning"><strong>نسخهٔ آزمایشی</strong><p>از اطلاعات واقعی کارکنان، مشتریان، حساب بانکی یا شماره مالیاتی استفاده نکنید. داده‌ها ذخیره یا برای مرجع دولتی ارسال نمی‌شوند.</p></div></div></div>
+<h2>محاسبهٔ سریع VAT</h2><div class="feature"><form id="vat"><label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100" required>
+<label for="rate">درصد آزمایشی</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
+<label for="mode">مبنای مبلغ</label><select id="mode"><option value="net">Netto</option><option value="gross">Brutto</option></select><button type="submit">محاسبه</button></form><div id="result"></div></div>
+<p class="muted">SteuerPilot Pro · Pilot · keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</p>
+<script>document.getElementById('vat').addEventListener('submit',async e=>{e.preventDefault();const b=document.getElementById('result');b.style.display='block';b.textContent='در حال محاسبه…';try{const r=await fetch('/api/vat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:document.getElementById('amount').value,rate:document.getElementById('rate').value,mode:document.getElementById('mode').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');b.textContent='خالص: €'+d.net+'\\nمالیات: €'+d.tax+'\\nناخالص: €'+d.gross;}catch(e){b.textContent='خطا: '+e.message;}});</script></body></html>"""
 
 ACADEMY_PAGE = """<!doctype html>
 <html lang="fa"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -203,6 +205,98 @@ def _sample_payroll_page() -> str:
     return page
 
 
+
+def _with_navigation(page: str, active: str = "home") -> str:
+    links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
+        ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
+        ("payroll","/payroll","حقوق"),("invoice","/invoice","فاکتور"),
+        ("radar","/reinigungsradar","ReinigungsRadar")]
+    items = []
+    for key, href, label in links:
+        current = ' aria-current="page"' if key == active else ""
+        items.append(f'<a href="{href}"{current}>{label}</a>')
+    nav = '<nav class="sp-nav"><a class="sp-brand" href="/">SteuerPilot Pro</a>' + "".join(items) + "</nav>"
+    css = """<style>.sp-nav{max-width:1120px;margin:0 auto 18px;padding:10px;display:flex;gap:6px;flex-wrap:wrap;background:white;border:1px solid #dce4ee;border-radius:14px;direction:rtl}
+.sp-nav a{padding:7px 9px;text-decoration:none;color:#29415f;border-radius:9px;font-size:13px;font-weight:700}.sp-nav a[aria-current="page"],.sp-nav a:hover{background:#e9f1fa;color:#173d67}
+.sp-nav .sp-brand{margin-left:auto;color:#173d67;font-size:15px}@media(max-width:640px){.sp-nav{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap}}</style>"""
+    if "</head>" in page:
+        page = page.replace("</head>", css + "</head>", 1)
+    i = page.lower().find("<body")
+    if i >= 0:
+        j = page.find(">", i)
+        if j >= 0:
+            page = page[:j+1] + nav + page[j+1:]
+    return page
+
+
+def _profile_page(title: str, description: str, fields: list[tuple[str, str, str]]) -> str:
+    rows = "".join(f'<label for="{i}">{label}</label><input id="{i}" name="{i}" placeholder="{ph}" autocomplete="off">' for i,label,ph in fields)
+    return f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>
+<style>:root{{font-family:Tahoma,Arial,sans-serif;color:#17243a;background:#f3f6fa;line-height:1.7}}body{{max-width:900px;margin:28px auto;padding:0 18px}}header,.panel{{background:#fff;border:1px solid #dce4ee;border-radius:16px;padding:22px;margin:14px 0}}label{{display:block;font-weight:700;margin:10px 0 3px}}input{{width:100%;padding:11px;border:1px solid #c8d3e0;border-radius:9px;font:inherit}}button{{margin-top:16px;padding:11px 16px;background:#244f79;color:white;border:0;border-radius:9px;font:inherit}}.note{{background:#fff8e7;border:1px solid #f0dca9;border-radius:12px;padding:13px;color:#6e5313}}#profile-result{{display:none;background:#edf4fb;padding:12px;border-radius:9px;margin-top:12px}}</style></head><body>
+<header><h1>{title}</h1><p>{description}</p></header><section class="panel"><form id="profile-form">{rows}<button type="submit">بررسی نمایشی فرم</button></form><div id="profile-result" role="status"></div></section>
+<section class="note"><b>فقط نمایشی</b><p>این فرم در مرورگر اجرا می‌شود، به سرور ارسال نمی‌شود و هیچ داده‌ای ذخیره نمی‌کند. اطلاعات واقعی وارد نکنید.</p></section>
+<script>document.getElementById('profile-form').addEventListener('submit',e=>{{e.preventDefault();const b=document.getElementById('profile-result');b.style.display='block';b.textContent='فرم در مرورگر بررسی شد؛ ذخیره‌سازی در این نسخه فعال نیست.';}});</script></body></html>"""
+
+
+def _radar_login_page(error: str = "") -> str:
+    error_html = f'<p class="error">{error}</p>' if error else ""
+    return f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ورود به ReinigungsRadar</title>
+<style>:root{{font-family:Tahoma,Arial,sans-serif;color:#17243a;background:#f3f6fa;line-height:1.7}}body{{max-width:650px;margin:30px auto;padding:0 18px}}.panel{{background:white;border:1px solid #dce4ee;border-radius:18px;padding:24px;margin:18px 0}}label{{display:block;font-weight:700;margin:12px 0 5px}}input{{width:100%;padding:12px;border:1px solid #c8d3e0;border-radius:9px;font:inherit}}button{{margin-top:16px;padding:11px 18px;background:#244f79;color:white;border:0;border-radius:9px;font:inherit}}.note{{background:#fff8e7;border:1px solid #f0dca9;border-radius:12px;padding:13px;color:#6e5313}}.error{{color:#a11;font-weight:700}}</style></head><body>
+<section class="panel"><h1>📡 ورود یکپارچه به ReinigungsRadar</h1><p>رمز آزمایشی پورتال را وارد کنید.</p>{error_html}<form method="post" action="/radar-login"><label for="password">رمز عبور آزمایشی</label><input id="password" name="password" type="password" autocomplete="current-password" required><button type="submit">ورود</button></form></section>
+<section class="note">این دسترسی فقط برای نسخهٔ آزمایشی است. نشست امضاشده پس از ۸ ساعت منقضی می‌شود. دادهٔ واقعی وارد نکنید.</section></body></html>"""
+
+
+def _radar_page(environ) -> tuple[str, str]:
+    secret = os.environ.get("STEUEERPILOT_RADAR_SSO_SECRET", "").strip()
+    password = os.environ.get("STEUEERPILOT_RADAR_PORTAL_PASSWORD", "").strip()
+    if len(secret) < 32 or len(password) < 20:
+        return "503 Service Unavailable", '<!doctype html><html lang="fa"><meta charset="utf-8"><body><h1>اتصال آزمایشی هنوز پیکربندی نشده است</h1><p>تنظیمات امن سرویس آزمایشی کامل نیست.</p></body></html>'
+    cookie = SimpleCookie()
+    try:
+        cookie.load(environ.get("HTTP_COOKIE", ""))
+        item = cookie.get("sp_radar_session")
+        session = item.value if item else ""
+    except Exception:
+        session = ""
+    if not verify_portal_session(session, secret):
+        return "200 OK", _with_navigation(_radar_login_page(), "radar")
+    try:
+        iframe_url = build_radar_embed_url("https://reinigungsai-pr7-staging.onrender.com", secret)
+    except ValueError:
+        return "503 Service Unavailable", _with_navigation(_radar_login_page("نشانی محیط آزمایشی معتبر نیست."), "radar")
+    iframe_url = iframe_url.replace("&", "&amp;").replace('"', "&quot;")
+    page = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SteuerPilot Pro · ReinigungsRadar</title>
+<style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}.external{{color:#1b4d7b;font-weight:700}}</style></head><body>
+<section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
+<p class="muted">ورود از پورتال مرکزی انجام شده است. سرویس Radar در زیرساخت آزمایشی جداگانه اجرا می‌شود، اما در همین صفحه باز می‌شود.</p>
+<a class="external" href="https://reinigungsai-pr7-staging.onrender.com" target="_blank" rel="noopener noreferrer">بازکردن مستقیم ماژول در زبانهٔ جدید</a></section>
+<iframe class="radar-frame" src="{iframe_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
+    return "200 OK", _with_navigation(page, "radar")
+
+
+def _handle_radar_login(environ, start_response):
+    secret = os.environ.get("STEUEERPILOT_RADAR_SSO_SECRET", "").strip()
+    password = os.environ.get("STEUEERPILOT_RADAR_PORTAL_PASSWORD", "").strip()
+    try:
+        length = int(environ.get("CONTENT_LENGTH") or "0")
+        if length <= 0 or length > 4096:
+            raise ValueError("bad form")
+        form = parse_qs(environ["wsgi.input"].read(length).decode("utf-8"), keep_blank_values=True)
+        candidate = form.get("password", [""])[0]
+    except (ValueError, KeyError, UnicodeError):
+        candidate = ""
+    if len(secret) < 32 or not verify_portal_password(candidate, password):
+        page = _with_navigation(_radar_login_page("رمز معتبر نیست یا تنظیمات دسترسی کامل نیست."), "radar")
+        return _response(start_response, "401 Unauthorized", page, "text/html; charset=utf-8")
+    cookie = create_portal_session(secret)
+    start_response("303 See Other", [
+        ("Location", "/reinigungsradar"),
+        ("Set-Cookie", f"sp_radar_session={cookie}; Path=/; Max-Age=28800; HttpOnly; Secure; SameSite=Lax"),
+        ("Cache-Control", "no-store"), ("Content-Length", "0"),
+    ])
+    return [b""]
+
+
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
     if method == "GET" and path.startswith("/static/"):
@@ -226,17 +320,40 @@ def application(environ, start_response):
             ("X-Content-Type-Options", "nosniff"),
         ])
         return [body]
+    if method == "POST" and path == "/radar-login":
+        return _handle_radar_login(environ, start_response)
     if method == "GET" and path == "/":
-        return _response(start_response, "200 OK", PAGE, "text/html; charset=utf-8")
+        return _response(start_response, "200 OK", _with_navigation(PAGE, "home"), "text/html; charset=utf-8")
     if method == "GET" and path in ("/academy", "/academy/"):
-        return _response(start_response, "200 OK", ACADEMY_PAGE, "text/html; charset=utf-8")
+        return _response(start_response, "200 OK", _with_navigation(ACADEMY_PAGE, "academy"), "text/html; charset=utf-8")
     if method == "GET" and path in ("/payroll/sample", "/payroll/sample/"):
-        return _response(start_response, "200 OK", _sample_payroll_page(), "text/html; charset=utf-8")
+        return _response(start_response, "200 OK", _with_navigation(_sample_payroll_page(), "payroll"), "text/html; charset=utf-8")
     if method == "GET" and path in ("/payroll", "/payroll/"):
-        return _response(start_response, "200 OK", PAYROLL_PAGE, "text/html; charset=utf-8")
+        return _response(start_response, "200 OK", _with_navigation(PAYROLL_PAGE, "payroll"), "text/html; charset=utf-8")
     if method == "GET" and path in ("/invoice", "/invoice/"):
         invoice_page = Path(__file__).with_name("invoice_demo.html").read_text(encoding="utf-8")
-        return _response(start_response, "200 OK", invoice_page, "text/html; charset=utf-8")
+        return _response(start_response, "200 OK", _with_navigation(invoice_page, "invoice"), "text/html; charset=utf-8")
+    if method == "GET" and path in ("/company-profile", "/company-profile/"):
+        page = _profile_page("پروفایل شرکت", "مشخصات پایهٔ کسب‌وکار در نمایهٔ آزمایشی.", [
+            ("company_name", "نام شرکت", "Muster GmbH"),
+            ("legal_form", "ساختار حقوقی", "GmbH / UG / Einzelunternehmen"),
+            ("sector", "حوزهٔ فعالیت", "Gebäudereinigung / Facility Management"),
+            ("city", "شهر اصلی فعالیت", "Düsseldorf"),
+            ("website", "وب‌سایت شرکت", "https://example.de"),
+        ])
+        return _response(start_response, "200 OK", _with_navigation(page, "company"), "text/html; charset=utf-8")
+    if method == "GET" and path in ("/ceo-profile", "/ceo-profile/"):
+        page = _profile_page("پروفایل مدیرعامل", "نمایهٔ نمایشی مدیر مسئول شرکت و تنظیمات پایه.", [
+            ("ceo_name", "نام نمایشی مدیرعامل", "Max Mustermann"),
+            ("ceo_role", "سمت", "Geschäftsführer"),
+            ("work_email", "ایمیل کاری نمونه", "ceo@example.de"),
+            ("language", "زبان رابط کاربری", "Deutsch / فارسی"),
+            ("business_focus", "اولویت مدیریتی", "Finanzen, Personal, Wachstum"),
+        ])
+        return _response(start_response, "200 OK", _with_navigation(page, "ceo"), "text/html; charset=utf-8")
+    if method == "GET" and path in ("/reinigungsradar", "/reinigungsradar/"):
+        status, page = _radar_page(environ)
+        return _response(start_response, status, page, "text/html; charset=utf-8")
     if method == "GET" and path == "/health":
         return _response(start_response, "200 OK", json.dumps({"status": "ok", "environment": "staging", "persistence": False}))
     if method == "POST" and path == "/api/vat":
