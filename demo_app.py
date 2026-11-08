@@ -270,7 +270,7 @@ def _radar_page(environ) -> tuple[str, str]:
 <style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}.external{{color:#1b4d7b;font-weight:700}}</style></head><body>
 <section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
 <p class="muted">ورود از پورتال مرکزی انجام شده است. سرویس Radar در زیرساخت آزمایشی جداگانه اجرا می‌شود، اما در همین صفحه باز می‌شود.</p>
-<a class="external" href="https://reinigungsai-pr7-staging.onrender.com" target="_blank" rel="noopener noreferrer">بازکردن مستقیم ماژول در زبانهٔ جدید</a></section>
+<span class="muted">برای استفاده، از همین صفحه و منوی بالای داشبورد وارد Radar شوید.</span></section>
 <iframe class="radar-frame" src="{iframe_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
     return "200 OK", _with_navigation(page, "radar")
 
