@@ -28,19 +28,40 @@ def _page(body: str, title: str = "CRYPTO SUPER RADAR") -> bytes:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(title)}</title>
 <style>
-body{{font-family:Arial,sans-serif;background:#0b1220;color:#e5e7eb;margin:0;padding:24px}}
-main{{max-width:980px;margin:auto}} .card{{background:#111c2f;border:1px solid #26364d;border-radius:14px;padding:18px;margin:14px 0}}
-input,button{{font:inherit;padding:12px;border-radius:8px;border:1px solid #46566d;background:#0b1220;color:#fff;width:100%;box-sizing:border-box}}
-button{{background:#2563eb;border:0;margin-top:12px;cursor:pointer}} table{{width:100%;border-collapse:collapse}}
-td,th{{padding:9px;border-bottom:1px solid #334155;text-align:right;vertical-align:top}}
-small,.muted{{color:#9ca3af}} .status{{font-weight:bold}} code{{direction:ltr;display:inline-block}}
-pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#08101d;padding:12px;border-radius:8px;direction:ltr;text-align:left}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}}
-.metric{{background:#0b1729;border:1px solid #334155;border-radius:10px;padding:12px}}
-.metric strong{{display:block;font-size:1.2rem;margin-top:6px;direction:ltr;text-align:right}}
-canvas{{width:100%;height:300px;background:#08101d;border-radius:10px}}
-label{{display:block;margin-top:10px}} .calc-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}}
-.status-pass{{color:#22c55e}} .status-unknown{{color:#f59e0b}}
+:root{{color-scheme:dark}}
+*{{box-sizing:border-box}}
+body{{font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 85% 0%,#152c49 0,#0b1220 42%,#070d17 100%);color:#e5edf7;margin:0;padding:clamp(12px,2vw,30px);line-height:1.65}}
+main{{width:min(100%,1680px);max-width:1680px;margin:0 auto}}
+h1{{font-size:clamp(28px,3vw,42px);line-height:1.2;margin:4px 0 10px}}h2{{font-size:clamp(20px,2vw,28px)}}h3{{font-size:18px;margin:0 0 14px}}
+.card{{background:linear-gradient(145deg,#111e32,#0c1728);border:1px solid #293d58;border-radius:20px;padding:clamp(18px,2vw,30px);margin:18px 0;box-shadow:0 14px 34px #0003}}
+input,button{{font:inherit;padding:12px 14px;border-radius:10px;border:1px solid #40536e;background:#091526;color:#fff;width:100%;box-sizing:border-box}}
+input:focus{{outline:2px solid #4d9aff;border-color:#4d9aff}}button{{background:linear-gradient(120deg,#2563eb,#3478e5);border:0;margin-top:12px;cursor:pointer;font-weight:800}}button:hover{{filter:brightness(1.12)}}
+table{{width:100%;border-collapse:collapse;font-size:14px}}td,th{{padding:11px;border-bottom:1px solid #2a3a50;text-align:right;vertical-align:top}}th{{color:#a9c3e3;font-weight:700}}
+small,.muted{{color:#9fb0c5}}.status{{font-weight:bold}}code{{direction:ltr;display:inline-block}}
+pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#08101d;padding:16px;border-radius:12px;direction:ltr;text-align:left;border:1px solid #25364c}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}}
+.metric{{background:#0b1729;border:1px solid #30445f;border-radius:14px;padding:15px;min-height:92px}}
+.metric span{{display:block;color:#a8bad0;font-size:13px}}.metric strong{{display:block;font-size:clamp(17px,1.5vw,23px);margin-top:7px;direction:ltr;text-align:right;overflow-wrap:anywhere}}
+canvas{{display:block;width:100%;height:420px;background:linear-gradient(180deg,#081522,#0a1727);border:1px solid #263b55;border-radius:14px}}
+label{{display:block;margin-top:10px;color:#c7d5e6;font-weight:700}}.calc-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}}
+.status-pass{{color:#4ade80}}.status-unknown{{color:#fbbf24}}.status-fail{{color:#fb7185}}
+.scan-hero{{display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap;padding:24px;border:1px solid #304866;border-radius:20px;background:linear-gradient(120deg,#142b48,#101c31);margin-bottom:18px}}
+.scan-hero .muted{{max-width:760px}}.scan-status{{padding:8px 13px;border-radius:999px;background:#1b3554;color:#c6e2ff;font-weight:800}}
+.dashboard-grid{{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,1fr);gap:18px;align-items:start}}
+.dashboard-grid .card{{margin:0}}.wide-card{{grid-column:1/-1}}
+.signal-pill{{display:inline-flex;align-items:center;justify-content:center;padding:8px 18px;border-radius:999px;font-size:18px;font-weight:900;background:#27364b;color:#dbeafe}}
+.signal-pill.long{{background:#123d31;color:#86efac}}.signal-pill.short{{background:#4a1e2a;color:#fda4af}}.signal-pill.no-trade{{background:#49351b;color:#fcd34d}}
+.gate-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}}
+.gate-item{{background:#0b1729;border:1px solid #2a3d57;border-radius:14px;padding:14px;min-width:0}}
+.gate-item .gate-head{{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:8px}}
+.gate-item .gate-name{{font-weight:800}}.gate-item .gate-status{{font-size:12px;font-weight:900;letter-spacing:.04em}}
+.gate-item p{{color:#aebed1;font-size:13px;margin:8px 0 0;overflow-wrap:anywhere}}
+.gate-item.pass{{border-color:#27634f}}.gate-item.fail{{border-color:#784052}}.gate-item.unknown{{border-color:#6b552b}}
+.section-kicker{{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#83a9d3;font-weight:800}}
+.result-note{{padding:14px 16px;border-radius:12px;background:#0b1729;border:1px solid #2d425e;color:#c8d7e8;margin-top:12px}}
+details{{background:#0b1729;border:1px solid #2d425e;border-radius:14px;padding:14px;margin:18px 0}}summary{{cursor:pointer;font-weight:800;color:#c8d7e8}}
+@media(max-width:900px){{.dashboard-grid{{grid-template-columns:1fr}}.wide-card{{grid-column:auto}}canvas{{height:320px}}}}
+@media(max-width:560px){{body{{padding:10px}}.scan-hero{{padding:18px}}.card{{padding:16px}}table{{font-size:12px}}td,th{{padding:8px}}canvas{{height:260px}}}}
 </style></head><body><main>{body}</main></body></html>""".encode("utf-8")
 
 
@@ -264,33 +285,141 @@ class Handler(BaseHTTPRequestHandler):
                 target=_run_scan, args=(job_id, asset, headline, social_post), daemon=True
             )
             worker.start()
-            body = (
-                "<h2>اسکن آغاز شد</h2><p>شناسه کار: <code>" + job_id + "</code></p>"
-                "<p id='state'>در حال جمع‌آوری داده‌های بازار، نهنگ‌ها و احساسات...</p>"
-                "<section class='card'><h3>نمای بازار، کف و سقف</h3><div id='market-summary' class='grid'></div>"
-                "<div id='range-table'></div><canvas id='candles' width='1000' height='320'></canvas></section>"
-                "<section class='card'><h3>۱۲ فیلتر</h3><div id='gate-table'></div></section>"
-                "<pre id='result'>لطفاً این صفحه را باز نگه دارید.</pre><p><a href='/'>بازگشت</a></p>"
-                "<script>const job='" + job_id + "';"
-                "function cell(tag,text){const e=document.createElement(tag);e.textContent=text??'UNKNOWN';return e;}"
-                "function table(container,headers,rows){const t=document.createElement('table'),h=document.createElement('thead'),hr=document.createElement('tr');headers.forEach(v=>hr.appendChild(cell('th',v)));h.appendChild(hr);t.appendChild(h);const b=document.createElement('tbody');rows.forEach(row=>{const tr=document.createElement('tr');row.forEach(v=>tr.appendChild(cell('td',v)));b.appendChild(tr);});t.appendChild(b);container.replaceChildren(t);}"
-                "function renderMarket(m){const box=document.getElementById('market-summary');"
-                "const items=[['وضعیت دارایی',m.asset_regime],['رژیم معیار',m.benchmark_regime],['قیمت آخر',m.current_price],['سن کندل (ساعت)',m.candle_age_hours],['وضعیت کف/سقف',m.status]];"
-                "box.replaceChildren();items.forEach(([k,v])=>{const d=document.createElement('div');d.className='metric';d.appendChild(cell('span',k));const strong=cell('strong',v);d.appendChild(strong);box.appendChild(d);});"
-                "const labels={'7':'۷ روز','30':'۳۰ روز','90':'۹۰ روز','365':'۳۶۵ روز'};"
-                "const rows=Object.entries(m.ranges||{}).map(([k,v])=>[labels[k]||k,v.status,v.low,v.high,v.candle_count,v.coverage_pct]);"
-                "table(document.getElementById('range-table'),['بازه','وضعیت','کف','سقف','تعداد کندل','پوشش %'],rows);"
-                "const canvas=document.getElementById('candles'),ctx=canvas.getContext('2d'),bars=m.candles||[];ctx.clearRect(0,0,canvas.width,canvas.height);"
-                "if(!bars.length){ctx.fillStyle='#f59e0b';ctx.fillText('تاریخچه OHLC برای نمودار موجود نیست',20,30);return;}"
-                "const lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high)),span=Math.max(hi-lo,1e-12),pad=20,w=(canvas.width-2*pad)/bars.length;"
-                "bars.forEach((x,i)=>{const cx=pad+i*w+w/2,y=v=>canvas.height-pad-(v-lo)/span*(canvas.height-2*pad);const up=x.close>=x.open;ctx.strokeStyle=up?'#22c55e':'#ef4444';ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.moveTo(cx,y(x.high));ctx.lineTo(cx,y(x.low));ctx.stroke();const top=y(Math.max(x.open,x.close)),bottom=y(Math.min(x.open,x.close));ctx.fillRect(cx-w*.32,top,Math.max(1,w*.64),Math.max(1,bottom-top));});}"
-                "function renderGates(gates){const rows=(gates||[]).map(g=>[g.id,g.name,g.status,g.reason]);table(document.getElementById('gate-table'),['#','فیلتر','وضعیت','دلیل'],rows);}"
-                "async function poll(){try{const r=await fetch('/jobs/'+job);const j=await r.json();document.getElementById('state').textContent=j.status;"
-                "if(j.status==='completed'){renderMarket(j.result.market_overview||{});renderGates(j.result.gates);document.getElementById('result').textContent=JSON.stringify(j.result,null,2);return;}"
-                "if(j.status==='failed'){document.getElementById('result').textContent=j.error;return;}"
-                "}catch(e){document.getElementById('state').textContent='ارتباط قطع شد؛ بعداً /jobs/'+job+' را بررسی کنید';return;}"
-                "setTimeout(poll,2500);}poll();</script>"
-            )
+            body = """
+            <section class="scan-hero">
+              <div><div class="section-kicker">Crypto Super Radar · Research workspace</div>
+                <h1>داشبورد تحلیل بازار</h1>
+                <p class="muted">نمای عریض بازار، نمودار OHLC، تصمیم موتور تأیید، ریسک و وضعیت هر ۱۲ فیلتر. فقط شواهد دریافت‌شده نمایش داده می‌شود؛ دادهٔ ناموجود با UNKNOWN مشخص خواهد شد.</p>
+              </div>
+              <div><div id="state" class="scan-status">در حال جمع‌آوری داده‌های عمومی...</div>
+                <p class="muted">شناسه اسکن: <code>__JOB_ID__</code></p></div>
+            </section>
+            <section class="dashboard-grid">
+              <section class="card">
+                <div class="section-kicker">Market overview</div><h3>نمای بازار و نمودار قیمت</h3>
+                <div id="market-summary" class="grid"></div>
+                <canvas id="candles" width="1400" height="440" aria-label="نمودار OHLC"></canvas>
+                <p class="muted">نمودار فقط از کندل‌های OHLC موجود در نتیجه ساخته می‌شود؛ حجم معاملات یا تایم‌فریمِ تأییدنشده نمایش داده نمی‌شود.</p>
+                <div id="range-table"></div>
+              </section>
+              <section class="card">
+                <div class="section-kicker">Decision & risk</div><h3>خروجی موتور تصمیم</h3>
+                <div id="signal" class="signal-pill no-trade">در انتظار نتیجه</div>
+                <div id="decision-kpis" class="grid" style="margin-top:14px"></div>
+                <div id="decision-summary" class="result-note">نتیجه پس از تکمیل اسکن نمایش داده می‌شود.</div>
+              </section>
+              <section class="card wide-card">
+                <div class="section-kicker">Confirmation engine</div><h3>۱۲ فیلتر اجباری</h3>
+                <div id="gate-grid" class="gate-grid"></div>
+              </section>
+              <section class="card">
+                <div class="section-kicker">Whale & sentiment</div><h3>نهنگ‌ها و احساسات بازار</h3>
+                <div id="insights-grid" class="grid"></div>
+              </section>
+              <section class="card">
+                <div class="section-kicker">Validation & stability</div><h3>اعتبارسنجی و پایداری</h3>
+                <div id="validation-grid" class="grid"></div>
+              </section>
+            </section>
+            <details><summary>مشاهدهٔ شواهد خام (JSON)</summary><pre id="result">در انتظار نتیجه...</pre></details>
+            <p><a href="/">بازگشت به پورتال SteuerPilot</a></p>
+            <script>
+            const job = "__JOB_ID__";
+            const unknown = "UNKNOWN";
+            const fmt = value => value === null || value === undefined || value === "" ? unknown :
+              (typeof value === "number" ? new Intl.NumberFormat("en-US",{maximumFractionDigits:6}).format(value) : String(value));
+            function addMetrics(id, entries) {
+              const box = document.getElementById(id); box.replaceChildren();
+              entries.forEach(([label,value]) => {
+                const card = document.createElement("div"); card.className = "metric";
+                const name = document.createElement("span"); name.textContent = label;
+                const strong = document.createElement("strong"); strong.textContent = fmt(value);
+                card.append(name,strong); box.appendChild(card);
+              });
+            }
+            function renderMarket(m) {
+              addMetrics("market-summary", [
+                ["قیمت آخر",m.current_price],["رژیم دارایی",m.asset_regime],
+                ["رژیم معیار",m.benchmark_regime],["سن آخرین کندل (ساعت)",m.candle_age_hours],
+                ["اعتبار دادهٔ بازار",m.status]
+              ]);
+              const labels={"7":"۷ روز","30":"۳۰ روز","90":"۹۰ روز","365":"۳۶۵ روز"};
+              const table=document.createElement("table"), head=document.createElement("thead"), row=document.createElement("tr");
+              ["بازه","وضعیت","کف","سقف","تعداد کندل","پوشش %"].forEach(x=>{const th=document.createElement("th");th.textContent=x;row.appendChild(th);});
+              head.appendChild(row);table.appendChild(head);
+              const body=document.createElement("tbody");
+              Object.entries(m.ranges||{}).forEach(([key,value])=>{
+                const tr=document.createElement("tr");
+                [labels[key]||key,value.status,value.low,value.high,value.candle_count,value.coverage_pct].forEach(x=>{
+                  const td=document.createElement("td");td.textContent=fmt(x);tr.appendChild(td);
+                });body.appendChild(tr);
+              });
+              table.appendChild(body);document.getElementById("range-table").replaceChildren(table);
+              const canvas=document.getElementById("candles"),ctx=canvas.getContext("2d"),bars=m.candles||[];
+              ctx.clearRect(0,0,canvas.width,canvas.height);
+              if(!bars.length){ctx.fillStyle="#fbbf24";ctx.font="20px Arial";ctx.fillText("دادهٔ OHLC کافی برای نمودار موجود نیست",28,42);return;}
+              const lo=Math.min(...bars.map(x=>x.low)),hi=Math.max(...bars.map(x=>x.high));
+              const span=Math.max(hi-lo,1e-12),pad=28,w=(canvas.width-2*pad)/bars.length;
+              bars.forEach((x,i)=>{
+                const cx=pad+i*w+w/2,y=v=>canvas.height-pad-(v-lo)/span*(canvas.height-2*pad);
+                const rising=x.close>=x.open;ctx.strokeStyle=rising?"#34d399":"#fb7185";ctx.fillStyle=ctx.strokeStyle;
+                ctx.beginPath();ctx.moveTo(cx,y(x.high));ctx.lineTo(cx,y(x.low));ctx.stroke();
+                const top=y(Math.max(x.open,x.close)),bottom=y(Math.min(x.open,x.close));
+                ctx.fillRect(cx-w*.32,top,Math.max(1,w*.64),Math.max(1,bottom-top));
+              });
+            }
+            function renderGates(gates) {
+              const box=document.getElementById("gate-grid");box.replaceChildren();
+              (gates||[]).forEach(g=>{
+                const item=document.createElement("article"),head=document.createElement("div");
+                const name=document.createElement("span"),status=document.createElement("span"),reason=document.createElement("p");
+                const state=String(g.status||unknown).toLowerCase();
+                item.className="gate-item "+(state==="pass"?"pass":state==="fail"?"fail":"unknown");
+                head.className="gate-head";name.className="gate-name";name.textContent=(g.id??"—")+". "+(g.name||g.name_en||"فیلتر");
+                status.className="gate-status status-"+state;status.textContent=g.status||unknown;
+                reason.textContent=g.reason||g.reason_en||"برای این فیلتر توضیح قابل‌تأیید موجود نیست.";
+                head.append(name,status);item.append(head,reason);box.appendChild(item);
+              });
+            }
+            function renderResult(r) {
+              const signal=String(r.signal||"NO TRADE").toUpperCase(),pill=document.getElementById("signal");
+              pill.textContent=signal;pill.className="signal-pill "+(signal==="LONG"?"long":signal==="SHORT"?"short":"no-trade");
+              addMetrics("decision-kpis",[
+                ["امتیاز تأیید",r.confirmation_score],["ریسک تخمینی",r.estimated_risk_score],
+                ["ریسک",r.risk_score],["اعتماد شواهد %",r.evidence_confidence_pct],
+                ["سطح اطمینان %",r.confidence_level_pct],["رتبه فرصت",r.opportunity_rank]
+              ]);
+              document.getElementById("decision-summary").textContent=r.summary_fa||"خلاصهٔ توضیحی برای این نتیجه موجود نیست.";
+              renderMarket(r.market_overview||{});renderGates(r.gates||[]);
+              const m=r.metrics||{};
+              addMetrics("insights-grid",[
+                ["وضعیت نهنگ‌ها",m.whale_status],["جهت نهنگ‌ها",m.whale_bias],
+                ["تعداد مشاهدات",m.whale_history_count],["هم‌راستایی نهنگ‌ها",m.whale_alignment],
+                ["هم‌راستایی احساسات",m.sentiment_alignment],["امتیاز احساسات",m.market_sentiment_score],
+                ["Fear & Greed",m.fear_greed_value],["توضیح Fear & Greed",m.fear_greed_attribution]
+              ]);
+              addMetrics("validation-grid",[
+                ["وضعیت Walk-forward",m.walk_forward_status],["تعداد Fold",m.walk_forward_fold_count],
+                ["امتیاز ریسک",m.risk_score],["رتبه فرصت",m.opportunity_rank],
+                ["اطمینان مدل %",m.confidence_level_pct],["پوشش شواهد %",m.evidence_confidence_pct]
+              ]);
+              document.getElementById("result").textContent=JSON.stringify(r,null,2);
+            }
+            async function poll() {
+              try {
+                const response=await fetch("/jobs/"+job),jobData=await response.json();
+                document.getElementById("state").textContent="وضعیت اسکن: "+jobData.status;
+                if(jobData.status==="completed"){renderResult(jobData.result);document.getElementById("state").textContent="اسکن تکمیل شد · فقط داده‌های عمومی";return;}
+                if(jobData.status==="failed"){document.getElementById("state").textContent="اسکن ناموفق";document.getElementById("result").textContent=jobData.error||"خطای نامشخص";return;}
+              } catch(error) {
+                document.getElementById("state").textContent="ارتباط موقتاً قطع شد؛ صفحه را تازه‌سازی کنید.";
+                return;
+              }
+              setTimeout(poll,2500);
+            }
+            poll();
+            </script>
+            """.replace("__JOB_ID__", job_id)
             return self._send(202, _page(body, "Scan Running"))
         except Exception as exc:
             with LOCK:
