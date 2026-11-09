@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import http.client
 import threading
+from urllib.parse import urlsplit
 from http.server import ThreadingHTTPServer
 
 _PREFIX = "/crypto-radar"
@@ -88,6 +89,14 @@ def proxy_crypto_request(environ, start_response):
     query = environ.get("QUERY_STRING", "")
     target = upstream_path + (("?" + query) if query else "")
     method = environ.get("REQUEST_METHOD", "GET").upper()
+    origin = environ.get("HTTP_ORIGIN")
+    if origin:
+        parsed_origin = urlsplit(origin)
+        request_host = environ.get("HTTP_HOST", "").lower()
+        request_scheme = environ.get("wsgi.url_scheme", "http").lower()
+        if parsed_origin.netloc.lower() != request_host or parsed_origin.scheme.lower() != request_scheme:
+            start_response("403 Forbidden", [("Content-Type", "text/plain; charset=utf-8")])
+            return [b"Cross-origin Crypto Radar requests are not allowed"]
     if method not in {"GET", "POST", "HEAD"}:
         start_response("405 Method Not Allowed", [("Allow", "GET, POST, HEAD")])
         return [b"Method not allowed"]
