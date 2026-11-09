@@ -129,6 +129,36 @@ class CryptoPortalProxyTests(unittest.TestCase):
         self.assertIn(b"max-width:1680px", response)
         self.assertIn(b'href="/reinigungsradar"', response)
 
+
+    def test_scan_result_page_exposes_wide_research_panels(self):
+        from crypto_super_radar import web_app
+
+        environ = {
+            "PATH_INFO": "/crypto-radar/scan",
+            "QUERY_STRING": "",
+            "REQUEST_METHOD": "POST",
+            "CONTENT_LENGTH": "19",
+            "CONTENT_TYPE": "application/x-www-form-urlencoded",
+            "wsgi.input": io.BytesIO(b"asset=cex%3ABTCUSDT"),
+        }
+        captured = {}
+        try:
+            with patch.object(web_app, "_run_scan", return_value=None):
+                response = b"".join(
+                    portal.proxy_crypto_request(
+                        environ, lambda status, headers: captured.update(status=status)
+                    )
+                )
+            self.assertEqual(captured["status"], "202 Accepted")
+            self.assertIn(b'id="decision-kpis"', response)
+            self.assertIn(b'id="gate-grid"', response)
+            self.assertIn(b'id="insights-grid"', response)
+            self.assertIn(b'id="validation-grid"', response)
+            self.assertIn(b"fetch(\\"/jobs/".replace(b"\\"","b"\\""), response) if False else b"/crypto-radar/jobs/", response)
+        finally:
+            web_app.SCAN_RUNNING = False
+            web_app.LAST_SCAN.clear()
+
     def test_unmounted_path_is_not_proxied(self):
         captured = {}
         response = portal.proxy_crypto_request(
