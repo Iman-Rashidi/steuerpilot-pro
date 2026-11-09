@@ -12,6 +12,7 @@ from datetime import date
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
 from payroll_demo import PAYROLL_PAGE
 from steuerpilot.radar_sso import build_radar_embed_url, get_radar_sso_secret
+from crypto_super_radar_portal import proxy_crypto_request
 
 PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SteuerPilot Pro · مرکز مدیریت کسب‌وکار</title><style>
@@ -32,6 +33,7 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 <a class="card" href="/"><span class="ico">🧮</span><h3>محاسبه‌گر VAT</h3><p>محاسبهٔ نمونهٔ Netto، Steuer و Brutto.</p></a>
 <a class="card" href="/invoice"><span class="ico">🧾</span><h3>Rechnung · فاکتور</h3><p>ساخت و پیش‌نمایش فاکتور در محیط آزمایشی.</p></a>
 <a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar</h3><p>جست‌وجوی مشتریان، شرکت‌ها و مناقصه‌های نظافت در همان داشبورد.</p></a>
+<a class="card" href="/crypto-radar"><span class="ico">₿</span><h3>Crypto Super Radar</h3><p>داشبورد گستردهٔ تحلیل بازار، داده‌های زنده و ۱۲ مرحلهٔ تأیید؛ بدون ارسال سفارش.</p></a>
 <a class="card" href="/payroll"><span class="ico">👥</span><h3>Lohnabrechnung · فیش حقوقی</h3><p>ساخت و پیش‌نمایش فیش حقوقی در محیط آزمایشی.</p></a>
 <a class="card" href="/academy"><span class="ico">🎓</span><h3>آکادمی مدیرعامل</h3><p>حسابداری، کارکنان، مالیات و بررسی ماهانه.</p></a></div>
 <h2>پروفایل و مدیریت</h2><div class="cards">
@@ -210,13 +212,14 @@ def _with_navigation(page: str, active: str = "home") -> str:
             ("academy", "/academy", "Academy"),
             ("invoice", "/invoice", "Invoice"),
             ("radar", "/reinigungsradar", "ReinigungsRadar"),
+            ("crypto", "/crypto-radar", "Crypto Radar"),
             ("payroll", "/payroll", "Lohnabrechnung"),
         ]
     else:
         links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
             ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
             ("invoice","/invoice","فاکتور"),("radar","/reinigungsradar","ReinigungsRadar"),
-            ("payroll","/payroll","حقوق")]
+            ("crypto","/crypto-radar","Crypto Radar"),("payroll","/payroll","حقوق")]
     items = []
     for key, href, label in links:
         current = ' aria-current="page"' if key == active else ""
@@ -282,6 +285,8 @@ def _radar_page(environ) -> tuple[str, str]:
 
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
+    if path == "/crypto-radar" or path.startswith("/crypto-radar/"):
+        return proxy_crypto_request(environ, start_response)
     if method == "GET" and path.startswith("/static/"):
         asset_name = path.removeprefix("/static/")
         assets = {
