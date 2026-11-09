@@ -9,7 +9,6 @@ from __future__ import annotations
 import http.client
 import threading
 from http.server import ThreadingHTTPServer
-from urllib.parse import urlencode
 
 _PREFIX = "/crypto-radar"
 _LOCK = threading.Lock()
