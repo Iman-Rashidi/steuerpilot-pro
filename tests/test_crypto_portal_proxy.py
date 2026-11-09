@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import os
 import unittest
 from unittest.mock import patch
 
@@ -90,6 +91,43 @@ class CryptoPortalProxyTests(unittest.TestCase):
         self.assertNotIn("Origin", headers)
         self.assertEqual(captured["status"], "200 OK")
         self.assertIn(b"/crypto-radar/jobs/", response)
+
+
+    def test_cross_origin_request_is_rejected_before_proxying(self):
+        captured = {}
+        environ = {
+            "PATH_INFO": "/crypto-radar/scan",
+            "REQUEST_METHOD": "POST",
+            "HTTP_ORIGIN": "https://attacker.example",
+            "HTTP_HOST": "steuerpilot-pro-v2.onrender.com",
+            "wsgi.url_scheme": "https",
+        }
+        response = portal.proxy_crypto_request(
+            environ, lambda status, headers: captured.update(status=status)
+        )
+        self.assertEqual(captured["status"], "403 Forbidden")
+        self.assertIn(b"Cross-origin", b"".join(response))
+
+    def test_real_loopback_handler_serves_mounted_dashboard(self):
+        captured = {}
+        environ = {
+            "PATH_INFO": "/crypto-radar",
+            "QUERY_STRING": "",
+            "REQUEST_METHOD": "GET",
+            "CONTENT_LENGTH": "0",
+            "wsgi.input": io.BytesIO(b""),
+        }
+        with patch.dict(os.environ, {"CSR_DB_PATH": ":memory:"}):
+            response = b"".join(
+                portal.proxy_crypto_request(
+                    environ, lambda status, headers: captured.update(status=status)
+                )
+            )
+        self.assertEqual(captured["status"], "200 OK")
+        self.assertIn(b"CRYPTO SUPER RADAR", response)
+        self.assertIn(b"/crypto-radar/scan", response)
+        self.assertIn(b"max-width:1680px", response)
+        self.assertIn(b'href="/reinigungsradar"', response)
 
     def test_unmounted_path_is_not_proxied(self):
         captured = {}
