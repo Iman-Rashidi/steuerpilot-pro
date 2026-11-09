@@ -1,0 +1,3 @@
+Upstream repository: https://github.com/Iman-Rashidi/crypto-super-radar-Visibility-Iman-Rashidi
+Pinned source commit: 96e1f58e3b9a1046f4dbaee8768d0b724de9589a
+Vendored source snapshot: Python package only; included to avoid private cross-repository Git authentication during Render/CI builds.
