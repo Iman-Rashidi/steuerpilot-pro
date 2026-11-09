@@ -154,7 +154,7 @@ class CryptoPortalProxyTests(unittest.TestCase):
             self.assertIn(b'id="gate-grid"', response)
             self.assertIn(b'id="insights-grid"', response)
             self.assertIn(b'id="validation-grid"', response)
-            self.assertIn(b"fetch(\\"/jobs/".replace(b"\\"","b"\\""), response) if False else b"/crypto-radar/jobs/", response)
+            self.assertIn(b"/crypto-radar/jobs/", response)
         finally:
             web_app.SCAN_RUNNING = False
             web_app.LAST_SCAN.clear()
