@@ -67,6 +67,8 @@ class CryptoPortalProxyTests(unittest.TestCase):
             "CONTENT_LENGTH": "19",
             "CONTENT_TYPE": "application/x-www-form-urlencoded",
             "HTTP_ORIGIN": "https://steuerpilot-pro-v2.onrender.com",
+            "HTTP_HOST": "steuerpilot-pro-v2.onrender.com",
+            "wsgi.url_scheme": "https",
             "wsgi.input": io.BytesIO(b"asset=cex%3ABTCUSDT"),
         }
         captured = {}
