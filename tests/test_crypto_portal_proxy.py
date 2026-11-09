@@ -64,7 +64,7 @@ class CryptoPortalProxyTests(unittest.TestCase):
             "PATH_INFO": "/crypto-radar/scan",
             "QUERY_STRING": "",
             "REQUEST_METHOD": "POST",
-            "CONTENT_LENGTH": "18",
+            "CONTENT_LENGTH": "19",
             "CONTENT_TYPE": "application/x-www-form-urlencoded",
             "HTTP_ORIGIN": "https://steuerpilot-pro-v2.onrender.com",
             "wsgi.input": io.BytesIO(b"asset=cex%3ABTCUSDT"),
