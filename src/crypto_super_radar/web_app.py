@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import os
 import threading
 import time
@@ -77,6 +78,8 @@ def _run_scan(job_id: str, asset: AssetSpec, headline: str, social_post: str) ->
         range_evidence = observed_price_ranges(candle_frame)
         trend_gate = next((gate for gate in result.gates if gate.gate_id == 3), None)
         regime_gate = next((gate for gate in result.gates if gate.gate_id == 2), None)
+        sentiment_gate = next((gate for gate in result.gates if gate.gate_id == 11), None)
+        sentiment_evidence = (sentiment_gate.evidence or {}) if sentiment_gate else {}
         candle_records = []
         if candle_frame is not None and not candle_frame.empty:
             required_ohlc = {"open", "high", "low", "close"}
@@ -84,10 +87,31 @@ def _run_scan(job_id: str, asset: AssetSpec, headline: str, social_post: str) ->
                 for timestamp, row in candle_frame.tail(120).iterrows():
                     values = [float(row[key]) for key in ("open", "high", "low", "close")]
                     if all(value > 0 for value in values):
+                        volume = None
+                        if "volume" in candle_frame.columns:
+                            try:
+                                parsed_volume = float(row["volume"])
+                                volume = parsed_volume if math.isfinite(parsed_volume) and parsed_volume >= 0 else None
+                            except (TypeError, ValueError):
+                                volume = None
                         candle_records.append({
                             "timestamp": timestamp.isoformat() if hasattr(timestamp, "isoformat") else str(timestamp),
                             "open": values[0], "high": values[1], "low": values[2], "close": values[3],
+                            "volume": volume,
                         })
+        funding_series = getattr(ENGINE.data, "funding_frames", {}).get(asset.raw)
+        funding_observations = funding_series.dropna() if funding_series is not None else None
+        if asset.market_type != "perp":
+            funding_overview = {"status": "NOT_APPLICABLE", "latest_rate": None, "latest_at": None, "observation_count": 0}
+        elif funding_observations is not None and not funding_observations.empty:
+            funding_index = funding_observations.index[-1]
+            funding_overview = {
+                "status": "KNOWN", "latest_rate": float(funding_observations.iloc[-1]),
+                "latest_at": funding_index.isoformat() if hasattr(funding_index, "isoformat") else str(funding_index),
+                "observation_count": int(len(funding_observations)),
+            }
+        else:
+            funding_overview = {"status": "UNKNOWN", "latest_rate": None, "latest_at": None, "observation_count": 0}
         payload = {
             "asset": asset.raw,
             "market_overview": {
@@ -95,6 +119,8 @@ def _run_scan(job_id: str, asset: AssetSpec, headline: str, social_post: str) ->
                 "reason": range_evidence.get("reason"),
                 "current_price": range_evidence.get("current_price"),
                 "candle_age_hours": range_evidence.get("candle_age_hours"),
+                "latest_candle_volume": candle_records[-1].get("volume") if candle_records else None,
+                "volume_status": "KNOWN" if candle_records and candle_records[-1].get("volume") is not None else "UNKNOWN",
                 "ranges": range_evidence.get("windows", {}),
                 "candles": candle_records,
                 "asset_regime": (trend_gate.evidence or {}).get("asset_regime") if trend_gate else None,
@@ -108,6 +134,15 @@ def _run_scan(job_id: str, asset: AssetSpec, headline: str, social_post: str) ->
             "confidence_level_pct": result.metrics.get("confidence_level_pct"),
             "evidence_confidence_pct": result.metrics.get("evidence_confidence_pct"),
             "summary_fa": result.summary_fa,
+            "funding": funding_overview,
+            "news_sentiment": {
+                "status": sentiment_gate.status.value if sentiment_gate else "UNKNOWN",
+                "news_status": sentiment_evidence.get("news_status"),
+                "social_status": sentiment_evidence.get("social_status"),
+                "sentiment_score": sentiment_evidence.get("sentiment_score"),
+                "sentiment_label": sentiment_evidence.get("sentiment_label"),
+                "fear_greed": sentiment_evidence.get("fear_greed"),
+            },
             "gates": [
                 {"id": gate.gate_id, "name": gate.name_fa, "name_en": gate.name_en,
                  "status": gate.status.value, "reason": gate.reason_fa,
@@ -118,7 +153,8 @@ def _run_scan(job_id: str, asset: AssetSpec, headline: str, social_post: str) ->
                 key: result.metrics.get(key) for key in (
                     "whale_status", "whale_bias", "whale_history_count",
                     "whale_recent_history_bias", "whale_alignment", "sentiment_alignment",
-                    "market_sentiment_score", "fear_greed_value", "fear_greed_attribution",
+                    "market_sentiment_score", "market_sentiment_label", "sentiment_coverage_status",
+                    "fear_greed_value", "fear_greed_attribution", "fear_greed_scope",
                     "walk_forward_status", "walk_forward_fold_count", "risk_score",
                     "opportunity_rank", "confidence_level_pct", "evidence_confidence_pct",
                 )
@@ -299,7 +335,9 @@ class Handler(BaseHTTPRequestHandler):
                 <div class="section-kicker">Market overview</div><h3>نمای بازار و نمودار قیمت</h3>
                 <div id="market-summary" class="grid"></div>
                 <canvas id="candles" width="1400" height="440" aria-label="نمودار OHLC"></canvas>
-                <p class="muted">نمودار فقط از کندل‌های OHLC موجود در نتیجه ساخته می‌شود؛ حجم معاملات یا تایم‌فریمِ تأییدنشده نمایش داده نمی‌شود.</p>
+                <h3 style="margin-top:16px">حجم کندل‌ها</h3>
+                <canvas id="volume-chart" width="1400" height="180" aria-label="نمودار حجم کندل"></canvas>
+                <p class="muted">حجم فقط از ستون volume دادهٔ کندل نمایش داده می‌شود؛ اگر منبع آن را ندهد، مقدار UNKNOWN باقی می‌ماند.</p>
                 <div id="range-table"></div>
               </section>
               <section class="card">
@@ -315,6 +353,10 @@ class Handler(BaseHTTPRequestHandler):
               <section class="card">
                 <div class="section-kicker">Whale & sentiment</div><h3>نهنگ‌ها و احساسات بازار</h3>
                 <div id="insights-grid" class="grid"></div>
+              </section>
+              <section class="card">
+                <div class="section-kicker">Funding & derivatives</div><h3>نرخ تأمین مالی</h3>
+                <div id="funding-grid" class="grid"></div>
               </section>
               <section class="card">
                 <div class="section-kicker">Validation & stability</div><h3>اعتبارسنجی و پایداری</h3>
@@ -341,6 +383,7 @@ class Handler(BaseHTTPRequestHandler):
               addMetrics("market-summary", [
                 ["قیمت آخر",m.current_price],["رژیم دارایی",m.asset_regime],
                 ["رژیم معیار",m.benchmark_regime],["سن آخرین کندل (ساعت)",m.candle_age_hours],
+                ["حجم آخرین کندل",m.latest_candle_volume],["وضعیت حجم",m.volume_status],
                 ["اعتبار دادهٔ بازار",m.status]
               ]);
               const labels={"7":"۷ روز","30":"۳۰ روز","90":"۹۰ روز","365":"۳۶۵ روز"};
@@ -366,6 +409,16 @@ class Handler(BaseHTTPRequestHandler):
                 ctx.beginPath();ctx.moveTo(cx,y(x.high));ctx.lineTo(cx,y(x.low));ctx.stroke();
                 const top=y(Math.max(x.open,x.close)),bottom=y(Math.min(x.open,x.close));
                 ctx.fillRect(cx-w*.32,top,Math.max(1,w*.64),Math.max(1,bottom-top));
+              });
+              const volumeCanvas=document.getElementById("volume-chart"),vctx=volumeCanvas.getContext("2d");
+              const volumes=bars.map(x=>x.volume).filter(x=>typeof x==="number"&&Number.isFinite(x)&&x>=0);
+              vctx.clearRect(0,0,volumeCanvas.width,volumeCanvas.height);
+              if(!volumes.length){vctx.fillStyle="#fbbf24";vctx.font="18px Arial";vctx.fillText("دادهٔ حجم در منبع کندل موجود نیست",24,36);return;}
+              const maxVolume=Math.max(...volumes,1),barWidth=(volumeCanvas.width-2*pad)/bars.length;
+              bars.forEach((x,i)=>{if(typeof x.volume!=="number"||!Number.isFinite(x.volume))return;
+                const height=(x.volume/maxVolume)*(volumeCanvas.height-2*pad),cx=pad+i*barWidth;
+                vctx.fillStyle=x.close>=x.open?"#34d399":"#fb7185";
+                vctx.fillRect(cx,volumeCanvas.height-pad-height,Math.max(1,barWidth*.7),height);
               });
             }
             function renderGates(gates) {
@@ -396,7 +449,14 @@ class Handler(BaseHTTPRequestHandler):
                 ["وضعیت نهنگ‌ها",m.whale_status],["جهت نهنگ‌ها",m.whale_bias],
                 ["تعداد مشاهدات",m.whale_history_count],["هم‌راستایی نهنگ‌ها",m.whale_alignment],
                 ["هم‌راستایی احساسات",m.sentiment_alignment],["امتیاز احساسات",m.market_sentiment_score],
-                ["Fear & Greed",m.fear_greed_value],["توضیح Fear & Greed",m.fear_greed_attribution]
+                ["برچسب احساسات",m.market_sentiment_label],["پوشش خبر/اجتماع",m.sentiment_coverage_status],
+                ["Fear & Greed",m.fear_greed_value],["توضیح Fear & Greed",m.fear_greed_attribution],
+                ["وضعیت خبر",r.news_sentiment?.news_status],["وضعیت اجتماع",r.news_sentiment?.social_status]
+              ]);
+              const funding=r.funding||{};
+              addMetrics("funding-grid",[
+                ["وضعیت Funding",funding.status],["آخرین نرخ Funding",funding.latest_rate],
+                ["زمان آخرین Funding",funding.latest_at],["تعداد مشاهدات",funding.observation_count]
               ]);
               addMetrics("validation-grid",[
                 ["وضعیت Walk-forward",m.walk_forward_status],["تعداد Fold",m.walk_forward_fold_count],
