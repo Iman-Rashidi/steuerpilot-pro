@@ -8,6 +8,9 @@ version = "0.2.1"
 description = "Accounting-core prototype with technical traceability for SteuerPilot Pro"
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+  "crypto-super-radar @ git+https://github.com/Iman-Rashidi/crypto-super-radar-Visibility-Iman-Rashidi.git@96e1f58e3b9a1046f4dbaee8768d0b724de9589a",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
