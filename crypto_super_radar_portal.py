@@ -45,6 +45,7 @@ def _rewrite_dashboard(payload: bytes) -> bytes:
     page = payload.decode("utf-8")
     page = page.replace('action="/scan"', 'action="/crypto-radar/scan"')
     page = page.replace("fetch('/jobs/", "fetch('/crypto-radar/jobs/")
+    page = page.replace('fetch("/jobs/', 'fetch("/crypto-radar/jobs/')
     page = page.replace(
         "main{max-width:980px;margin:auto}",
         "main{width:min(100%,1680px);max-width:1680px;margin:0 auto}",
