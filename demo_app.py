@@ -11,7 +11,6 @@ from datetime import date
 
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
 from payroll_demo import PAYROLL_PAGE
-from steuerpilot.radar_sso import build_radar_embed_url, get_radar_sso_secret
 from crypto_super_radar_portal import proxy_crypto_request
 
 PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -250,38 +249,14 @@ def _profile_page(title: str, description: str, fields: list[tuple[str, str, str
 
 
 def _radar_page(environ) -> tuple[str, str]:
-    """Render Radar directly through a short-lived SteuerPilot-issued SSO token."""
-    secret = get_radar_sso_secret()
-    if len(secret) < 32:
-        return (
-            "503 Service Unavailable",
-            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
-            '<h1>ورود یکپارچه هنوز آماده نیست</h1>'
-            '<p>تنظیم امن اتصال بین دو سرویس آزمایشی کامل نیست.</p></body></html>',
-        )
-    try:
-        iframe_url = build_radar_embed_url(
-            "https://reinigungsai-pr7-staging.onrender.com",
-            secret,
-        )
-    except ValueError:
-        return (
-            "503 Service Unavailable",
-            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
-            '<h1>اتصال آزمایشی قابل استفاده نیست</h1>'
-            '<p>نشانی سرویس مقصد یا تنظیمات SSO معتبر نیست.</p></body></html>',
-        )
-
-    # Keep the short-lived token out of the parent page's markup except for the
-    # iframe destination, and prevent it being sent as a Referer header.
-    iframe_url = iframe_url.replace("&", "&amp;").replace('"', "&quot;")
+    """Render the public, passwordless Radar staging app inside the portal."""
+    radar_url = "https://reinigungsai-pr7-staging.onrender.com/"
     page = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SteuerPilot Pro · ReinigungsRadar</title>
 <style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}</style></head><body>
 <section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
-<p class="muted">ورود شما از داشبورد مرکزی SteuerPilot انجام شده است؛ نیازی به رمز عبور آزمایشی جداگانه نیست.</p></section>
-<iframe class="radar-frame" src="{iframe_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
+<p class="muted">این نسخه بدون فرم ورود و بدون رمز عبور جداگانه باز می‌شود. اطلاعات محرمانه یا داده واقعی مشتریان وارد نکنید.</p></section>
+<iframe class="radar-frame" src="{radar_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
     return "200 OK", _with_navigation(page, "radar")
-
 
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
