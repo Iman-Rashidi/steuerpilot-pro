@@ -1,12 +1,7 @@
-import os
 import unittest
 from io import BytesIO
-from unittest.mock import patch
 
 from demo_app import application
-
-
-SECRET = "test-only-secret-material-with-at-least-32-characters"
 
 
 def request(path, method="GET"):
@@ -29,37 +24,26 @@ def request(path, method="GET"):
 
 
 class RadarRouteTests(unittest.TestCase):
-    def test_radar_route_embeds_without_a_separate_trial_password(self):
-        with patch.dict(os.environ, {"STEUERPILOT_RADAR_SSO_SECRET": SECRET}, clear=True):
-            status, headers, body = request("/reinigungsradar")
+    def test_radar_route_embeds_passwordless_staging_app_without_sso(self):
+        status, headers, body = request("/reinigungsradar")
 
         self.assertEqual(status, "200 OK")
         self.assertIn("text/html", headers.get("Content-Type", ""))
         self.assertIn("<iframe", body)
-        self.assertIn("embed=true", body)
-        self.assertIn("sso=", body)
-        self.assertIn("نیازی به رمز عبور آزمایشی جداگانه نیست", body)
+        self.assertIn('src="https://reinigungsai-pr7-staging.onrender.com/"', body)
+        self.assertNotIn("sso=", body)
+        self.assertNotIn("embed=true", body)
         self.assertNotIn("type=\"password\"", body)
         self.assertNotIn("/radar-login", body)
 
-    def test_existing_misspelled_render_secret_remains_compatible(self):
-        with patch.dict(os.environ, {"STEUEERPILOT_RADAR_SSO_SECRET": SECRET}, clear=True):
-            status, _, body = request("/reinigungsradar")
-
+    def test_radar_route_does_not_depend_on_sso_environment_variables(self):
+        status, _, body = request("/reinigungsradar")
         self.assertEqual(status, "200 OK")
-        self.assertIn("<iframe", body)
-
-    def test_missing_secret_returns_a_controlled_configuration_error(self):
-        with patch.dict(os.environ, {}, clear=True):
-            status, _, body = request("/reinigungsradar")
-
-        self.assertEqual(status, "503 Service Unavailable")
-        self.assertIn("ورود یکپارچه هنوز آماده نیست", body)
+        self.assertIn("ReinigungsRadar NRW", body)
+        self.assertNotIn("ورود یکپارچه هنوز آماده نیست", body)
 
     def test_legacy_password_route_is_removed(self):
-        with patch.dict(os.environ, {"STEUERPILOT_RADAR_SSO_SECRET": SECRET}, clear=True):
-            status, _, _ = request("/radar-login")
-
+        status, _, _ = request("/radar-login")
         self.assertEqual(status, "404 Not Found")
 
 
