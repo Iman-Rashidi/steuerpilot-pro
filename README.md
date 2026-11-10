@@ -19,7 +19,7 @@ SteuerPilot Pro is a German accounting and tax-workflow project. Product require
 
 ## Installation and tests
 
-Python 3.11 or newer is required. The application has no runtime third-party dependencies; setuptools is used to install the package.
+Python 3.11 or newer is required. The accounting core is lightweight; the unified portal branch vendors the Crypto Super Radar Python package from reviewed upstream commit `96e1f58e3b9a1046f4dbaee8768d0b724de9589a` and installs its numerical/data dependencies from PyPI. Setuptools is used to install the package.
 
 Create and activate a virtual environment, then install the project:
 
@@ -79,3 +79,10 @@ The code has no authentication layer. Do not expose the SQLite database or this 
 - Product concept and project plan: https://app.notion.com/p/4116c89302188133b5e6c05e114b2226
 - QA and release criteria: https://app.notion.com/p/4116c89302188153adc2e9a1b044bbe4
 - Workspace dashboard: https://app.notion.com/p/4116c89302188183aadacab43e7ed0fc
+
+
+## Unified portal integration
+
+The `feature/unified-portal-crypto-radar` branch adds Crypto Super Radar to the existing SteuerPilot portal at `/crypto-radar`. It preserves the existing Rechnung, payroll, company profile, CEO profile, Academy and ReinigungsRadar routes. Crypto's existing HTTP dashboard is mounted behind a loopback-only same-origin adapter; its scan and job-polling endpoints remain under the portal path, so users do not need a separate Crypto app URL.
+
+The Crypto Python package is vendored under `src/crypto_super_radar/` from reviewed upstream commit `96e1f58e3b9a1046f4dbaee8768d0b724de9589a` (see `UPSTREAM_REVISION.txt`). This avoids requiring CI or Render to authenticate against the private upstream repository. The integration does not enable exchange credentials, private endpoints, order submission, wallet signing or transactions. The current UI is a research prototype and must not be treated as a production trading interface. The integration branch is for review and testing; it does not itself change the configured Render service or deploy to production.

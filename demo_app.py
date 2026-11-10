@@ -11,7 +11,7 @@ from datetime import date
 
 from steuerpilot.vat import VatRate, vat_from_net, vat_from_gross
 from payroll_demo import PAYROLL_PAGE
-from steuerpilot.radar_sso import build_radar_embed_url, get_radar_sso_secret
+from crypto_super_radar_portal import proxy_crypto_request
 
 PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SteuerPilot Pro · مرکز مدیریت کسب‌وکار</title><style>
@@ -25,23 +25,24 @@ h2{font-size:21px;margin:26px 0 10px}.cards{grid-template-columns:repeat(auto-fi
 input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-radius:9px}input{width:100%;margin:5px 0 10px}button{background:#244f79;color:white;border:0;cursor:pointer;padding:11px 16px}#result{white-space:pre-wrap;background:#edf4fb;padding:12px;border-radius:10px;margin-top:12px;display:none}
 @media(max-width:700px){.hero,.feature-grid,.stats{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
 </style></head><body>
-<section class="hero"><div><span class="pilot">نسخهٔ آزمایشی · Pilot</span><h1>SteuerPilot Pro</h1><p>یک فضای کاری واحد برای امور مالی، مدیریت شرکت، آموزش و فرصت‌های تجاری خدمات نظافت در NRW.</p><p class="muted" style="color:#d4e0ef">داده‌ها در این نسخه ذخیره نمی‌شوند و همهٔ بخش‌ها فقط برای آزمایش هستند.</p></div>
+<section class="hero"><div><h1>SteuerPilot Pro</h1><p>یک فضای کاری واحد برای امور مالی، مدیریت شرکت، آموزش و فرصت‌های تجاری خدمات نظافت در NRW.</p></div>
 <div class="hero-side"><strong>مرکز مدیریت کسب‌وکار</strong><p>مالی · کارکنان · مدیریت · رشد شرکت</p><a href="/reinigungsradar" style="color:white;font-weight:700">ورود به ReinigungsRadar ←</a></div></section>
 <div class="stats"><div><strong>مالی و حسابداری</strong><small>VAT · Rechnung · Payroll</small></div><div><strong>مدیریت شرکت</strong><small>پروفایل شرکت · مدیرعامل · آکادمی</small></div><div><strong>فرصت‌های رشد</strong><small>شرکت‌ها · پیمانکاران · مناقصه‌ها</small></div></div>
 <h2>مالی و امور اداری</h2><div class="cards">
 <a class="card" href="/"><span class="ico">🧮</span><h3>محاسبه‌گر VAT</h3><p>محاسبهٔ نمونهٔ Netto، Steuer و Brutto.</p></a>
-<a class="card" href="/invoice"><span class="ico">🧾</span><h3>Rechnung · فاکتور</h3><p>ساخت و پیش‌نمایش فاکتور در محیط آزمایشی.</p></a>
-<a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar</h3><p>جست‌وجوی مشتریان، شرکت‌ها و مناقصه‌های نظافت در همان داشبورد.</p></a>
-<a class="card" href="/payroll"><span class="ico">👥</span><h3>Lohnabrechnung · فیش حقوقی</h3><p>ساخت و پیش‌نمایش فیش حقوقی در محیط آزمایشی.</p></a>
+<a class="card" href="/invoice"><span class="ico">🧾</span><h3>Rechnung · فاکتور</h3><p>ساخت و پیش‌نمایش فاکتور.</p></a>
+
+<a class="card" href="/crypto-radar"><span class="ico">₿</span><h3>Crypto Super Radar</h3><p>داشبورد گستردهٔ تحلیل بازار، داده‌های زنده و ۱۲ مرحلهٔ تأیید؛ بدون ارسال سفارش.</p></a>
+<a class="card" href="/payroll"><span class="ico">👥</span><h3>Lohnabrechnung · فیش حقوقی</h3><p>ساخت و پیش‌نمایش فیش حقوقی.</p></a>
 <a class="card" href="/academy"><span class="ico">🎓</span><h3>آکادمی مدیرعامل</h3><p>حسابداری، کارکنان، مالیات و بررسی ماهانه.</p></a></div>
 <h2>پروفایل و مدیریت</h2><div class="cards">
 <a class="card" href="/company-profile"><span class="ico">🏢</span><h3>پروفایل شرکت</h3><p>ساختار حقوقی، حوزهٔ فعالیت و اطلاعات پایه.</p></a>
 <a class="card" href="/ceo-profile"><span class="ico">🧑‍💼</span><h3>پروفایل مدیرعامل</h3><p>نقش مدیریتی و تنظیمات نمایشی.</p></a></div>
-<h2>فرصت‌های تجاری و بازار</h2><div class="feature"><div class="feature-grid"><div><span class="pilot">ماژول یکپارچه</span><h3>📡 ReinigungsRadar NRW</h3><p>جست‌وجوی شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED در NRW.</p><p class="muted">نتایج نیازمند بررسی دستی هستند؛ هیچ تماس خودکار یا ارسال پیشنهاد انجام نمی‌شود.</p><a href="/reinigungsradar">بازکردن Radar در همین صفحه ←</a></div><div class="warning"><strong>نسخهٔ آزمایشی</strong><p>از اطلاعات واقعی کارکنان، مشتریان، حساب بانکی یا شماره مالیاتی استفاده نکنید. داده‌ها ذخیره یا برای مرجع دولتی ارسال نمی‌شوند.</p></div></div></div>
+<h2>فرصت‌های تجاری و بازار</h2><div class="cards"><a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar NRW</h3></a></div>
 <h2>محاسبهٔ سریع VAT</h2><div class="feature"><form id="vat"><label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100" required>
-<label for="rate">درصد آزمایشی</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
+<label for="rate">درصد مالیات</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
 <label for="mode">مبنای مبلغ</label><select id="mode"><option value="net">Netto</option><option value="gross">Brutto</option></select><button type="submit">محاسبه</button></form><div id="result"></div></div>
-<p class="muted">SteuerPilot Pro · Pilot · keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</p>
+<p class="muted">SteuerPilot Pro · Finanz- und Verwaltungswerkzeuge.</p>
 <script>document.getElementById('vat').addEventListener('submit',async e=>{e.preventDefault();const b=document.getElementById('result');b.style.display='block';b.textContent='در حال محاسبه…';try{const r=await fetch('/api/vat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:document.getElementById('amount').value,rate:document.getElementById('rate').value,mode:document.getElementById('mode').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');b.textContent='خالص: €'+d.net+'\\nمالیات: €'+d.tax+'\\nناخالص: €'+d.gross;}catch(e){b.textContent='خطا: '+e.message;}});</script></body></html>"""
 
 ACADEMY_PAGE = """<!doctype html>
@@ -121,7 +122,7 @@ footer{padding:20px 4px;color:#536174;font-size:13px}
 <li>برای آزمایش از Steuer-ID، شماره بیمه، IBAN، اطلاعات سلامت، فیش حقوقی یا مدارک واقعی استفاده نکن.</li>
 </ul>
 </section>
-<footer>SteuerPilot Pro · Prototyp · Keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</footer>
+<footer>SteuerPilot Pro.</footer>
 <script>
 document.getElementById('quiz').addEventListener('submit',function(event){
  event.preventDefault();
@@ -210,13 +211,14 @@ def _with_navigation(page: str, active: str = "home") -> str:
             ("academy", "/academy", "Academy"),
             ("invoice", "/invoice", "Invoice"),
             ("radar", "/reinigungsradar", "ReinigungsRadar"),
+            ("crypto", "/crypto-radar", "Crypto Radar"),
             ("payroll", "/payroll", "Lohnabrechnung"),
         ]
     else:
         links = [("home","/","مرکز اصلی"),("company","/company-profile","پروفایل شرکت"),
             ("ceo","/ceo-profile","مدیرعامل"),("academy","/academy","آکادمی"),
             ("invoice","/invoice","فاکتور"),("radar","/reinigungsradar","ReinigungsRadar"),
-            ("payroll","/payroll","حقوق")]
+            ("crypto","/crypto-radar","Crypto Radar"),("payroll","/payroll","حقوق")]
     items = []
     for key, href, label in links:
         current = ' aria-current="page"' if key == active else ""
@@ -247,41 +249,19 @@ def _profile_page(title: str, description: str, fields: list[tuple[str, str, str
 
 
 def _radar_page(environ) -> tuple[str, str]:
-    """Render Radar directly through a short-lived SteuerPilot-issued SSO token."""
-    secret = get_radar_sso_secret()
-    if len(secret) < 32:
-        return (
-            "503 Service Unavailable",
-            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
-            '<h1>ورود یکپارچه هنوز آماده نیست</h1>'
-            '<p>تنظیم امن اتصال بین دو سرویس آزمایشی کامل نیست.</p></body></html>',
-        )
-    try:
-        iframe_url = build_radar_embed_url(
-            "https://reinigungsai-pr7-staging.onrender.com",
-            secret,
-        )
-    except ValueError:
-        return (
-            "503 Service Unavailable",
-            '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><body>'
-            '<h1>اتصال آزمایشی قابل استفاده نیست</h1>'
-            '<p>نشانی سرویس مقصد یا تنظیمات SSO معتبر نیست.</p></body></html>',
-        )
-
-    # Keep the short-lived token out of the parent page's markup except for the
-    # iframe destination, and prevent it being sent as a Referer header.
-    iframe_url = iframe_url.replace("&", "&amp;").replace('"', "&quot;")
+    """Render the public, passwordless Radar staging app inside the portal."""
+    radar_url = "https://reinigungsai-pr7-staging.onrender.com/"
     page = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SteuerPilot Pro · ReinigungsRadar</title>
 <style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}</style></head><body>
 <section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
-<p class="muted">ورود شما از داشبورد مرکزی SteuerPilot انجام شده است؛ نیازی به رمز عبور آزمایشی جداگانه نیست.</p></section>
-<iframe class="radar-frame" src="{iframe_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
+<p class="muted">این نسخه بدون فرم ورود و بدون رمز عبور جداگانه باز می‌شود. اطلاعات محرمانه یا داده واقعی مشتریان وارد نکنید.</p></section>
+<iframe class="radar-frame" src="{radar_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
     return "200 OK", _with_navigation(page, "radar")
-
 
 def application(environ, start_response):
     method, path = environ.get("REQUEST_METHOD"), environ.get("PATH_INFO")
+    if path == "/crypto-radar" or path.startswith("/crypto-radar/"):
+        return proxy_crypto_request(environ, start_response)
     if method == "GET" and path.startswith("/static/"):
         asset_name = path.removeprefix("/static/")
         assets = {

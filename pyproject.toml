@@ -8,6 +8,11 @@ version = "0.2.1"
 description = "Accounting-core prototype with technical traceability for SteuerPilot Pro"
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "requests>=2.31",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

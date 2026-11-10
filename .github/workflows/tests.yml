@@ -71,3 +71,17 @@ jobs:
         run: |
           python -c "import re; from pathlib import Path; from payroll_demo import PAYROLL_PAGE; Path('/tmp/payroll.js').write_text(re.search(r'<script>(.*?)</script>', PAYROLL_PAGE, re.S).group(1))"
           node --check /tmp/payroll.js
+
+      - name: Check Crypto Radar dashboard JavaScript syntax
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          source = Path("src/crypto_super_radar/web_app.py").read_text(encoding="utf-8")
+          page = re.search(r'body = """(.*?)""".replace\("__JOB_ID__", job_id\)', source, re.S)
+          assert page, "Crypto Radar result page source was not found"
+          script = re.search(r"<script>(.*?)</script>", page.group(1), re.S)
+          assert script, "Crypto Radar result-page script was not found"
+          Path("/tmp/crypto-radar-dashboard.js").write_text(script.group(1), encoding="utf-8")
+          PY
+          node --check /tmp/crypto-radar-dashboard.js
