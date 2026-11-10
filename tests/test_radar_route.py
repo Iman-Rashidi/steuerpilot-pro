@@ -59,3 +59,31 @@ class CryptoDashboardCardTests(unittest.TestCase):
         self.assertIn("در حال اعتبارسنجی منابع داده", body)
         self.assertIn("دسترسی پس از تأیید فنی", body)
         self.assertNotIn('href="/crypto-radar"', body)
+
+
+class ExchangeCenterTests(unittest.TestCase):
+    def test_exchange_center_contains_primary_exchanges_and_wallets(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        for name in ("Binance", "Bybit", "OKX", "KuCoin", "Kraken", "Coinbase", "Bitget", "Gate.io", "MEXC", "Trust Wallet", "MetaMask"):
+            self.assertIn(name, body)
+        self.assertIn('id="exchange-center"', body)
+        self.assertIn('id="exchange-grid"', body)
+
+    def test_custom_exchange_controls_and_persistence_are_present(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        self.assertIn('id="exchange-form"', body)
+        self.assertIn("localStorage", body)
+        self.assertIn("EXCHANGE_STORAGE_KEY", body)
+        self.assertIn("editExchange", body)
+        self.assertIn("deleteExchange", body)
+
+    def test_custom_exchange_links_are_restricted_to_https_and_open_safely(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        self.assertIn("u.protocol==='https:'", body)
+        self.assertIn("open.target='_blank'", body)
+        self.assertIn("open.rel='noopener noreferrer'", body)
+        self.assertIn("!u.username&&!u.password", body)
+
