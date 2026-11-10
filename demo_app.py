@@ -20,6 +20,12 @@ PAGE = """<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><
 .hero-side{background:#ffffff18;border:1px solid #ffffff30;border-radius:14px;padding:16px}.stats,.cards{display:grid;gap:12px;margin:16px 0}.stats{grid-template-columns:repeat(3,1fr)}.stats div,.card,.feature{background:#fff;border:1px solid #dfe6ef;border-radius:15px;padding:16px}.stats strong{display:block;color:#1d426c}.stats small,.card p,.muted{color:#66758a;font-size:13px}
 h2{font-size:21px;margin:26px 0 10px}.cards{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
 .card{display:block;color:#18253b;text-decoration:none;min-height:130px}.card:hover{border-color:#86a4c8}.card h3{font-size:17px;margin:4px 0}.card .ico{font-size:24px}.card p{margin:0}
+.crypto-card{background:linear-gradient(135deg,#101b30,#1d3657);border:1px solid #385477;color:#f4f7fc;position:relative;overflow:hidden}
+.crypto-card:hover{border-color:#82a9d8;transform:translateY(-1px)}
+.crypto-card .crypto-kicker{display:inline-block;background:#344a68;color:#dceaff;border:1px solid #587294;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:800;margin-bottom:8px}
+.crypto-card h3{color:#fff}.crypto-card p{color:#d2dced}
+.crypto-card .crypto-status{display:inline-block;margin-top:12px;color:#f4d48b;font-size:12px;font-weight:800}
+.crypto-card .crypto-cta{display:inline-block;margin-top:10px;background:#344a68;color:#eaf2ff;border:1px solid #587294;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700}
 .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center}.warning{background:#fff8e7;border:1px solid #f0dca9;border-radius:12px;padding:13px;color:#6e5313}
 input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-radius:9px}input{width:100%;margin:5px 0 10px}button{background:#244f79;color:white;border:0;cursor:pointer;padding:11px 16px}#result{white-space:pre-wrap;background:#edf4fb;padding:12px;border-radius:10px;margin-top:12px;display:none}
 @media(max-width:700px){.hero,.feature-grid,.stats{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
@@ -36,7 +42,15 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 <h2>پروفایل و مدیریت</h2><div class="cards">
 <a class="card" href="/company-profile"><span class="ico">🏢</span><h3>پروفایل شرکت</h3><p>ساختار حقوقی، حوزهٔ فعالیت و اطلاعات پایه.</p></a>
 <a class="card" href="/ceo-profile"><span class="ico">🧑‍💼</span><h3>پروفایل مدیرعامل</h3><p>نقش مدیریتی و تنظیمات نمایشی.</p></a></div>
-<h2>فرصت‌های تجاری و بازار</h2><div class="cards"><a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar NRW</h3></a></div>
+<h2>فرصت‌های تجاری و بازار</h2><div class="cards">
+<a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar NRW</h3><p>پایش و بررسی فرصت‌های خدمات نظافت در NRW.</p><span class="crypto-cta">ورود به ابزار ←</span></a>
+<article class="card crypto-card" aria-label="Crypto Super Radar در حال اعتبارسنجی">
+<span class="ico">₿</span><span class="crypto-kicker">MARKET INTELLIGENCE</span>
+<h3>Crypto Super Radar</h3>
+<p>رصد بازار رمزارز، تحلیل روند و بررسی چندمرحله‌ای سیگنال‌ها.</p>
+<span class="crypto-status">● در حال اعتبارسنجی منابع داده</span>
+<span class="crypto-cta" aria-disabled="true">دسترسی پس از تأیید فنی</span>
+</article></div>
 <h2>محاسبهٔ سریع VAT</h2><div class="feature"><form id="vat"><label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100" required>
 <label for="rate">درصد مالیات</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
 <label for="mode">مبنای مبلغ</label><select id="mode"><option value="net">Netto</option><option value="gross">Brutto</option></select><button type="submit">محاسبه</button></form><div id="result"></div></div>
