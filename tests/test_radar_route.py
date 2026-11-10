@@ -87,3 +87,20 @@ class ExchangeCenterTests(unittest.TestCase):
         self.assertIn("open.rel='noopener noreferrer'", body)
         self.assertIn("!u.username&&!u.password", body)
 
+    def test_editing_a_custom_exchange_does_not_delete_it_before_save(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        self.assertIn("let editingIndex=null", body)
+        self.assertIn("editingIndex=i", body)
+        self.assertIn("items[editingIndex]=updated", body)
+        self.assertIn("cancelExchangeEdit", body)
+        self.assertIn("تا زدن ذخیره، لینک قبلی دست‌نخورده می‌ماند", body)
+        self.assertNotIn("items.splice(i,1);saveCustomExchanges(items);renderExchangeCenter();document.getElementById('exchange-name').focus()", body)
+
+    def test_custom_exchange_storage_errors_are_reported_without_crashing(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        self.assertIn("try{localStorage.setItem(EXCHANGE_STORAGE_KEY,JSON.stringify(items));return true;}catch(_)", body)
+        self.assertIn("ذخیره‌سازی مرورگر در دسترس نیست", body)
+        self.assertIn('id="exchange-status"', body)
+
