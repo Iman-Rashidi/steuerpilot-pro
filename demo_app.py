@@ -120,7 +120,7 @@ footer{padding:20px 4px;color:#536174;font-size:13px}
 <li>برای آزمایش از Steuer-ID، شماره بیمه، IBAN، اطلاعات سلامت، فیش حقوقی یا مدارک واقعی استفاده نکن.</li>
 </ul>
 </section>
-<footer>SteuerPilot Pro.</footer>
+<footer>SteuerPilot Pro · Prototyp · Keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</footer>
 <script>
 document.getElementById('quiz').addEventListener('submit',function(event){
  event.preventDefault();
