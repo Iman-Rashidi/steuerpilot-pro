@@ -54,7 +54,7 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 </article></div>
 <section id="exchange-center">
 <h2>Exchange Center · صرافی‌های دارای ترمینال وب</h2>
-<p class="exchange-intro">دسترسی مستقیم به وب‌سایت رسمی صرافی‌ها و کیف پول‌ها؛ برای ورود و معامله روی کارت هر سرویس بزن.</p>
+<p class="exchange-intro">فقط صرافی‌هایی که صفحهٔ بازار و ترمینال معاملاتی را مستقیماً در مرورگر باز می‌کنند؛ نمودار، قیمت و دفتر سفارش بدون نصب اپ قابل مشاهده است. برای ثبت سفارش ممکن است ورود و احراز هویت لازم باشد.</p>
 <div id="exchange-grid" class="exchange-grid" aria-live="polite"></div>
 <form id="exchange-form" class="exchange-form">
 <label>نام صرافی یا پلتفرم<input id="exchange-name" maxlength="48" required placeholder="مثلاً صرافی دلخواه"></label>
@@ -64,7 +64,7 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 <button id="exchange-cancel-edit" type="button" class="exchange-manage" hidden>لغو ویرایش</button>
 </form>
 <p id="exchange-status" class="exchange-note" role="status" aria-live="polite"></p>
-<p class="exchange-note">صرافی‌های اصلی همیشه در فهرست پیش‌فرض هستند. لینک‌های دلخواه در همین مرورگر ذخیره می‌شوند؛ این نسخه هنوز همگام‌سازی بین دستگاه‌ها یا حساب‌های کاربری ندارد. اطلاعات ورود، Seed Phrase و کلید خصوصی وارد نکن.</p>
+<p class="exchange-note">کیف‌پول‌های صرفاً اپلیکیشنی و لینک‌های معرفی حذف شده‌اند. دسترسی و امکان معامله به کشور محل اقامت و قوانین هر سرویس بستگی دارد؛ قبل از واریز وجه، محدودیت‌های آلمان و شرایط حساب خود را بررسی کن.</p>
 </section>
 <h2>محاسبهٔ سریع VAT</h2><div class="feature"><form id="vat"><label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100" required>
 <label for="rate">درصد مالیات</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
