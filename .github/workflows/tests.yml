@@ -71,3 +71,7 @@ jobs:
         run: |
           python -c "import re; from pathlib import Path; from payroll_demo import PAYROLL_PAGE; Path('/tmp/payroll.js').write_text(re.search(r'<script>(.*?)</script>', PAYROLL_PAGE, re.S).group(1))"
           node --check /tmp/payroll.js
+      - name: Check dashboard browser JavaScript syntax
+        run: |
+          python -c "import re; from pathlib import Path; from demo_app import PAGE; Path('/tmp/dashboard.js').write_text(re.search(r'<script>(.*?)</script>', PAGE, re.S).group(1), encoding='utf-8')"
+          node --check /tmp/dashboard.js
