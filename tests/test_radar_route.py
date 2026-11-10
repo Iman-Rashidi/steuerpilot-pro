@@ -62,11 +62,15 @@ class CryptoDashboardCardTests(unittest.TestCase):
 
 
 class ExchangeCenterTests(unittest.TestCase):
-    def test_exchange_center_contains_primary_exchanges_and_wallets(self):
+    def test_exchange_center_contains_browser_trading_exchanges_not_app_only_wallets(self):
         status, _, body = request("/")
         self.assertEqual(status, "200 OK")
-        for name in ("Binance", "Bybit", "OKX", "KuCoin", "Kraken", "Coinbase", "Bitget", "Gate.io", "MEXC", "Trust Wallet", "MetaMask"):
+        for name in ("Binance", "Bybit", "OKX", "KuCoin", "Kraken Pro", "Coinbase Advanced", "Bitget", "Gate.io", "MEXC"):
             self.assertIn(name, body)
+        for app_only_wallet in ("Trust Wallet", "MetaMask"):
+            self.assertNotIn(app_only_wallet, body)
+        self.assertIn("ترمینال معاملاتی را مستقیماً در مرورگر باز می‌کنند", body)
+        self.assertIn("کیف‌پول‌های صرفاً اپلیکیشنی و لینک‌های معرفی حذف شده‌اند", body)
         self.assertIn('id="exchange-center"', body)
         self.assertIn('id="exchange-grid"', body)
 
@@ -103,4 +107,3 @@ class ExchangeCenterTests(unittest.TestCase):
         self.assertIn("try{localStorage.setItem(EXCHANGE_STORAGE_KEY,JSON.stringify(items));return true;}catch(_)", body)
         self.assertIn("ذخیره‌سازی مرورگر در دسترس نیست", body)
         self.assertIn('id="exchange-status"', body)
-
