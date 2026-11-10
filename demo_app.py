@@ -250,8 +250,6 @@ def _radar_page(environ) -> tuple[str, str]:
     radar_url = "https://reinigungsai-pr7-staging.onrender.com/"
     page = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SteuerPilot Pro · ReinigungsRadar</title>
 <style>:root{{font-family:Tahoma,Arial,sans-serif;background:#f2f5fa;color:#17243a}}body{{margin:20px auto;padding:0 14px;max-width:1500px}}.radar-head{{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:14px 18px;margin-bottom:12px}}.radar-frame{{width:100%;height:calc(100vh - 180px);min-height:950px;border:1px solid #dce4ee;border-radius:14px;background:#fff}}.muted{{color:#66758a;font-size:13px}}</style></head><body>
-<section class="radar-head"><h1>📡 ReinigungsRadar NRW</h1><p>ماژول فرصت‌های تجاری داخل SteuerPilot Pro: شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED.</p>
-<p class="muted">این نسخه بدون فرم ورود و بدون رمز عبور جداگانه باز می‌شود. اطلاعات محرمانه یا داده واقعی مشتریان وارد نکنید.</p></section>
 <iframe class="radar-frame" src="{radar_url}" title="ReinigungsRadar NRW" loading="eager" referrerpolicy="no-referrer"></iframe></body></html>"""
     return "200 OK", _with_navigation(page, "radar")
 
