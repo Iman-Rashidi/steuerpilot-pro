@@ -25,7 +25,7 @@ h2{font-size:21px;margin:26px 0 10px}.cards{grid-template-columns:repeat(auto-fi
 input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-radius:9px}input{width:100%;margin:5px 0 10px}button{background:#244f79;color:white;border:0;cursor:pointer;padding:11px 16px}#result{white-space:pre-wrap;background:#edf4fb;padding:12px;border-radius:10px;margin-top:12px;display:none}
 @media(max-width:700px){.hero,.feature-grid,.stats{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
 </style></head><body>
-<section class="hero"><div><span class="pilot">نسخهٔ آزمایشی · Pilot</span><h1>SteuerPilot Pro</h1><p>یک فضای کاری واحد برای امور مالی، مدیریت شرکت، آموزش و فرصت‌های تجاری خدمات نظافت در NRW.</p><p class="muted" style="color:#d4e0ef">داده‌ها در این نسخه ذخیره نمی‌شوند و همهٔ بخش‌ها فقط برای آزمایش هستند.</p></div>
+<section class="hero"><div><h1>SteuerPilot Pro</h1><p>یک فضای کاری واحد برای امور مالی، مدیریت شرکت، آموزش و فرصت‌های تجاری خدمات نظافت در NRW.</p></div>
 <div class="hero-side"><strong>مرکز مدیریت کسب‌وکار</strong><p>مالی · کارکنان · مدیریت · رشد شرکت</p><a href="/reinigungsradar" style="color:white;font-weight:700">ورود به ReinigungsRadar ←</a></div></section>
 <div class="stats"><div><strong>مالی و حسابداری</strong><small>VAT · Rechnung · Payroll</small></div><div><strong>مدیریت شرکت</strong><small>پروفایل شرکت · مدیرعامل · آکادمی</small></div><div><strong>فرصت‌های رشد</strong><small>شرکت‌ها · پیمانکاران · مناقصه‌ها</small></div></div>
 <h2>مالی و امور اداری</h2><div class="cards">
@@ -38,11 +38,11 @@ input,select,button{font:inherit;padding:10px;border:1px solid #c8d3e0;border-ra
 <h2>پروفایل و مدیریت</h2><div class="cards">
 <a class="card" href="/company-profile"><span class="ico">🏢</span><h3>پروفایل شرکت</h3><p>ساختار حقوقی، حوزهٔ فعالیت و اطلاعات پایه.</p></a>
 <a class="card" href="/ceo-profile"><span class="ico">🧑‍💼</span><h3>پروفایل مدیرعامل</h3><p>نقش مدیریتی و تنظیمات نمایشی.</p></a></div>
-<h2>فرصت‌های تجاری و بازار</h2><div class="feature"><div class="feature-grid"><div><span class="pilot">ماژول یکپارچه</span><h3>📡 ReinigungsRadar NRW</h3><p>جست‌وجوی شرکت‌ها، مشتریان بالقوه، پیمانکاران و مناقصه‌های TED در NRW.</p><p class="muted">نتایج نیازمند بررسی دستی هستند؛ هیچ تماس خودکار یا ارسال پیشنهاد انجام نمی‌شود.</p><a href="/reinigungsradar">بازکردن Radar در همین صفحه ←</a></div><div class="warning"><strong>نسخهٔ آزمایشی</strong><p>از اطلاعات واقعی کارکنان، مشتریان، حساب بانکی یا شماره مالیاتی استفاده نکنید. داده‌ها ذخیره یا برای مرجع دولتی ارسال نمی‌شوند.</p></div></div></div>
+<h2>فرصت‌های تجاری و بازار</h2><div class="cards"><a class="card" href="/reinigungsradar"><span class="ico">📡</span><h3>ReinigungsRadar NRW</h3></a></div>
 <h2>محاسبهٔ سریع VAT</h2><div class="feature"><form id="vat"><label for="amount">مبلغ (€)</label><input id="amount" type="number" min="0" max="100000000" step="0.01" value="100" required>
-<label for="rate">درصد آزمایشی</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
+<label for="rate">درصد مالیات</label><input id="rate" type="number" min="0" max="100" step="0.01" value="19" required>
 <label for="mode">مبنای مبلغ</label><select id="mode"><option value="net">Netto</option><option value="gross">Brutto</option></select><button type="submit">محاسبه</button></form><div id="result"></div></div>
-<p class="muted">SteuerPilot Pro · Pilot · keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</p>
+<p class="muted">SteuerPilot Pro · Finanz- und Verwaltungswerkzeuge.</p>
 <script>document.getElementById('vat').addEventListener('submit',async e=>{e.preventDefault();const b=document.getElementById('result');b.style.display='block';b.textContent='در حال محاسبه…';try{const r=await fetch('/api/vat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:document.getElementById('amount').value,rate:document.getElementById('rate').value,mode:document.getElementById('mode').value})});const d=await r.json();if(!r.ok)throw new Error(d.error||'خطا');b.textContent='خالص: €'+d.net+'\\nمالیات: €'+d.tax+'\\nناخالص: €'+d.gross;}catch(e){b.textContent='خطا: '+e.message;}});</script></body></html>"""
 
 ACADEMY_PAGE = """<!doctype html>
@@ -122,7 +122,7 @@ footer{padding:20px 4px;color:#536174;font-size:13px}
 <li>برای آزمایش از Steuer-ID، شماره بیمه، IBAN، اطلاعات سلامت، فیش حقوقی یا مدارک واقعی استفاده نکن.</li>
 </ul>
 </section>
-<footer>SteuerPilot Pro · Prototyp · Keine produktive Steuerberatung, Payroll oder Behördenübermittlung.</footer>
+<footer>SteuerPilot Pro.</footer>
 <script>
 document.getElementById('quiz').addEventListener('submit',function(event){
  event.preventDefault();
