@@ -49,3 +49,13 @@ class RadarRouteTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CryptoDashboardCardTests(unittest.TestCase):
+    def test_crypto_card_is_visible_but_not_linked_before_validation(self):
+        status, _, body = request("/")
+        self.assertEqual(status, "200 OK")
+        self.assertIn("Crypto Super Radar", body)
+        self.assertIn("در حال اعتبارسنجی منابع داده", body)
+        self.assertIn("دسترسی پس از تأیید فنی", body)
+        self.assertNotIn('href="/crypto-radar"', body)
